@@ -4,6 +4,7 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+// Data simulasi jika belum ada login
 if (!isset($_SESSION['username'])) {
     $_SESSION['username'] = "superadmin";
     $_SESSION['role'] = "Superadmin";
@@ -14,7 +15,8 @@ if (!isset($_SESSION['username'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Ras - PawCare</title>
+    <title>Manajemen Pengadopsi - PawCare</title>
+    <!-- Kita pakai Tailwind CSS supaya tampilannya bagus tapi gampang -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -35,6 +37,7 @@ if (!isset($_SESSION['username'])) {
 </head>
 <body class="bg-paw-krem-utama font-sans text-paw-hitam antialiased flex h-screen overflow-hidden">
 
+    <!-- BAGIAN SIDEBAR (YANG DI SAMPING) -->
     <aside class="w-64 bg-paw-krem-gelap flex flex-col h-full border-r border-[#e0d6c8]">
         <div class="flex items-center gap-3 px-6 py-5 border-b border-[#e0d6c8]">
             <i class="fa-solid fa-paw text-paw-merah text-2xl"></i>
@@ -42,7 +45,7 @@ if (!isset($_SESSION['username'])) {
         </div>
 
         <div class="flex-1 overflow-y-auto px-4 pb-4">
-            <!-- UTAMA -->
+            <!-- MENU UTAMA -->
             <p class="text-xs text-gray-500 font-bold mt-5 mb-2 uppercase tracking-widest">Utama</p>
             <a href="../../index.php?action=dashboard" class="flex items-center gap-3 px-4 py-2 text-paw-hitam hover:bg-paw-putih rounded-lg transition-colors mb-1">
                 <i class="fa-solid fa-chart-pie w-5"></i>
@@ -54,24 +57,24 @@ if (!isset($_SESSION['username'])) {
             <a href="#" class="flex items-center gap-3 px-4 py-2 text-paw-hitam hover:bg-paw-putih rounded-lg transition-colors mb-1">
                 <i class="fa-solid fa-dog w-5"></i><span>Hewan</span>
             </a>
-            
-            <!-- DIPISAH: Jenis Sendiri, Ras Sendiri -->
             <a href="#" class="flex items-center gap-3 px-4 py-2 text-paw-hitam hover:bg-paw-putih rounded-lg transition-colors mb-1">
                 <i class="fa-solid fa-list w-5"></i><span>Jenis</span>
             </a>
-            <a href="index.php" class="flex items-center gap-3 px-4 py-2.5 bg-paw-hitam text-paw-putih rounded-xl mb-1 shadow-md transition font-bold">
+            <a href="../ras/index.php" class="flex items-center gap-3 px-4 py-2 text-paw-hitam hover:bg-paw-putih rounded-lg transition-colors mb-1">
                 <i class="fa-solid fa-tags w-5"></i><span>Ras</span>
             </a>
-
             <a href="#" class="flex items-center gap-3 px-4 py-2 text-paw-hitam hover:bg-paw-putih rounded-lg transition-colors mb-1">
                 <i class="fa-solid fa-syringe w-5"></i><span>Vaksin</span>
             </a>
             <a href="#" class="flex items-center gap-3 px-4 py-2 text-paw-hitam hover:bg-paw-putih rounded-lg transition-colors mb-1">
                 <i class="fa-solid fa-box-open w-5"></i><span>Kandang</span>
             </a>
-            <a href="../pengadopsi/index.php" class="flex items-center gap-3 px-4 py-2 text-paw-hitam hover:bg-paw-putih rounded-lg transition-colors mb-1">
+            
+            <!-- MENU PENGADOPSI YANG SEDANG AKTIF -->
+            <a href="index.php" class="flex items-center gap-3 px-4 py-2.5 bg-paw-hitam text-paw-putih rounded-xl mb-1 shadow-md transition font-bold">
                 <i class="fa-solid fa-users w-5"></i><span>Pengadopsi</span>
             </a>
+
             <a href="#" class="flex items-center gap-3 px-4 py-2 text-paw-hitam hover:bg-paw-putih rounded-lg transition-colors mb-1">
                 <i class="fa-solid fa-user-tie w-5"></i><span>Pegawai & User</span>
             </a>
@@ -109,4 +112,5 @@ if (!isset($_SESSION['username'])) {
         </div>
     </aside>
 
+    <!-- BAGIAN KONTEN TENAH -->
     <main class="flex-1 flex flex-col h-full overflow-hidden relative p-8 overflow-y-auto">

@@ -58,7 +58,7 @@
                 class="flex items-center gap-3 px-4 py-2 text-paw-hitam hover:bg-paw-putih rounded-lg transition-colors mb-1">
                 <i class="fa-solid fa-box-open w-5"></i><span>Kandang</span>
             </a>
-            <a href="#"
+            <a href="views/pengadopsi/index.php"
                 class="flex items-center gap-3 px-4 py-2 text-paw-hitam hover:bg-paw-putih rounded-lg transition-colors mb-1">
                 <i class="fa-solid fa-users w-5"></i><span>Pengadopsi</span>
             </a>
