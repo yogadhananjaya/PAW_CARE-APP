@@ -1,0 +1,10 @@
+# 1. Folder Konfigurasi Text Editor (Bikin bentrok setelan VS Code antar teman)
+.vscode/
+
+# 2. File Sampah Sistem Operasi (Sering terbuat otomatis oleh Windows/Mac)
+.DS_Store
+Thumbs.db
+
+# 3. Folder Library Tambahan (Jika nanti kamu pakai Composer/NPM)
+vendor/
+node_modules/
