@@ -32,7 +32,7 @@ $query_jenis = mysqli_query($koneksi, "SELECT * FROM Jenis_Hewan");
                 <tr class="bg-paw-krem-gelap/20 text-gray-700 text-xs uppercase tracking-wider">
                     <th class="px-6 py-4 font-bold">No</th>
                     <th class="px-6 py-4 font-bold">Jenis Hewan</th>
-                    <th class="px-6 py-4 font-bold">Aksi</th>
+                    <th class="px-8 py-4 font-bold text-center">Aksi</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-50">
@@ -43,12 +43,7 @@ $query_jenis = mysqli_query($koneksi, "SELECT * FROM Jenis_Hewan");
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 text-sm text-gray-400"><?= $no++; ?></td>
                         <td class="px-6 py-4 font-bold text-paw-hitam"><?= $r['nama_jenis']; ?></td>
-                        <td class="px-6 py-4">
-                            <span class="bg-paw-krem-gelap/50 px-3 py-1 rounded-full text-xs font-bold text-gray-600">
-                                <?= $r['nama_jenis']; ?>
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 flex justify-center gap-3">
+                        <td class="px-8 py-4 flex justify-center gap-3">
                             <a href="edit.php?id=<?= $r['id_jenis']; ?>"
                                 class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-paw-hitam hover:text-paw-putih transition shadow-sm">
                                 <i class="fa-solid fa-pen-to-square text-xs"></i>
