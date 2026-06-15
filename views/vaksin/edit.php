@@ -2,7 +2,7 @@
 
     <div class="flex justify-between items-center mb-8">
         <h2 class="text-2xl font-bold">
-            Tambah Vaksin
+            Edit Vaksin
         </h2>
 
         <a href="index.php?action=vaksin"
@@ -13,7 +13,11 @@
 
     <div class="bg-paw-putih p-8 rounded-2xl shadow-sm border border-paw-krem-gelap max-w-3xl">
 
-        <form action="index.php?action=vaksin_simpan" method="POST">
+        <form action="index.php?action=vaksin_update" method="POST">
+
+            <input type="hidden"
+                name="id_vaksin"
+                value="<?= $vaksin['id_vaksin'] ?>">
 
             <div class="space-y-5">
 
@@ -24,6 +28,7 @@
 
                     <input type="text"
                         name="nama_vaksin"
+                        value="<?= htmlspecialchars($vaksin['nama_vaksin']) ?>"
                         required
                         class="w-full border rounded-xl p-3">
                 </div>
@@ -35,7 +40,7 @@
 
                     <input type="text"
                         name="jadwal"
-                        placeholder="Contoh: Setiap 1 Tahun"
+                        value="<?= htmlspecialchars($vaksin['jadwal']) ?>"
                         class="w-full border rounded-xl p-3">
                 </div>
 
@@ -47,7 +52,7 @@
                     <textarea
                         name="keterangan"
                         rows="4"
-                        class="w-full border rounded-xl p-3"></textarea>
+                        class="w-full border rounded-xl p-3"><?= htmlspecialchars($vaksin['keterangan']) ?></textarea>
                 </div>
 
             </div>
@@ -55,9 +60,9 @@
             <div class="flex justify-end mt-8">
 
                 <button type="submit"
-                    class="bg-paw-hitam text-paw-putih px-6 py-3 rounded-xl font-bold">
+                    class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold">
 
-                    Simpan Vaksin
+                    Update Vaksin
 
                 </button>
 

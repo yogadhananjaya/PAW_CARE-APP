@@ -16,6 +16,9 @@ $perawatanController = new PerawatanController($pdo);
 require_once __DIR__ . '/app/controllers/HewanController.php';
 $hewanController = new HewanController($pdo);
 
+require_once __DIR__ . '/app/controllers/VaksinController.php';
+$vaksinController = new VaksinController($pdo);
+
 // Ambil aksi dari URL, default-nya ke halaman login jika belum login
 $action = isset($_GET['action']) ? $_GET['action'] : 'login';
 $action = isset($_GET['action']) ? $_GET['action'] : 'home';
@@ -111,6 +114,36 @@ switch ($action) {
     case 'hewan_hapus':
         require_once 'app/controllers/HewanController.php';
         $controller = new HewanController($pdo);
+        $controller->delete($_GET['id']);
+        break;
+
+    case 'vaksin':
+        $controller = new VaksinController($pdo);
+        $controller->index();
+        break;
+
+    case 'vaksin_tambah':
+        $controller = new VaksinController($pdo);
+        $controller->create();
+        break;
+
+    case 'vaksin_simpan':
+        $controller = new VaksinController($pdo);
+        $controller->store();
+        break;
+
+    case 'vaksin_edit':
+        $controller = new VaksinController($pdo);
+        $controller->edit($_GET['id']);
+        break;
+
+    case 'vaksin_update':
+        $controller = new VaksinController($pdo);
+        $controller->update();
+        break;
+
+    case 'vaksin_hapus':
+        $controller = new VaksinController($pdo);
         $controller->delete($_GET['id']);
         break;
 
