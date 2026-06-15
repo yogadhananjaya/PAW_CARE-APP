@@ -1,3 +1,12 @@
+<?php
+// Variabel dipass dari HewanController::edit()
+// @var array $hewan Data hewan yang akan diedit
+// @var array $ras Daftar ras hewan
+if (!isset($hewan) || !isset($ras)) {
+    die('Error: Data hewan atau ras tidak ditemukan.');
+}
+?>
+
 <div class="flex-1 overflow-y-auto p-8">
 
     <div class="flex justify-between items-center mb-8">

@@ -1,6 +1,8 @@
 <?php
-// AMBIL HEADER
-include "layout_header.php";
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../../config/koneksi.php';
+}
+require_once __DIR__ . '/../../views/layouts/header.php';
 ?>
 
 <div class="mb-8">
@@ -57,4 +59,4 @@ include "layout_header.php";
     </form>
 </div>
 
-<?php include "layout_footer.php"; ?>
+<?php require_once __DIR__ . '/../../views/layouts/footer.php'; ?>

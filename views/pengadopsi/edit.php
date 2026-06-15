@@ -1,17 +1,23 @@
 <?php
-// AMBIL KONEKSI DAN HEADER
-include "koneksi.php";
-include "layout_header.php";
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../../config/koneksi.php';
+}
+require_once __DIR__ . '/../../views/layouts/header.php';
 
 // AMBIL ID DARI URL PAKE $_GET
-$id = $_GET['id'];
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+if ($id <= 0) {
+    die('ID pengadopsi tidak valid');
+}
 
 // CARI DATA YANG ID-NYA COCOK
-$query = "SELECT * FROM Pengadopsi WHERE id_pengadopsi = '$id'";
-$hasil = mysqli_query($koneksi, $query);
+$stmt = $pdo->prepare("SELECT * FROM Pengadopsi WHERE id_pengadopsi = ?");
+$stmt->execute([$id]);
+$data = $stmt->fetch();
 
-// UBAH JADI ARRAY BIAR GAMPANG DIPAKKE
-$data = mysqli_fetch_array($hasil);
+if (!$data) {
+    die('Pengadopsi tidak ditemukan');
+}
 ?>
 
 <div class="mb-8">
@@ -31,33 +37,33 @@ $data = mysqli_fetch_array($hasil);
             <!-- Nama -->
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Nama Lengkap</label>
-                <input type="text" name="nama" value="<?= $data['nama']; ?>" required class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition">
+                <input type="text" name="nama" value="<?= htmlspecialchars($data['nama'] ?? '') ?>" required class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition">
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- No HP -->
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Nomor HP</label>
-                    <input type="text" name="no_hp" value="<?= $data['no_hp']; ?>" required class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition">
+                    <input type="text" name="no_hp" value="<?= htmlspecialchars($data['no_hp'] ?? '') ?>" required class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition">
                 </div>
 
                 <!-- Email -->
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Email</label>
-                    <input type="email" name="email" value="<?= $data['email']; ?>" class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition">
+                    <input type="email" name="email" value="<?= htmlspecialchars($data['email'] ?? '') ?>" class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition">
                 </div>
             </div>
 
             <!-- Alamat -->
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Alamat Rumah</label>
-                <textarea name="alamat" rows="3" class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition"><?= $data['alamat']; ?></textarea>
+                <textarea name="alamat" rows="3" class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition"><?= htmlspecialchars($data['alamat'] ?? '') ?></textarea>
             </div>
 
             <!-- Surat Keterangan -->
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Link / Info Surat Keterangan</label>
-                <input type="text" name="surat_keterangan" value="<?= $data['surat_keterangan']; ?>" class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition">
+                <input type="text" name="surat_keterangan" value="<?= htmlspecialchars($data['surat_keterangan'] ?? '') ?>" class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition">
             </div>
 
             <!-- Tombol Simpan -->
@@ -70,4 +76,4 @@ $data = mysqli_fetch_array($hasil);
     </form>
 </div>
 
-<?php include "layout_footer.php"; ?>
+<?php require_once __DIR__ . '/../../views/layouts/footer.php'; ?>

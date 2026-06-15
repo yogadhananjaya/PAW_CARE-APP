@@ -1,12 +1,20 @@
 <?php
-    include 'koneksi.php';
-    if(isset($_POST['simpan'])) {
-        $nama_jenis = $_POST['nama_jenis'];
-        $id_jenis = $_POST['id_jenis'];
-        mysqli_query($koneksi, "INSERT INTO Jenis_Hewan (id_jenis, nama_jenis) VALUES ('$id_jenis', '$nama_jenis')");
-        echo "<script>alert('Jenis hewan berhasil ditambahkan!'); window.location='index.php';</script>";
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../../config/koneksi.php';
+}
+require_once __DIR__ . '/../../views/layouts/header.php';
+
+if(isset($_POST['simpan'])) {
+    $nama_jenis = isset($_POST['nama']) ? trim($_POST['nama']) : '';
+    if (empty($nama_jenis)) {
+        die('Nama jenis hewan tidak boleh kosong');
     }
-    include 'layout_header.php';
+    
+    $stmt = $pdo->prepare("INSERT INTO Jenis_Hewan (nama_jenis) VALUES (?)");
+    $stmt->execute([$nama_jenis]);
+    echo "<script>alert('Jenis hewan berhasil ditambahkan!'); window.location='index.php';</script>";
+    exit;
+}
 ?>
 
 <div class="flex flex-col items-center justify-center h-full">
@@ -26,4 +34,4 @@
     </div>
 </div>
 
-<?php include 'layout_footer.php'; ?>
+<?php require_once __DIR__ . '/../../views/layouts/footer.php'; ?>

@@ -1,11 +1,12 @@
 <?php
-// AMBIL KONEKSI DAN HEADER
-include "koneksi.php";
-include "layout_header.php";
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../../config/koneksi.php';
+}
+require_once __DIR__ . '/../../views/layouts/header.php';
 
 // Perintah SQL untuk mengambil semua data pengadopsi
-$query = "SELECT * FROM Pengadopsi ORDER BY id_pengadopsi DESC";
-$hasil = mysqli_query($koneksi, $query);
+$stmt = $pdo->query("SELECT * FROM Pengadopsi ORDER BY id_pengadopsi DESC");
+$hasil = $stmt->fetchAll();
 ?>
 
 <div class="flex justify-between items-center mb-8">
@@ -34,8 +35,8 @@ $hasil = mysqli_query($koneksi, $query);
         <tbody class="divide-y divide-[#e0d6c8]">
             <?php 
             $no = 1;
-            // Ambil data satu-satu pake perulangan while
-            while ($row = mysqli_fetch_array($hasil)) { 
+            // Ambil data satu-satu pake perulangan foreach
+            foreach ($hasil as $row) { 
             ?>
             <tr class="hover:bg-paw-krem-utama transition">
                 <td class="px-6 py-4 text-gray-600 font-medium"><?= $no++; ?></td>
@@ -58,7 +59,7 @@ $hasil = mysqli_query($koneksi, $query);
             </tr>
             <?php } ?>
 
-            <?php if (mysqli_num_rows($hasil) == 0) { ?>
+            <?php if (count($hasil) == 0) { ?>
             <tr>
                 <td colspan="6" class="px-6 py-10 text-center text-gray-500 italic">
                     Belum ada data pengadopsi nih...
@@ -69,4 +70,4 @@ $hasil = mysqli_query($koneksi, $query);
     </table>
 </div>
 
-<?php include "layout_footer.php"; ?>
+<?php require_once __DIR__ . '/../../views/layouts/footer.php'; ?>

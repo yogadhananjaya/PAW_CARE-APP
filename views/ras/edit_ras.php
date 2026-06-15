@@ -1,17 +1,39 @@
 <?php
-// FILE EDIT_RAS.PHP
-include 'koneksi.php';
-$id = $_GET['id'];
-$data = mysqli_fetch_array(mysqli_query($koneksi, "SELECT * FROM Ras WHERE id_ras = '$id'"));
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../../config/koneksi.php';
+}
+require_once __DIR__ . '/../../views/layouts/header.php';
 
-if(isset($_POST['update'])) {
-    $nama = $_POST['nama'];
-    $id_jenis = $_POST['id_jenis'];
-    mysqli_query($koneksi, "UPDATE Ras SET nama_ras = '$nama', id_jenis = '$id_jenis' WHERE id_ras = '$id'");
-    echo "<script>alert('Ras Berhasil diperbarui!'); window.location='index.php';</script>";
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+if ($id <= 0) {
+    die('ID ras tidak valid');
 }
 
-include 'layout_header.php';
+// Ambil data ras
+$stmt = $pdo->prepare("SELECT * FROM Ras WHERE id_ras = ?");
+$stmt->execute([$id]);
+$data = $stmt->fetch();
+
+if (!$data) {
+    die('Ras tidak ditemukan');
+}
+
+if(isset($_POST['update'])) {
+    $nama = isset($_POST['nama']) ? trim($_POST['nama']) : '';
+    $id_jenis = isset($_POST['id_jenis']) ? (int)$_POST['id_jenis'] : 0;
+    
+    if (empty($nama) || $id_jenis <= 0) {
+        die('Data tidak boleh kosong');
+    }
+    
+    $stmt = $pdo->prepare("UPDATE Ras SET nama_ras = ?, id_jenis = ? WHERE id_ras = ?");
+    $stmt->execute([$nama, $id_jenis, $id]);
+    echo "<script>alert('Ras Berhasil diperbarui!'); window.location='index.php';</script>";
+    exit;
+}
+
+// Ambil list jenis hewan
+$jenis_list = $pdo->query("SELECT * FROM Jenis_Hewan")->fetchAll();
 ?>
 
 <div class="flex flex-col items-center justify-center h-full">
@@ -22,16 +44,15 @@ include 'layout_header.php';
         <form action="" method="POST" class="p-8 space-y-6">
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">Nama Ras</label>
-                <input type="text" name="nama" value="<?= $data['nama_ras']; ?>" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-paw-merah transition" required>
+                <input type="text" name="nama" value="<?= htmlspecialchars($data['nama_ras'] ?? '') ?>" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-paw-merah transition" required>
             </div>
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">Jenis Hewan</label>
                 <select name="id_jenis" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-paw-merah transition" required>
                     <?php
-                    $q = mysqli_query($koneksi, "SELECT * FROM Jenis_Hewan");
-                    while($j = mysqli_fetch_array($q)) {
+                    foreach($jenis_list as $j) {
                         $pilih = ($j['id_jenis'] == $data['id_jenis']) ? "selected" : "";
-                        echo "<option value='".$j['id_jenis']."' $pilih>".$j['nama_jenis']."</option>";
+                        echo "<option value='".$j['id_jenis']."' $pilih>".htmlspecialchars($j['nama_jenis'])."</option>";
                     }
                     ?>
                 </select>
@@ -42,4 +63,4 @@ include 'layout_header.php';
     </div>
 </div>
 
-<?php include 'layout_footer.php'; ?>
+<?php require_once __DIR__ . '/../../views/layouts/footer.php'; ?>

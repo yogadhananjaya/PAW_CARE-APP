@@ -1,9 +1,12 @@
 <?php
-include 'koneksi.php';
-include 'layout_header.php';
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../../config/koneksi.php';
+}
+require_once __DIR__ . '/../../views/layouts/header.php';
 
 // Ambil data Jenis Hewan
-$query_jenis = mysqli_query($koneksi, "SELECT * FROM Jenis_Hewan");
+$query_jenis = $pdo->query("SELECT * FROM Jenis_Hewan");
+$data_jenis = $query_jenis->fetchAll();
 ?>
 
 <!-- Header Halaman -->
@@ -38,7 +41,7 @@ $query_jenis = mysqli_query($koneksi, "SELECT * FROM Jenis_Hewan");
             <tbody class="divide-y divide-gray-50">
                 <?php
                 $no = 1;
-                while ($r = mysqli_fetch_array($query_jenis)) {
+                foreach ($data_jenis as $r) {
                     ?>
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 text-sm text-gray-400"><?= $no++; ?></td>
@@ -66,4 +69,4 @@ $query_jenis = mysqli_query($koneksi, "SELECT * FROM Jenis_Hewan");
     </div>
 </div>
 
-<?php include 'layout_footer.php'; ?>
+<?php require_once __DIR__ . '/../../views/layouts/footer.php'; ?>

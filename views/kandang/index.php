@@ -1,9 +1,12 @@
 <?php
-include 'koneksi.php';
-include 'layout_header.php';
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../../config/koneksi.php';
+}
+require_once __DIR__ . '/../../views/layouts/header.php';
 
 // Ambil data Kandang Hewan
-$query_kandang = mysqli_query($koneksi, "SELECT * FROM Kandang");
+$query_kandang = $pdo->query("SELECT * FROM Kandang");
+$data_kandang = $query_kandang->fetchAll();
 ?>
 
 <!-- Header Halaman -->
@@ -39,7 +42,7 @@ $query_kandang = mysqli_query($koneksi, "SELECT * FROM Kandang");
             <tbody class="divide-y divide-gray-50">
                 <?php
                 $no = 1;
-                while ($r = mysqli_fetch_array($query_kandang)) {
+                foreach ($data_kandang as $r) {
                     ?>
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 text-sm text-gray-400"><?= $no++; ?></td>
@@ -67,4 +70,4 @@ $query_kandang = mysqli_query($koneksi, "SELECT * FROM Kandang");
     </div>
 </div>
 
-<?php include 'layout_footer.php'; ?>
+<?php require_once __DIR__ . '/../../views/layouts/footer.php'; ?>

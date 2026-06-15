@@ -1,17 +1,21 @@
 <?php
-include "koneksi.php";
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../../config/koneksi.php';
+}
 
 // Ambil ID dari URL
-$id = $_GET['id'];
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+if ($id <= 0) {
+    die('ID pengadopsi tidak valid');
+}
 
 // PERINTAH HAPUS (DELETE)
-$query = "DELETE FROM Pengadopsi WHERE id_pengadopsi = '$id'";
+$stmt = $pdo->prepare("DELETE FROM Pengadopsi WHERE id_pengadopsi = ?");
+$hasil = $stmt->execute([$id]);
 
-$hapus = mysqli_query($koneksi, $query);
-
-if ($hapus) {
+if ($hasil) {
     header("Location: index.php?pesan=berhasil_hapus");
 } else {
-    echo "Gagal hapus data: " . mysqli_error($koneksi);
+    die("Gagal hapus data");
 }
 ?>

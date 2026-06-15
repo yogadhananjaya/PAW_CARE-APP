@@ -1,12 +1,22 @@
 <?php
-include 'koneksi.php';
-    if(isset($_POST['simpan'])) {
-        $kode_kandang = $_POST['kode_kandang'];
-        $kapasitas = $_POST['kapasitas'];
-        mysqli_query($koneksi, "INSERT INTO Kandang (kode_kandang, kapasitas) VALUES ('$kode_kandang', '$kapasitas')");
-        echo "<script>alert('Kandang hewan berhasil ditambahkan!'); window.location='index.php';</script>";
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../../config/koneksi.php';
+}
+require_once __DIR__ . '/../../views/layouts/header.php';
+
+if(isset($_POST['simpan'])) {
+    $kode_kandang = isset($_POST['kode_kandang']) ? trim($_POST['kode_kandang']) : '';
+    $kapasitas = isset($_POST['kapasitas']) ? (int)$_POST['kapasitas'] : 0;
+    
+    if (empty($kode_kandang) || $kapasitas <= 0) {
+        die('Data tidak boleh kosong');
     }
-    include 'layout_header.php';
+    
+    $stmt = $pdo->prepare("INSERT INTO Kandang (kode_kandang, kapasitas) VALUES (?, ?)");
+    $stmt->execute([$kode_kandang, $kapasitas]);
+    echo "<script>alert('Kandang hewan berhasil ditambahkan!'); window.location='index.php';</script>";
+    exit;
+}
 ?>
 
 <div class="flex flex-col items-center justify-center h-full">
@@ -29,4 +39,4 @@ include 'koneksi.php';
     </div>
 </div>
 
-<?php include 'layout_footer.php'; ?>
+<?php require_once __DIR__ . '/../../views/layouts/footer.php'; ?>

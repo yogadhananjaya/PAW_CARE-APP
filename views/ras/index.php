@@ -1,11 +1,14 @@
 <?php
-include 'koneksi.php';
-include 'layout_header.php';
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../../config/koneksi.php';
+}
+require_once __DIR__ . '/../../views/layouts/header.php';
 
 // Ambil data Ras (dijoin dengan Jenis untuk nama)
-$query_ras = mysqli_query($koneksi, "SELECT Ras.*, Jenis_Hewan.nama_jenis 
+$query_ras = $pdo->query("SELECT Ras.*, Jenis_Hewan.nama_jenis 
                                      FROM Ras 
                                      INNER JOIN Jenis_Hewan ON Ras.id_jenis = Jenis_Hewan.id_jenis");
+$data_ras = $query_ras->fetchAll();
 ?>
 
 <!-- Header Halaman -->
@@ -41,7 +44,7 @@ $query_ras = mysqli_query($koneksi, "SELECT Ras.*, Jenis_Hewan.nama_jenis
             <tbody class="divide-y divide-gray-50">
                 <?php
                 $no = 1;
-                while ($r = mysqli_fetch_array($query_ras)) {
+                foreach ($data_ras as $r) {
                     ?>
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 text-sm text-gray-400"><?= $no++; ?></td>
@@ -69,4 +72,4 @@ $query_ras = mysqli_query($koneksi, "SELECT Ras.*, Jenis_Hewan.nama_jenis
     </div>
 </div>
 
-<?php include 'layout_footer.php'; ?>
+<?php require_once __DIR__ . '/../../views/layouts/footer.php'; ?>

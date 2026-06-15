@@ -1,15 +1,25 @@
 <?php
-// FILE TAMBAH_RAS.PHP
-include 'koneksi.php';
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../../config/koneksi.php';
+}
+require_once __DIR__ . '/../../views/layouts/header.php';
 
 if(isset($_POST['simpan'])) {
-    $nama = $_POST['nama'];
-    $id_jenis = $_POST['id_jenis'];
-    mysqli_query($koneksi, "INSERT INTO Ras (id_jenis, nama_ras) VALUES ('$id_jenis', '$nama')");
+    $nama = isset($_POST['nama']) ? trim($_POST['nama']) : '';
+    $id_jenis = isset($_POST['id_jenis']) ? (int)$_POST['id_jenis'] : 0;
+    
+    if (empty($nama) || $id_jenis <= 0) {
+        die('Data tidak boleh kosong');
+    }
+    
+    $stmt = $pdo->prepare("INSERT INTO Ras (id_jenis, nama_ras) VALUES (?, ?)");
+    $stmt->execute([$id_jenis, $nama]);
     echo "<script>alert('Ras Berhasil ditambahkan!'); window.location='index.php';</script>";
+    exit;
 }
 
-include 'layout_header.php';
+// Ambil list jenis hewan
+$jenis_list = $pdo->query("SELECT * FROM Jenis_Hewan")->fetchAll();
 ?>
 
 <div class="flex flex-col items-center justify-center h-full">
@@ -28,9 +38,8 @@ include 'layout_header.php';
                 <select name="id_jenis" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-paw-merah transition" required>
                     <option value="">-- Pilih Jenis --</option>
                     <?php
-                    $q = mysqli_query($koneksi, "SELECT * FROM Jenis_Hewan");
-                    while($j = mysqli_fetch_array($q)) {
-                        echo "<option value='".$j['id_jenis']."'>".$j['nama_jenis']."</option>";
+                    foreach($jenis_list as $j) {
+                        echo "<option value='".$j['id_jenis']."'>".htmlspecialchars($j['nama_jenis'])."</option>";
                     }
                     ?>
                 </select>
@@ -41,4 +50,4 @@ include 'layout_header.php';
     </div>
 </div>
 
-<?php include 'layout_footer.php'; ?>
+<?php require_once __DIR__ . '/../../views/layouts/footer.php'; ?>
