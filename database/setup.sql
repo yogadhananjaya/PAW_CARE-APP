@@ -70,14 +70,12 @@ CREATE TABLE Pengguna (
 CREATE TABLE Hewan (
     id_hewan INT AUTO_INCREMENT PRIMARY KEY,
     id_ras INT NOT NULL,
-    id_jenis INT NOT NULL,
     nama_hewan VARCHAR(100) NOT NULL,
     tanggal_lahir DATE,
     estimasi_umur INT,
     jenis_kelamin VARCHAR(15),
     status_adopsi VARCHAR(30) DEFAULT 'Tersedia',
     FOREIGN KEY (id_ras) REFERENCES Ras(id_ras),
-    FOREIGN KEY (id_jenis) REFERENCES Jenis_Hewan(id_jenis)
 );
 
 -- =======================================================

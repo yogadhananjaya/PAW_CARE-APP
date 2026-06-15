@@ -10,9 +10,11 @@ require_once __DIR__ . '/app/controllers/AuthController.php';
 require_once __DIR__ . '/app/controllers/PegawaiController.php';
 $pegawaiController = new PegawaiController($pdo);
 
-// TAMBAHKAN INI:
 require_once __DIR__ . '/app/controllers/PerawatanController.php';
 $perawatanController = new PerawatanController($pdo);
+
+require_once __DIR__ . '/app/controllers/HewanController.php';
+$hewanController = new HewanController($pdo);
 
 // Ambil aksi dari URL, default-nya ke halaman login jika belum login
 $action = isset($_GET['action']) ? $_GET['action'] : 'login';
@@ -61,21 +63,57 @@ switch ($action) {
         break;
 
     case 'dashboard':
-    if (!isset($_SESSION['logged_in'])) {
-        header("Location: index.php?action=login");
-        exit;
-    }
+        if (!isset($_SESSION['logged_in'])) {
+            header("Location: index.php?action=login");
+            exit;
+        }
 
-    // --- DI SINI KAMU TEMPATKAN KODENYA ---
-    if ($_SESSION['role'] === 'User') {
-        require_once __DIR__ . '/views/user/dashboard_pengadopsi.php';
-    } else {
-        require_once __DIR__ . '/views/layouts/header.php';
-        require_once __DIR__ . '/views/dashboard.php';
-        require_once __DIR__ . '/views/layouts/footer.php';
-    }
-    break;    
-    
+        // --- DI SINI KAMU TEMPATKAN KODENYA ---
+        if ($_SESSION['role'] === 'User') {
+            require_once __DIR__ . '/views/user/dashboard_pengadopsi.php';
+        } else {
+            require_once __DIR__ . '/views/layouts/header.php';
+            require_once __DIR__ . '/views/dashboard.php';
+            require_once __DIR__ . '/views/layouts/footer.php';
+        }
+        break;
+
+    case 'hewan':
+        require_once 'app/controllers/HewanController.php';
+        $controller = new HewanController($pdo);
+        $controller->index();
+        break;
+
+    case 'hewan_tambah':
+        require_once 'app/controllers/HewanController.php';
+        $controller = new HewanController($pdo);
+        $controller->create();
+        break;
+
+    case 'hewan_simpan':
+        require_once 'app/controllers/HewanController.php';
+        $controller = new HewanController($pdo);
+        $controller->store();
+        break;
+
+    case 'hewan_edit':
+        require_once 'app/controllers/HewanController.php';
+        $controller = new HewanController($pdo);
+        $controller->edit($_GET['id']);
+        break;
+
+    case 'hewan_update':
+        require_once 'app/controllers/HewanController.php';
+        $controller = new HewanController($pdo);
+        $controller->update();
+        break;
+
+    case 'hewan_hapus':
+        require_once 'app/controllers/HewanController.php';
+        $controller = new HewanController($pdo);
+        $controller->delete($_GET['id']);
+        break;
+
     case 'pegawai':
         // Proteksi: Hanya Superadmin dan Staff yang boleh mengakses menu ini
         if (!isset($_SESSION['logged_in']) || ($_SESSION['role'] !== 'Superadmin' && $_SESSION['role'] !== 'Staff')) {
@@ -84,7 +122,7 @@ switch ($action) {
         }
         $pegawaiController->index();
         break;
-    
+
     case 'pegawai_tambah':
         // Proteksi
         if (!isset($_SESSION['logged_in']) || ($_SESSION['role'] !== 'Superadmin' && $_SESSION['role'] !== 'Staff')) {
