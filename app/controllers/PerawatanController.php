@@ -10,12 +10,12 @@ class PerawatanController {
 
     // Menampilkan riwayat perawatan
     public function index() {
-        // Menggunakan LEFT JOIN untuk mengambil nama dari tabel Pegawai dan Hewan
-        $query = "SELECT pr.*, pg.nama AS nama_pegawai, h.nama_hewan 
-                  FROM Perawatan pr 
-                  LEFT JOIN Pegawai pg ON pr.id_pegawai = pg.id_pegawai 
-                  LEFT JOIN Hewan h ON pr.id_hewan = h.id_hewan 
-                  ORDER BY pr.tanggal_perawatan DESC";
+        $query = "SELECT r.*, p.nama_lengkap AS nama_pegawai, h.nama_hewan 
+                  FROM riwayat_kesehatan r 
+                  LEFT JOIN pengguna p ON r.id_pengguna = p.id_pengguna 
+                  LEFT JOIN hewan h ON r.id_hewan = h.id_hewan 
+                  WHERE r.tipe = 'Perawatan'
+                  ORDER BY r.tanggal DESC";
         $stmt = $this->db->query($query);
         $perawatan = $stmt->fetchAll();
 
@@ -27,9 +27,9 @@ class PerawatanController {
 
     // Menampilkan form tambah perawatan
     public function create() {
-        // Ambil data Pegawai dan Hewan untuk diisi ke dalam dropdown (select)
-        $pegawai = $this->db->query("SELECT id_pegawai, nama, jabatan FROM Pegawai")->fetchAll();
-        $hewan = $this->db->query("SELECT id_hewan, nama_hewan FROM Hewan")->fetchAll();
+        // Ambil data Pengguna (Pegawai & SuperAdmin) dan Hewan
+        $pegawai = $this->db->query("SELECT id_pengguna, nama_lengkap, jabatan FROM pengguna WHERE role = 'Pegawai' OR role = 'SuperAdmin'")->fetchAll();
+        $hewan = $this->db->query("SELECT id_hewan, nama_hewan FROM hewan")->fetchAll();
 
         $basePath = __DIR__ . '/../../';
         require_once $basePath . 'views/layouts/header.php';
@@ -41,27 +41,38 @@ class PerawatanController {
     public function store() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id_hewan = $_POST['id_hewan'];
-            $id_pegawai = $_POST['id_pegawai'];
+            $id_pengguna = $_POST['id_pengguna'];
             $tanggal = $_POST['tanggal_perawatan'];
             $pemeriksaan = trim($_POST['pemeriksaan']);
             $perawatan = trim($_POST['perawatan']);
             $obat = trim($_POST['pemberian_obat']);
 
             // Validasi input utama wajib isi
-            if (empty($id_hewan) || empty($id_pegawai) || empty($tanggal)) {
-                header("Location: index.php?action=perawatan_tambah&error=Hewan, Pegawai, dan Tanggal wajib diisi!");
+            if (empty($id_hewan) || empty($id_pengguna) || empty($tanggal)) {
+                header("Location: index.php?action=perawatan_tambah&error=Hewan, Petugas, dan Tanggal wajib diisi!");
                 exit;
             }
 
-            $stmt = $this->db->prepare("INSERT INTO Perawatan (id_pegawai, id_hewan, perawatan, pemeriksaan, pemberian_obat, tanggal_perawatan) 
-                                        VALUES (:pgw, :hwn, :rawat, :periksa, :obat, :tgl)");
+            // Gabungkan pemeriksaan, tindakan, dan obat ke dalam satu deskripsi
+            $deskripsi = "";
+            if ($pemeriksaan !== '') {
+                $deskripsi .= "Pemeriksaan: " . $pemeriksaan . "\n";
+            }
+            if ($perawatan !== '') {
+                $deskripsi .= "Tindakan: " . $perawatan . "\n";
+            }
+            if ($obat !== '') {
+                $deskripsi .= "Obat: " . $obat;
+            }
+            $deskripsi = trim($deskripsi);
+
+            $stmt = $this->db->prepare("INSERT INTO riwayat_kesehatan (id_hewan, id_pengguna, tipe, tanggal, deskripsi) 
+                                        VALUES (:hwn, :usr, 'Perawatan', :tgl, :desc)");
             $sukses = $stmt->execute([
-                'pgw' => $id_pegawai,
                 'hwn' => $id_hewan,
-                'rawat' => $perawatan,
-                'periksa' => $pemeriksaan,
-                'obat' => $obat,
-                'tgl' => $tanggal
+                'usr' => $id_pengguna,
+                'tgl' => $tanggal,
+                'desc' => $deskripsi
             ]);
 
             if ($sukses) {

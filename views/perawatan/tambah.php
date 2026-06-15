@@ -27,10 +27,10 @@
 
                 <div>
                     <label class="block mb-2 text-sm font-bold text-paw-hitam">Ditangani Oleh (Pegawai)</label>
-                    <select name="id_pegawai" required class="w-full bg-paw-krem-utama border border-paw-krem-gelap text-paw-hitam text-sm rounded-xl focus:ring-paw-hitam block p-3 outline-none cursor-pointer">
+                    <select name="id_pengguna" required class="w-full bg-paw-krem-utama border border-paw-krem-gelap text-paw-hitam text-sm rounded-xl focus:ring-paw-hitam block p-3 outline-none cursor-pointer">
                         <option value="" disabled selected>-- Pilih Petugas/Dokter --</option>
                         <?php foreach($pegawai as $pgw): ?>
-                            <option value="<?= $pgw['id_pegawai']; ?>"><?= htmlspecialchars($pgw['nama']); ?> (<?= htmlspecialchars($pgw['jabatan']); ?>)</option>
+                            <option value="<?= $pgw['id_pengguna']; ?>"><?= htmlspecialchars($pgw['nama_lengkap']); ?> (<?= htmlspecialchars($pgw['jabatan']); ?>)</option>
                         <?php endforeach; ?>
                     </select>
                 </div>

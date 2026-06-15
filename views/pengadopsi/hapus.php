@@ -10,7 +10,7 @@ if ($id <= 0) {
 }
 
 // PERINTAH HAPUS (DELETE)
-$stmt = $pdo->prepare("DELETE FROM Pengadopsi WHERE id_pengadopsi = ?");
+$stmt = $pdo->prepare("DELETE FROM pengadopsi WHERE id_pengadopsi = ?");
 $hasil = $stmt->execute([$id]);
 
 if ($hasil) {

@@ -6,9 +6,10 @@ session_start();
 require_once __DIR__ . '/config/koneksi.php';
 // Panggil controller
 require_once __DIR__ . '/app/controllers/AuthController.php';
+require_once __DIR__ . '/app/controllers/PenggunaController.php';
+$penggunaController = new PenggunaController($pdo);
 
-require_once __DIR__ . '/app/controllers/PegawaiController.php';
-$pegawaiController = new PegawaiController($pdo);
+
 
 require_once __DIR__ . '/app/controllers/PerawatanController.php';
 $perawatanController = new PerawatanController($pdo);
@@ -114,57 +115,57 @@ switch ($action) {
         $controller->delete($_GET['id']);
         break;
 
-    case 'pegawai':
-        // Proteksi: Hanya Superadmin dan Staff yang boleh mengakses menu ini
-        if (!isset($_SESSION['logged_in']) || ($_SESSION['role'] !== 'Superadmin' && $_SESSION['role'] !== 'Staff')) {
+    case 'pengguna':
+        if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'Superadmin') {
             header("Location: index.php?action=dashboard");
             exit;
         }
-        $pegawaiController->index();
+        $penggunaController->index();
         break;
 
-    case 'pegawai_tambah':
-        // Proteksi
-        if (!isset($_SESSION['logged_in']) || ($_SESSION['role'] !== 'Superadmin' && $_SESSION['role'] !== 'Staff')) {
+    case 'pengguna_tambah':
+        if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'Superadmin') {
             header("Location: index.php?action=dashboard");
             exit;
         }
-        $pegawaiController->create();
+        $penggunaController->create();
         break;
 
-    case 'pegawai_simpan':
-        // Proteksi
-        if (!isset($_SESSION['logged_in']) || ($_SESSION['role'] !== 'Superadmin' && $_SESSION['role'] !== 'Staff')) {
+    case 'pengguna_simpan':
+        if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'Superadmin') {
             header("Location: index.php?action=dashboard");
             exit;
         }
-        $pegawaiController->store();
+        $penggunaController->store();
         break;
-    case 'pegawai_edit':
-        if (!isset($_SESSION['logged_in']) || ($_SESSION['role'] !== 'Superadmin' && $_SESSION['role'] !== 'Staff')) {
+
+    case 'pengguna_edit':
+        if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'Superadmin') {
             header("Location: index.php?action=dashboard");
             exit;
         }
         $id = isset($_GET['id']) ? $_GET['id'] : 0;
-        $pegawaiController->edit($id);
+        $penggunaController->edit($id);
         break;
 
-    case 'pegawai_update':
-        if (!isset($_SESSION['logged_in']) || ($_SESSION['role'] !== 'Superadmin' && $_SESSION['role'] !== 'Staff')) {
+    case 'pengguna_update':
+        if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'Superadmin') {
             header("Location: index.php?action=dashboard");
             exit;
         }
-        $pegawaiController->update();
+        $penggunaController->update();
         break;
 
-    case 'pegawai_hapus':
-        if (!isset($_SESSION['logged_in']) || ($_SESSION['role'] !== 'Superadmin' && $_SESSION['role'] !== 'Staff')) {
+    case 'pengguna_hapus':
+        if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'Superadmin') {
             header("Location: index.php?action=dashboard");
             exit;
         }
         $id = isset($_GET['id']) ? $_GET['id'] : 0;
-        $pegawaiController->delete($id);
+        $penggunaController->delete($id);
         break;
+
+
 
     case 'perawatan':
         if (!isset($_SESSION['logged_in']) || ($_SESSION['role'] !== 'Superadmin' && $_SESSION['role'] !== 'Staff')) {

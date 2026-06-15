@@ -101,18 +101,13 @@ if (!isset($_SESSION['captcha_hasil'])) {
                 <?php endif; ?>
 
                 <div class="grid grid-cols-2 gap-2 w-full">
-                    <input type="text" name="nama_pengguna" placeholder="Username" class="auth-input text-sm" required autocomplete="off" />
+                    <input type="text" name="nama" placeholder="Nama Lengkap" class="auth-input text-sm" required autocomplete="off" />
                     <input type="email" name="email" placeholder="Alamat Email" class="auth-input text-sm" required />
                     
                     <input type="password" name="kata_sandi" placeholder="Password" class="auth-input text-sm" required />
-                    <input type="text" name="no_telp" placeholder="Nomor Telepon/WA" class="auth-input text-sm" required />
+                    <input type="text" name="no_hp" placeholder="Nomor HP / WA" class="auth-input text-sm" required />
                     
-                    <input type="date" name="tgl_lahir" class="auth-input text-sm text-gray-500" required title="Tanggal Lahir" />
-                    <select name="jenis_kelamin" class="auth-input text-sm cursor-pointer" required>
-                        <option value="" disabled selected>Jenis Kelamin</option>
-                        <option value="Laki-laki">Laki-laki</option>
-                        <option value="Perempuan">Perempuan</option>
-                    </select>
+                    <input type="text" name="alamat" placeholder="Alamat Lengkap" class="auth-input text-sm col-span-2" required />
                 </div>
                 
                 <div class="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 mt-2 flex justify-between items-center">

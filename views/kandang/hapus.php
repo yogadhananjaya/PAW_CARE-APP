@@ -8,7 +8,7 @@ if ($id <= 0) {
     die('ID kandang tidak valid');
 }
 
-$stmt = $pdo->prepare("DELETE FROM Kandang WHERE id_kandang = ?");
+$stmt = $pdo->prepare("DELETE FROM kandang WHERE id_kandang = ?");
 $stmt->execute([$id]);
-echo "<script>alert('Kandang hewan sudah dihapus!'); window.location='index.php';</script>";
+echo "<script>alert('Kandang sudah dihapus!'); window.location='index.php';</script>";
 ?>

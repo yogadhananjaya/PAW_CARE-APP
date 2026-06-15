@@ -4,14 +4,13 @@ if (!isset($pdo)) {
 }
 require_once __DIR__ . '/../../views/layouts/header.php';
 
-// AMBIL ID DARI URL PAKE $_GET
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($id <= 0) {
     die('ID pengadopsi tidak valid');
 }
 
 // CARI DATA YANG ID-NYA COCOK
-$stmt = $pdo->prepare("SELECT * FROM Pengadopsi WHERE id_pengadopsi = ?");
+$stmt = $pdo->prepare("SELECT * FROM pengadopsi WHERE id_pengadopsi = ?");
 $stmt->execute([$id]);
 $data = $stmt->fetch();
 
@@ -30,7 +29,6 @@ if (!$data) {
 
 <div class="max-w-2xl bg-paw-putih rounded-2xl shadow-sm border border-[#e0d6c8] p-8">
     <form action="proses_edit.php" method="POST">
-        <!-- Kasih input type hidden buat ID-nya biar gak ilang pas dikirim -->
         <input type="hidden" name="id" value="<?= $data['id_pengadopsi']; ?>">
 
         <div class="space-y-6">
@@ -50,20 +48,43 @@ if (!$data) {
                 <!-- Email -->
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Email</label>
-                    <input type="email" name="email" value="<?= htmlspecialchars($data['email'] ?? '') ?>" class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition">
+                    <input type="email" name="email" value="<?= htmlspecialchars($data['email'] ?? '') ?>" required class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition">
                 </div>
+            </div>
+
+            <!-- Password (Opsional) -->
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Kata Sandi Baru (Kosongkan jika tidak ingin diubah)</label>
+                <input type="password" name="kata_sandi" placeholder="Sandi baru pengadopsi" class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition">
             </div>
 
             <!-- Alamat -->
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Alamat Rumah</label>
-                <textarea name="alamat" rows="3" class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition"><?= htmlspecialchars($data['alamat'] ?? '') ?></textarea>
+                <textarea name="alamat" rows="3" required class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition"><?= htmlspecialchars($data['alamat'] ?? '') ?></textarea>
             </div>
 
-            <!-- Surat Keterangan -->
+            <!-- URL KTP -->
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Link / Info Surat Keterangan</label>
-                <input type="text" name="surat_keterangan" value="<?= htmlspecialchars($data['surat_keterangan'] ?? '') ?>" class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition">
+                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">URL Foto KTP</label>
+                <input type="text" name="url_ktp" value="<?= htmlspecialchars($data['url_ktp'] ?? '') ?>" placeholder="Link dokumen/foto KTP" class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition">
+            </div>
+
+            <!-- Status Verifikasi -->
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Status Verifikasi</label>
+                <select name="status_verifikasi" class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition">
+                    <option value="Belum" <?= ($data['status_verifikasi'] === 'Belum') ? 'selected' : '' ?>>Belum</option>
+                    <option value="Menunggu" <?= ($data['status_verifikasi'] === 'Menunggu') ? 'selected' : '' ?>>Menunggu</option>
+                    <option value="Terverifikasi" <?= ($data['status_verifikasi'] === 'Terverifikasi') ? 'selected' : '' ?>>Terverifikasi</option>
+                    <option value="Ditolak" <?= ($data['status_verifikasi'] === 'Ditolak') ? 'selected' : '' ?>>Ditolak</option>
+                </select>
+            </div>
+
+            <!-- Catatan Verifikasi -->
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Catatan Verifikasi</label>
+                <textarea name="catatan_verifikasi" rows="2" placeholder="Catatan tambahan hasil verifikasi..." class="w-full px-4 py-3 rounded-xl border border-[#e0d6c8] focus:ring-2 focus:ring-paw-hitam focus:border-paw-hitam outline-none transition"><?= htmlspecialchars($data['catatan_verifikasi'] ?? '') ?></textarea>
             </div>
 
             <!-- Tombol Simpan -->

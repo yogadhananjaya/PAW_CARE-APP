@@ -80,7 +80,7 @@
                                 </td>
 
                                 <td class="px-6 py-4">
-                                    <?= htmlspecialchars($h['estimasi_umur']) ?> Tahun
+                                    <?= htmlspecialchars($h['umur']) ?> Tahun
                                 </td>
 
                                 <td class="px-6 py-4">
@@ -92,12 +92,14 @@
                                         <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
                                             Tersedia
                                         </span>
-
-                                    <?php elseif($h['status_adopsi'] == 'Diproses'): ?>
-                                        <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold">
-                                            Diproses
+                                    <?php elseif($h['status_adopsi'] == 'Karantina'): ?>
+                                        <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-bold">
+                                            Karantina
                                         </span>
-
+                                    <?php elseif($h['status_adopsi'] == 'Dalam Proses'): ?>
+                                        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">
+                                            Dalam Proses
+                                        </span>
                                     <?php else: ?>
                                         <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">
                                             Diadopsi

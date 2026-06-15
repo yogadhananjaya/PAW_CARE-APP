@@ -22,15 +22,14 @@
                     <tr>
                         <th class="px-5 py-4">Tanggal</th>
                         <th class="px-5 py-4">Pasien (Hewan)</th>
-                        <th class="px-5 py-4 w-1/3">Detail Pemeriksaan & Tindakan</th>
-                        <th class="px-5 py-4">Obat</th>
+                        <th class="px-5 py-4 w-1/2">Catatan Medis & Tindakan</th>
                         <th class="px-5 py-4">Ditangani Oleh</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-paw-krem-gelap">
                     <?php if (empty($perawatan)): ?>
                         <tr>
-                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                            <td colspan="4" class="px-6 py-8 text-center text-gray-500">
                                 <i class="fa-solid fa-stethoscope text-3xl mb-3 text-gray-300 block"></i>
                                 Belum ada riwayat perawatan.
                             </td>
@@ -39,19 +38,13 @@
                         <?php foreach ($perawatan as $p): ?>
                             <tr class="hover:bg-paw-krem-utama/50 transition">
                                 <td class="px-5 py-4 font-bold text-gray-600 whitespace-nowrap">
-                                    <?= date('d M Y', strtotime($p['tanggal_perawatan'])); ?>
+                                    <?= date('d M Y', strtotime($p['tanggal'])); ?>
                                 </td>
                                 <td class="px-5 py-4 font-bold text-paw-merah">
                                     <i class="fa-solid fa-paw mr-1"></i> <?= htmlspecialchars($p['nama_hewan'] ?? 'Hewan Dihapus'); ?>
                                 </td>
-                                <td class="px-5 py-4">
-                                    <p class="mb-1"><span class="font-bold text-xs text-gray-400 uppercase">Cek:</span> <?= htmlspecialchars($p['pemeriksaan'] ?: '-'); ?></p>
-                                    <p><span class="font-bold text-xs text-gray-400 uppercase">Tindakan:</span> <?= htmlspecialchars($p['perawatan'] ?: '-'); ?></p>
-                                </td>
-                                <td class="px-5 py-4 text-gray-600">
-                                    <?= htmlspecialchars($p['pemberian_obat'] ?: 'Tidak ada'); ?>
-                                </td>
-                                <td class="px-5 py-4 font-medium">
+                                <td class="px-5 py-4 text-gray-600 leading-relaxed whitespace-pre-line"><?= htmlspecialchars($p['deskripsi'] ?: '-'); ?></td>
+                                <td class="px-5 py-4 font-medium whitespace-nowrap">
                                     <i class="fa-solid fa-user-doctor text-gray-400 mr-1"></i> <?= htmlspecialchars($p['nama_pegawai'] ?? 'Anonim'); ?>
                                 </td>
                             </tr>

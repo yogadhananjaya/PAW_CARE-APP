@@ -3,7 +3,7 @@ if (!isset($pdo)) {
     require_once __DIR__ . '/../../config/koneksi.php';
 }
 
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 if ($id <= 0) {
     die('ID jenis hewan tidak valid');
 }
