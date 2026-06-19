@@ -142,7 +142,7 @@ if (strpos($url_sekarang, 'views/donasi') !== false) { $kelas_donasi = $kelas_ak
                 }
             </script>
             <a href="/PAW_CARE-APP/views/vaksin/index.php" class="<?php echo $kelas_vaksin; ?>">
-                <i class="fa-solid fa-syringe w-5"></i><span>Vaksin</span>
+                <i class="fa-solid fa-syringe w-5"></i><span class="font-bold">Vaksin</span>
             </a>
             <a href="/PAW_CARE-APP/views/kandang/index.php" class="<?php echo $kelas_kandang; ?>">
                 <i class="fa-solid fa-box-open w-5"></i><span class="font-bold">Kandang</span>

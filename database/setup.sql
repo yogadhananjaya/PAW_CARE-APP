@@ -6,26 +6,7 @@ USE pawcare_db;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
--- Hapus tabel lama jika ada
-DROP TABLE IF EXISTS jadwal_kunjungan;
-DROP TABLE IF EXISTS transaksi_adopsi;
-DROP TABLE IF EXISTS riwayat_kesehatan;
-DROP TABLE IF EXISTS penempatan_kandang;
-DROP TABLE IF EXISTS donasi;
-DROP TABLE IF EXISTS hewan;
-DROP TABLE IF EXISTS pengguna;
-DROP TABLE IF EXISTS pengadopsi;
-DROP TABLE IF EXISTS vaksin;
-DROP TABLE IF EXISTS kandang;
-DROP TABLE IF EXISTS ras;
-DROP TABLE IF EXISTS jenis_hewan;
-DROP TABLE IF EXISTS Pegawai;
-DROP TABLE IF EXISTS Pengguna;
-DROP TABLE IF EXISTS Hewan;
-DROP TABLE IF EXISTS Perawatan;
-DROP TABLE IF EXISTS Penempatan_Kandang;
-DROP TABLE IF EXISTS Vaksinasi;
-DROP TABLE IF EXISTS Adopsi;
+
 
 -- ==========================================
 -- 📦 1. TABEL MASTER (Independen)
