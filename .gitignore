@@ -1,0 +1,13 @@
+# Folder Vendor (Composer / Library)
+vendor/
+
+# File konfigurasi dan lock file composer
+composer.json
+composer.lock
+
+# Environment
+.env
+
+# Upload Folder (Abaikan file gambarnya, simpan foldernya saja)
+assets/img/hewan/*
+!assets/img/hewan/.gitkeep
