@@ -5,36 +5,51 @@
         <h2>Buat Transaksi Adopsi</h2>
         <a href="index.php?page=transaksi_adopsi" class="btn btn-secondary">&larr; Batal</a>
     </header>
-    <div class="card" style="max-width: 600px;">
+    <div class="card" style="max-width: 650px;">
         <form action="index.php?page=transaksi_adopsi_create" method="POST">
+            <!-- Pengadopsi (Hanya yang Terverifikasi) -->
             <div class="form-group">
-                <label>Pengadopsi (Hanya yg Terverifikasi)</label>
+                <label>Pengadopsi <small style="color:#999;">(Hanya yang Terverifikasi KTP)</small></label>
                 <select name="id_pengadopsi" class="form-control" required>
-                    <?php foreach($a as $ad): ?><option value="<?= $ad['id_pengadopsi'] ?>"><?= $ad['nama_lengkap'] ?></option><?php endforeach; ?>
+                    <option value="">-- Pilih Pengadopsi --</option>
+                    <?php foreach($a as $ad): ?><option value="<?= $ad['id_pengadopsi'] ?>"><?= $ad['nama'] ?></option><?php endforeach; ?>
                 </select>
             </div>
+
+            <!-- Hewan yang Diadopsi -->
             <div class="form-group">
                 <label>Hewan yang Diadopsi</label>
                 <select name="id_hewan" class="form-control" required>
+                    <option value="">-- Pilih Hewan --</option>
                     <?php foreach($h as $hw): ?><option value="<?= $hw['id_hewan'] ?>"><?= $hw['nama_hewan'] ?></option><?php endforeach; ?>
                 </select>
             </div>
+
+            <!-- Penanggung Jawab Admin -->
             <div class="form-group">
-                <label>Tanggal Adopsi / TTD Kontrak</label>
-                <input type="date" name="tanggal_adopsi" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label>Status Persetujuan</label>
-                <select name="status_adopsi" class="form-control">
-                    <option value="Proses">Dalam Proses</option>
-                    <option value="Disetujui">Disetujui (Final)</option>
-                    <option value="Ditolak">Ditolak</option>
+                <label>Admin / Koordinator Penanggung Jawab <small style="color:#999;">(opsional)</small></label>
+                <select name="id_pengguna" class="form-control">
+                    <option value="">-- Belum Ditugaskan --</option>
+                    <?php foreach($pg as $p): ?><option value="<?= $p['id_pengguna'] ?>"><?= $p['nama_pengguna'] ?></option><?php endforeach; ?>
                 </select>
             </div>
+
+            <!-- Tanggal Adopsi -->
             <div class="form-group">
-                <label>Nomor / Link E-Contract (Opsional)</label>
-                <input type="text" name="e_contract" class="form-control" placeholder="Contoh: DOC-2026-001">
+                <label>Tanggal Adopsi / Penandatanganan Kontrak</label>
+                <input type="date" name="tanggal_adopsi" class="form-control" required>
             </div>
+
+            <!-- Status Kontrak -->
+            <div class="form-group">
+                <label>Status Kontrak</label>
+                <select name="status_kontrak" class="form-control">
+                    <option value="Draft">Draft (Belum Ditandatangani)</option>
+                    <option value="Ditandatangani">Ditandatangani</option>
+                    <option value="Aktif">Aktif (Final)</option>
+                </select>
+            </div>
+
             <button type="submit" class="btn btn-primary" style="margin-top:15px;">Simpan Transaksi</button>
         </form>
     </div>

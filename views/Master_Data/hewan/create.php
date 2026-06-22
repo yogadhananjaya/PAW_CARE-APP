@@ -7,14 +7,16 @@
         <a href="index.php?page=hewan" class="btn btn-secondary">&larr; Batal</a>
     </header>
 
-    <div class="card" style="max-width: 800px;">
+    <div class="card" style="max-width: 850px;">
         <form action="index.php?page=hewan_create" method="POST" enctype="multipart/form-data">
+            <!-- Nama Hewan -->
             <div class="form-group">
                 <label>Nama Hewan</label>
                 <input type="text" name="nama_hewan" class="form-control" required placeholder="Contoh: Chiko...">
             </div>
 
             <div style="display: flex; gap: 20px;">
+                <!-- Jenis Hewan -->
                 <div class="form-group" style="flex: 1;">
                     <label>Jenis Hewan</label>
                     <select name="id_jenis" id="id_jenis" class="form-control" required onchange="filterRas()">
@@ -24,6 +26,7 @@
                         <?php endforeach; ?>
                     </select>
                 </div>
+                <!-- Ras Hewan -->
                 <div class="form-group" style="flex: 1;">
                     <label>Ras Hewan</label>
                     <select name="id_ras" id="id_ras" class="form-control" required>
@@ -36,6 +39,7 @@
             </div>
 
             <div style="display: flex; gap: 20px;">
+                <!-- Jenis Kelamin -->
                 <div class="form-group" style="flex: 1;">
                     <label>Jenis Kelamin</label>
                     <select name="jenis_kelamin" class="form-control" required>
@@ -43,29 +47,79 @@
                         <option value="Betina">Betina</option>
                     </select>
                 </div>
+                <!-- Tanggal Lahir -->
                 <div class="form-group" style="flex: 1;">
-                    <label>Perkiraan Umur</label>
-                    <input type="text" name="umur" class="form-control" placeholder="Contoh: 5 Bulan" required>
+                    <label>Tanggal Lahir</label>
+                    <input type="date" name="tanggal_lahir" id="tanggal_lahir" class="form-control">
+                </div>
+                <!-- Estimasi Umur -->
+                <div class="form-group" style="flex: 1;">
+                    <label>Estimasi Umur (bulan)</label>
+                    <input type="number" name="estimasi_umur" id="estimasi_umur" class="form-control" required min="0" placeholder="Contoh: 3">
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Status Shelter</label>
-                <select name="status" class="form-control" required>
-                    <option value="Karantina">Karantina (Sakit / Adaptasi)</option>
-                    <option value="Tersedia">Tersedia (Siap Diadopsi)</option>
-                    <option value="Diadopsi">Diadopsi (Sudah Punya Majikan)</option>
-                </select>
+            <div style="display: flex; gap: 20px;">
+                <!-- Status Adopsi -->
+                <div class="form-group" style="flex: 1;">
+                    <label>Status Adopsi</label>
+                    <select name="status_adopsi" class="form-control" required>
+                        <option value="Karantina">Karantina (Sakit / Adaptasi)</option>
+                        <option value="Tersedia">Tersedia (Siap Diadopsi)</option>
+                        <option value="Dalam Proses">Dalam Proses Adopsi</option>
+                        <option value="Diadopsi">Diadopsi</option>
+                        <option value="Meninggal">Meninggal</option>
+                    </select>
+                </div>
+                <!-- Sumber Intake -->
+                <div class="form-group" style="flex: 1;">
+                    <label>Sumber Hewan Masuk</label>
+                    <select name="sumber_intake" class="form-control" required id="sumber_intake" onchange="toggleDonatur()">
+                        <option value="Breeding">Breeding (Pembiakan Internal)</option>
+                        <option value="Donasi">Donasi (Diterima dari Donatur)</option>
+                        <option value="Legacy">Legacy (Titipan / Warisan)</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>Upload Foto Visual Hewan</label>
-                <input type="file" name="foto" class="form-control" accept="image/*">
+            <!-- Data Donatur (muncul jika Donasi) -->
+            <div id="donatur_section" style="display:none;">
+                <div style="display:flex; gap:20px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>Nama Donatur</label>
+                        <input type="text" name="nama_donatur" class="form-control" placeholder="Nama lengkap donatur">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>Kontak Donatur</label>
+                        <input type="text" name="kontak_donatur" class="form-control" placeholder="Nomor HP donatur">
+                    </div>
+                </div>
             </div>
 
+            <div style="display:flex; gap:20px;">
+                <!-- Tanggal Intake -->
+                <div class="form-group" style="flex:1;">
+                    <label>Tanggal Masuk Shelter</label>
+                    <input type="date" name="tanggal_intake" class="form-control" required>
+                </div>
+            </div>
+
+            <!-- Keterangan Intake -->
             <div class="form-group">
-                <label>Deskripsi (Karakter & Kondisi Medis)</label>
-                <textarea name="deskripsi" class="form-control" rows="4"></textarea>
+                <label>Keterangan Kondisi Saat Masuk <small style="color:#999;">(opsional)</small></label>
+                <textarea name="keterangan_intake" class="form-control" rows="2" placeholder="Contoh: Datang dalam kondisi kurus, sudah dibersihkan..."></textarea>
+            </div>
+
+            <!-- Upload Foto -->
+            <div class="form-group">
+                <label>Upload Foto Hewan</label>
+                <input type="file" name="url_foto_hewan" class="form-control" accept="image/*">
+            </div>
+
+            <!-- Deskripsi -->
+            <div class="form-group">
+                <label>Deskripsi (Karakter & Kondisi)</label>
+                <textarea name="deskripsi" class="form-control" rows="3" placeholder="Deskripsikan karakter dan kondisi medis hewan..."></textarea>
             </div>
 
             <button type="submit" class="btn btn-primary" style="margin-top:10px;">Simpan Record</button>
@@ -74,6 +128,7 @@
 </div>
 
 <script>
+// Filter ras berdasarkan jenis yang dipilih
 function filterRas() {
     var jenisSelect = document.getElementById('id_jenis');
     var rasSelect = document.getElementById('id_ras');
@@ -91,6 +146,33 @@ function filterRas() {
         }
     }
 }
+
+// Tampilkan/sembunyikan input donatur berdasarkan sumber intake
+function toggleDonatur() {
+    var sumber = document.getElementById('sumber_intake').value;
+    var donaturSection = document.getElementById('donatur_section');
+    donaturSection.style.display = (sumber === 'Donasi') ? 'block' : 'none';
+}
+
+// Hitung estimasi umur otomatis ketika tanggal lahir diubah
+document.getElementById('tanggal_lahir').addEventListener('change', function() {
+    var birthDateVal = this.value;
+    var ageInput = document.getElementById('estimasi_umur');
+    if (birthDateVal) {
+        var birthDate = new Date(birthDateVal);
+        var today = new Date();
+        var months = (today.getFullYear() - birthDate.getFullYear()) * 12 + (today.getMonth() - birthDate.getMonth());
+        if (today.getDate() < birthDate.getDate()) {
+            months--;
+        }
+        if (months < 0) months = 0;
+        ageInput.value = months;
+        ageInput.readOnly = true;
+    } else {
+        ageInput.value = '';
+        ageInput.readOnly = false;
+    }
+});
 </script>
 
 <?php include __DIR__ . '/../../layouts/footer.php'; ?>

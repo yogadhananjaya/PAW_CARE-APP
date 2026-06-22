@@ -21,6 +21,7 @@ class TransaksiAdopsiController {
         }
         $a = $this->m->getPengadopsi();
         $h = $this->m->getHewan();
+        $pg = $this->m->getPengguna();
         include __DIR__ . '/../../views/Master_Transaksi/transaksi_adopsi/create.php';
     }
 
@@ -33,6 +34,7 @@ class TransaksiAdopsiController {
         $data = $this->m->getById($id);
         $a = $this->m->getPengadopsi();
         $h = $this->m->getHewan();
+        $pg = $this->m->getPengguna();
         include __DIR__ . '/../../views/Master_Transaksi/transaksi_adopsi/edit.php';
     }
 

@@ -15,7 +15,7 @@ class VaksinController {
 
     public function create() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->m->insert($_POST['nama_vaksin'], $_POST['deskripsi']);
+            $this->m->insert($_POST['nama_vaksin'], $_POST['deskripsi'], $_POST['status']);
             header('Location: index.php?page=vaksin');
             exit;
         }
@@ -24,7 +24,7 @@ class VaksinController {
 
     public function edit($id) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->m->update($id, $_POST['nama_vaksin'], $_POST['deskripsi']);
+            $this->m->update($id, $_POST['nama_vaksin'], $_POST['deskripsi'], $_POST['status']);
             header('Location: index.php?page=vaksin');
             exit;
         }

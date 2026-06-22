@@ -21,6 +21,7 @@ class JadwalKunjunganController {
         }
         $a = $this->m->getPengadopsi();
         $h = $this->m->getHewan();
+        $p = $this->m->getPengguna();
         include __DIR__ . '/../../views/Master_Transaksi/jadwal_kunjungan/create.php';
     }
 
@@ -33,6 +34,7 @@ class JadwalKunjunganController {
         $data = $this->m->getById($id);
         $a = $this->m->getPengadopsi();
         $h = $this->m->getHewan();
+        $p = $this->m->getPengguna();
         include __DIR__ . '/../../views/Master_Transaksi/jadwal_kunjungan/edit.php';
     }
 

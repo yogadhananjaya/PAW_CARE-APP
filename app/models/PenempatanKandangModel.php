@@ -10,7 +10,7 @@ class PenempatanKandangModel {
     }
 
     public function getAll() { 
-        return $this->pdo->query("SELECT p.*, h.nama_hewan, k.nama_kandang FROM penempatan_kandang p JOIN hewan h ON p.id_hewan = h.id_hewan JOIN kandang k ON p.id_kandang = k.id_kandang ORDER BY p.id_penempatan DESC")->fetchAll(); 
+        return $this->pdo->query("SELECT p.*, h.nama_hewan, k.kode_kandang, k.nama_kandang FROM penempatan_kandang p JOIN hewan h ON p.id_hewan = h.id_hewan JOIN kandang k ON p.id_kandang = k.id_kandang ORDER BY p.id_penempatan DESC")->fetchAll(); 
     }
 
     public function getById($id) { 
@@ -39,7 +39,7 @@ class PenempatanKandangModel {
     }
 
     public function getKandang() { 
-        return $this->pdo->query("SELECT id_kandang, nama_kandang FROM kandang")->fetchAll(); 
+        return $this->pdo->query("SELECT id_kandang, kode_kandang, nama_kandang FROM kandang")->fetchAll(); 
     }
 }
 ?>

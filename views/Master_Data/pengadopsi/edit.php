@@ -8,38 +8,59 @@
     </header>
     <div class="card" style="max-width: 700px;">
         <form action="index.php?page=pengadopsi_edit&id=<?= $data['id_pengadopsi'] ?>" method="POST">
+            <!-- Nama -->
             <div class="form-group">
-                <label>Pilih Akun Pengguna</label>
-                <select name="id_pengguna" class="form-control" required>
-                    <?php foreach($users as $u): ?>
-                        <option value="<?= $u['id_pengguna'] ?>" <?= $u['id_pengguna'] == $data['id_pengguna'] ? 'selected' : '' ?>><?= $u['username'] ?></option>
-                    <?php endforeach; ?>
-                </select>
+                <label>Nama Lengkap</label>
+                <input type="text" name="nama" value="<?= htmlspecialchars($data['nama']) ?>" class="form-control" required>
             </div>
+
+            <!-- Email -->
             <div class="form-group">
-                <label>Nama Lengkap Sesuai KTP</label>
-                <input type="text" name="nama_lengkap" value="<?= htmlspecialchars($data['nama_lengkap']) ?>" class="form-control" required>
+                <label>Email</label>
+                <input type="email" name="email" value="<?= htmlspecialchars($data['email']) ?>" class="form-control" required>
             </div>
+
+            <!-- Password (kosongkan jika tidak diubah) -->
             <div class="form-group">
-                <label>Nomor Induk Kependudukan (NIK)</label>
-                <input type="text" name="nik" value="<?= htmlspecialchars($data['nik']) ?>" class="form-control" required>
+                <label>Kata Sandi Baru <small style="color:#999;">(Kosongkan jika tidak diubah)</small></label>
+                <input type="password" name="kata_sandi" class="form-control" autocomplete="new-password">
             </div>
+
+            <!-- No HP -->
             <div class="form-group">
                 <label>Nomor HP / WhatsApp</label>
                 <input type="text" name="no_hp" value="<?= htmlspecialchars($data['no_hp']) ?>" class="form-control" required>
             </div>
+
+            <!-- Alamat -->
             <div class="form-group">
                 <label>Alamat Lengkap</label>
                 <textarea name="alamat" class="form-control" rows="3" required><?= htmlspecialchars($data['alamat']) ?></textarea>
             </div>
+
+            <!-- Status Verifikasi -->
             <div class="form-group">
-                <label>Status Verifikasi</label>
+                <label>Status Verifikasi KTP</label>
                 <select name="status_verifikasi" class="form-control">
-                    <option value="Belum" <?= $data['status_verifikasi'] == 'Belum' ? 'selected' : '' ?>>Belum (Menunggu Pengecekan)</option>
+                    <option value="Belum" <?= $data['status_verifikasi'] == 'Belum' ? 'selected' : '' ?>>Belum</option>
+                    <option value="Menunggu" <?= $data['status_verifikasi'] == 'Menunggu' ? 'selected' : '' ?>>Menunggu Verifikasi</option>
                     <option value="Terverifikasi" <?= $data['status_verifikasi'] == 'Terverifikasi' ? 'selected' : '' ?>>Terverifikasi</option>
                     <option value="Ditolak" <?= $data['status_verifikasi'] == 'Ditolak' ? 'selected' : '' ?>>Ditolak</option>
                 </select>
             </div>
+
+            <!-- Tanggal Verifikasi -->
+            <div class="form-group">
+                <label>Tanggal Verifikasi <small style="color:#999;">(opsional)</small></label>
+                <input type="date" name="tanggal_verifikasi" value="<?= htmlspecialchars($data['tanggal_verifikasi'] ?? '') ?>" class="form-control">
+            </div>
+
+            <!-- Catatan Verifikasi -->
+            <div class="form-group">
+                <label>Catatan Verifikasi <small style="color:#999;">(opsional)</small></label>
+                <textarea name="catatan_verifikasi" class="form-control" rows="2"><?= htmlspecialchars($data['catatan_verifikasi'] ?? '') ?></textarea>
+            </div>
+
             <button type="submit" class="btn btn-warning" style="margin-top:15px;">Update</button>
         </form>
     </div>

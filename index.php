@@ -10,7 +10,7 @@ switch ($page) {
     case 'home':
         if (isset($_SESSION['role'])) {
             if ($_SESSION['role'] == 'SuperAdmin') header('Location: index.php?page=dashboard_superadmin');
-            elseif ($_SESSION['role'] == 'Pegawai') header('Location: index.php?page=dashboard_staff');
+            elseif (in_array($_SESSION['role'], ['Koordinator', 'Perawat'])) header('Location: index.php?page=dashboard_staff');
             else header('Location: index.php?page=dashboard_user');
             exit;
         }
@@ -79,7 +79,7 @@ switch ($page) {
         break;
 
     case 'dashboard_staff':
-        if (!check_access(['Pegawai', 'SuperAdmin'])) { header('Location: index.php?page=login'); exit; }
+        if (!check_access(['Koordinator', 'Perawat', 'SuperAdmin'])) { header('Location: index.php?page=login'); exit; }
         include __DIR__ . '/views/user/dashboard_staff.php';
         break;
 
@@ -88,17 +88,33 @@ switch ($page) {
         include __DIR__ . '/views/user/dashboard_user.php';
         break;
 
-    // --- FITUR SIMPAN TANDA TANGAN ---
+    // --- FITUR TANDA TANGAN & SIMPAN ---
+    case 'tanda_tangan':
+        if (!check_access(['User'])) { header('Location: index.php?page=login'); exit; }
+        include __DIR__ . '/views/user/tanda_tangan.php';
+        break;
+
     case 'simpan_ttd':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $id_transaksi = $_POST['id_transaksi'];
-            $ttd_base64 = $_POST['ttd_base64'];
+            if (!isset($_SESSION['user_id'])) { header('Location: index.php?page=login'); exit; }
             
-            // Simpan data Base64 ke dalam kolom e_contract di database
-            $stmt = $pdo->prepare("UPDATE transaksi_adopsi SET e_contract = ?, status_adopsi = 'Disetujui' WHERE id_transaksi = ?");
-            $stmt->execute([$ttd_base64, $id_transaksi]);
+            // Ambil id_pengadopsi dari tabel pengadopsi berdasarkan user yang sedang login
+            $stmt_adopter = $pdo->prepare("SELECT id_pengadopsi FROM pengadopsi WHERE id_pengguna = ?");
+            $stmt_adopter->execute([$_SESSION['user_id']]);
+            $adopter = $stmt_adopter->fetch();
             
-            echo "<script>alert('Tanda tangan berhasil disimpan. Adopsi Sah!'); window.location.href='index.php?page=dashboard_user';</script>";
+            if ($adopter) {
+                $id_hewan = $_POST['id_transaksi']; // yang dikirim dari tanda_tangan.php adalah id_hewan
+                $ttd_base64 = $_POST['ttd_base64'];
+                
+                // Simpan data ke dalam transaksi_adopsi dengan status 'Ditandatangani'
+                $stmt = $pdo->prepare("INSERT INTO transaksi_adopsi (id_hewan, id_pengadopsi, tanggal_adopsi, status_kontrak, ttd_adopter) VALUES (?, ?, CURDATE(), 'Ditandatangani', ?)");
+                $stmt->execute([$id_hewan, $adopter['id_pengadopsi'], $ttd_base64]);
+                
+                echo "<script>alert('Tanda tangan berhasil disimpan. Adopsi Sah!'); window.location.href='index.php?page=dashboard_user&tab=pengajuan';</script>";
+            } else {
+                echo "<script>alert('Gagal menyimpan: Profil pengadopsi belum lengkap.'); window.location.href='index.php?page=dashboard_user';</script>";
+            }
             exit;
         }
         break;
@@ -185,8 +201,8 @@ switch ($page) {
         ];
 
         if (in_array($entity, $valid_entities)) {
-            // Hanya SuperAdmin dan Pegawai yang bisa mengakses modul CRUD
-            if (!check_access(['SuperAdmin', 'Pegawai'])) { header('Location: index.php?page=login'); exit; }
+            // Hanya SuperAdmin, Koordinator, dan Perawat yang bisa mengakses modul CRUD
+            if (!check_access(['SuperAdmin', 'Koordinator', 'Perawat'])) { header('Location: index.php?page=login'); exit; }
             
             // Mengubah format snake_case (riwayat_kesehatan) menjadi CamelCase (RiwayatKesehatanController)
             $ctrlName = str_replace(' ', '', ucwords(str_replace('_', ' ', $entity))) . 'Controller';

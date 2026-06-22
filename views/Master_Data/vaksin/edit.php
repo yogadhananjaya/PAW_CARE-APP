@@ -16,6 +16,14 @@
                 <label>Deskripsi</label>
                 <textarea name="deskripsi" class="form-control" rows="4"><?= htmlspecialchars($data['deskripsi']) ?></textarea>
             </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select name="status" class="form-control" required>
+                    <option value="Tersedia" <?= $data['status'] == 'Tersedia' ? 'selected' : '' ?>>Tersedia</option>
+                    <option value="Habis" <?= $data['status'] == 'Habis' ? 'selected' : '' ?>>Habis</option>
+                    <option value="Discontinue" <?= $data['status'] == 'Discontinue' ? 'selected' : '' ?>>Discontinue</option>
+                </select>
+            </div>
             <button type="submit" class="btn btn-warning" style="margin-top:15px;">Update</button>
         </form>
     </div>

@@ -5,35 +5,77 @@
         <h2>Tambah Jadwal Kunjungan</h2>
         <a href="index.php?page=jadwal_kunjungan" class="btn btn-secondary">&larr; Batal</a>
     </header>
-    <div class="card" style="max-width: 600px;">
+    <div class="card" style="max-width: 650px;">
         <form action="index.php?page=jadwal_kunjungan_create" method="POST">
+            <!-- Pengadopsi -->
             <div class="form-group">
                 <label>Pengadopsi</label>
                 <select name="id_pengadopsi" class="form-control" required>
-                    <?php foreach($a as $ad): ?><option value="<?= $ad['id_pengadopsi'] ?>"><?= $ad['nama_lengkap'] ?></option><?php endforeach; ?>
+                    <option value="">-- Pilih Pengadopsi --</option>
+                    <?php foreach($a as $ad): ?><option value="<?= $ad['id_pengadopsi'] ?>"><?= $ad['nama'] ?></option><?php endforeach; ?>
                 </select>
             </div>
+
+            <!-- Hewan yang Dikunjungi -->
             <div class="form-group">
                 <label>Hewan yang Dikunjungi</label>
                 <select name="id_hewan" class="form-control" required>
+                    <option value="">-- Pilih Hewan --</option>
                     <?php foreach($h as $hw): ?><option value="<?= $hw['id_hewan'] ?>"><?= $hw['nama_hewan'] ?></option><?php endforeach; ?>
                 </select>
             </div>
+
+            <!-- Pengguna (Petugas Pendamping) -->
             <div class="form-group">
-                <label>Tanggal & Jam</label>
-                <input type="datetime-local" name="tanggal_kunjungan" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label>Status</label>
-                <select name="status" class="form-control">
-                    <option value="Menunggu">Menunggu Konfirmasi</option>
-                    <option value="Dikonfirmasi">Dikonfirmasi</option>
-                    <option value="Selesai">Selesai / Hadir</option>
-                    <option value="Dibatalkan">Dibatalkan</option>
+                <label>Petugas Pendamping <small style="color:#999;">(opsional)</small></label>
+                <select name="id_pengguna" class="form-control">
+                    <option value="">-- Belum Ditugaskan --</option>
+                    <?php foreach($p as $pg): ?><option value="<?= $pg['id_pengguna'] ?>"><?= $pg['nama_pengguna'] ?></option><?php endforeach; ?>
                 </select>
             </div>
+
+            <!-- Metode Kunjungan -->
+            <div class="form-group">
+                <label>Metode Kunjungan</label>
+                <select name="metode" class="form-control" required id="metode_select" onchange="toggleAlamat()">
+                    <option value="Kunjungan ke Shelter">Kunjungan ke Shelter</option>
+                    <option value="Jemput ke Rumah">Jemput ke Rumah Adopter</option>
+                </select>
+            </div>
+
+            <!-- Alamat Tujuan (muncul jika Jemput ke Rumah) -->
+            <div class="form-group" id="alamat_section" style="display:none;">
+                <label>Alamat Tujuan Jemput</label>
+                <textarea name="alamat_tujuan" class="form-control" rows="2" placeholder="Alamat lengkap rumah adopter..."></textarea>
+            </div>
+
+            <!-- Tanggal & Jam Jadwal -->
+            <div class="form-group">
+                <label>Tanggal & Jam Jadwal</label>
+                <input type="datetime-local" name="tanggal_jadwal" class="form-control" required>
+            </div>
+
+            <!-- Status Jadwal -->
+            <div class="form-group">
+                <label>Status Jadwal</label>
+                <select name="status_jadwal" class="form-control">
+                    <option value="Menunggu">Menunggu Konfirmasi</option>
+                    <option value="Dikonfirmasi">Dikonfirmasi</option>
+                    <option value="Selesai">Selesai</option>
+                    <option value="Batal">Dibatalkan</option>
+                </select>
+            </div>
+
             <button type="submit" class="btn btn-primary" style="margin-top:15px;">Simpan</button>
         </form>
     </div>
 </div>
+
+<script>
+function toggleAlamat() {
+    var metode = document.getElementById('metode_select').value;
+    document.getElementById('alamat_section').style.display = (metode === 'Jemput ke Rumah') ? 'block' : 'none';
+}
+</script>
+
 <?php include __DIR__ . '/../../layouts/footer.php'; ?>

@@ -1,7 +1,7 @@
 <?php
 // Menarik data hewan dari database untuk ditampilkan di Homepage
 require_once __DIR__ . '/../../config/connect.php';
-$stmt_hewan = $pdo->query("SELECT h.*, j.nama_jenis, r.nama_ras FROM hewan h JOIN jenis_hewan j ON h.id_jenis = j.id_jenis JOIN ras r ON h.id_ras = r.id_ras WHERE h.status = 'Tersedia' ORDER BY h.id_hewan DESC LIMIT 6");
+$stmt_hewan = $pdo->query("SELECT h.*, j.nama_jenis, r.nama_ras FROM hewan h JOIN jenis_hewan j ON h.id_jenis = j.id_jenis JOIN ras r ON h.id_ras = r.id_ras WHERE h.status_adopsi = 'Tersedia' ORDER BY h.id_hewan DESC LIMIT 6");
 $katalog_hewan = $stmt_hewan->fetchAll();
 ?>
 <!DOCTYPE html>
@@ -43,8 +43,8 @@ $katalog_hewan = $stmt_hewan->fetchAll();
             <?php foreach($katalog_hewan as $hewan): ?>
                 <div class="card-pet">
                     <div class="pet-img-wrapper" style="height: 200px; background: #eee; border-radius: 10px; overflow: hidden; margin-bottom:15px;">
-                        <?php if(!empty($hewan['foto'])): ?>
-                            <img src="assets/img/hewan/<?= htmlspecialchars($hewan['foto']) ?>" style="width:100%; height:100%; object-fit:cover;">
+                        <?php if(!empty($hewan['url_foto_hewan'])): ?>
+                            <img src="assets/img/hewan/<?= htmlspecialchars($hewan['url_foto_hewan']) ?>" style="width:100%; height:100%; object-fit:cover;">
                         <?php else: ?>
                             <div style="display:flex; height:100%; align-items:center; justify-content:center; color:#999;">Tanpa Foto</div>
                         <?php endif; ?>

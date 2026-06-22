@@ -20,14 +20,14 @@ $tab = isset($_GET['tab']) ? $_GET['tab'] : 'beranda';
 // 2. Ambil data katalog hewan jika akun terverifikasi
 $katalog_hewan = [];
 if ($adopter) {
-    $stmt_hewan = $pdo->query("SELECT h.*, j.nama_jenis, r.nama_ras FROM hewan h JOIN jenis_hewan j ON h.id_jenis = j.id_jenis JOIN ras r ON h.id_ras = r.id_ras WHERE h.status = 'Tersedia' ORDER BY h.id_hewan DESC");
+    $stmt_hewan = $pdo->query("SELECT h.*, j.nama_jenis, r.nama_ras FROM hewan h JOIN jenis_hewan j ON h.id_jenis = j.id_jenis JOIN ras r ON h.id_ras = r.id_ras WHERE h.status_adopsi = 'Tersedia' ORDER BY h.id_hewan DESC");
     $katalog_hewan = $stmt_hewan->fetchAll();
 }
 
 // 3. Ambil data pengajuan adopsi milik user ini (untuk tab Pengajuan Saya)
 $my_submissions = [];
 if ($adopter) {
-    $stmt_sub = $pdo->prepare("SELECT t.*, h.nama_hewan, h.foto, j.nama_jenis FROM transaksi_adopsi t JOIN hewan h ON t.id_hewan = h.id_hewan JOIN jenis_hewan j ON h.id_jenis = j.id_jenis WHERE t.id_pengadopsi = ? ORDER BY t.id_transaksi DESC");
+    $stmt_sub = $pdo->prepare("SELECT t.*, h.nama_hewan, h.url_foto_hewan, j.nama_jenis FROM transaksi_adopsi t JOIN hewan h ON t.id_hewan = h.id_hewan JOIN jenis_hewan j ON h.id_jenis = j.id_jenis WHERE t.id_pengadopsi = ? ORDER BY t.id_adopsi DESC");
     $stmt_sub->execute([$adopter['id_pengadopsi']]);
     $my_submissions = $stmt_sub->fetchAll();
 }
@@ -208,8 +208,8 @@ if ($adopter) {
                     <div class="catalog-grid">
                         <?php foreach ($katalog_hewan as $hewan): ?>
                             <div class="pet-card">
-                                <?php if (!empty($hewan['foto'])): ?>
-                                    <img src="assets/img/hewan/<?= htmlspecialchars($hewan['foto']) ?>" class="pet-img" alt="Foto">
+                                <?php if (!empty($hewan['url_foto_hewan'])): ?>
+                                    <img src="assets/img/hewan/<?= htmlspecialchars($hewan['url_foto_hewan']) ?>" class="pet-img" alt="Foto">
                                 <?php else: ?>
                                     <div class="pet-img" style="display:flex; align-items:center; justify-content:center; color:#bdc3c7; font-size:13px;">No Visual</div>
                                 <?php endif; ?>
@@ -217,7 +217,7 @@ if ($adopter) {
                                 <div class="pet-breed"><?= htmlspecialchars($hewan['nama_jenis']) ?> - <?= htmlspecialchars($hewan['nama_ras']) ?></div>
                                 <div class="pet-tags">
                                     <span class="tag"><?= htmlspecialchars($hewan['jenis_kelamin']) ?></span>
-                                    <span class="tag"><?= htmlspecialchars($hewan['umur']) ?></span>
+                                    <span class="tag"><?= htmlspecialchars($hewan['estimasi_umur']) ?> bln</span>
                                 </div>
                                 <a href="index.php?page=tanda_tangan&id=<?= $hewan['id_hewan'] ?>" class="btn-adopt">Ajukan Adopsi</a>
                             </div>
@@ -246,7 +246,7 @@ if ($adopter) {
                                         <td><strong><?= htmlspecialchars($sub['nama_hewan']) ?></strong> (<?= htmlspecialchars($sub['nama_jenis']) ?>)</td>
                                         <td><?= htmlspecialchars($sub['tanggal_adopsi']) ?></td>
                                         <td>
-                                            <?php if (!empty($sub['e_contract'])): ?>
+                                            <?php if (!empty($sub['ttd_adopter'])): ?>
                                                 <span style="color:#2ecc71; font-weight:600; font-size:13px;">✍️ Signed (Digital Canvas)</span>
                                             <?php else: ?>
                                                 <span style="color:#7f8c8d; font-size:13px;">Belum Tanda Tangan</span>
@@ -255,10 +255,10 @@ if ($adopter) {
                                         <td>
                                             <?php 
                                             $pill_class = 'status-process';
-                                            if ($sub['status_adopsi'] == 'Disetujui') $pill_class = 'status-approved';
-                                            if ($sub['status_adopsi'] == 'Ditolak') $pill_class = 'status-rejected';
+                                            if ($sub['status_kontrak'] == 'Aktif') $pill_class = 'status-approved';
+                                            if ($sub['status_kontrak'] == 'Draft') $pill_class = 'status-rejected';
                                             ?>
-                                            <span class="status-pill <?= $pill_class ?>"><?= htmlspecialchars($sub['status_adopsi']) ?></span>
+                                            <span class="status-pill <?= $pill_class ?>"><?= htmlspecialchars($sub['status_kontrak']) ?></span>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

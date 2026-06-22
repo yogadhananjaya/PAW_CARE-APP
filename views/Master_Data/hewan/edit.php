@@ -44,8 +44,12 @@
                     </select>
                 </div>
                 <div class="form-group" style="flex: 1;">
-                    <label>Perkiraan Umur</label>
-                    <input type="text" name="umur" class="form-control" value="<?= htmlspecialchars($hewan['umur']) ?>" required>
+                    <label>Tanggal Lahir</label>
+                    <input type="date" name="tanggal_lahir" id="tanggal_lahir" class="form-control" value="<?= htmlspecialchars($hewan['tanggal_lahir'] ?? '') ?>">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Estimasi Umur (bulan)</label>
+                    <input type="number" name="estimasi_umur" id="estimasi_umur" class="form-control" value="<?= htmlspecialchars($hewan['estimasi_umur']) ?>" required <?= !empty($hewan['tanggal_lahir']) ? 'readonly' : '' ?>>
                 </div>
             </div>
 
@@ -60,12 +64,12 @@
 
             <div class="form-group">
                 <label>Ganti Foto (Kosongkan jika tidak ingin mengubah foto)</label>
-                <?php if(!empty($hewan['foto'])): ?>
+                <?php if(!empty($hewan['url_foto_hewan'])): ?>
                     <div style="margin-bottom:10px;">
-                        <img src="assets/img/hewan/<?= htmlspecialchars($hewan['foto']) ?>" style="height:60px; border-radius:5px;">
+                        <img src="assets/img/hewan/<?= htmlspecialchars($hewan['url_foto_hewan']) ?>" style="height:60px; border-radius:5px;">
                     </div>
                 <?php endif; ?>
-                <input type="file" name="foto" class="form-control" accept="image/*">
+                <input type="file" name="url_foto_hewan" class="form-control" accept="image/*">
             </div>
 
             <div class="form-group">
@@ -97,6 +101,26 @@ function filterRas() {
         }
     }
 }
+
+// Hitung estimasi umur otomatis ketika tanggal lahir diubah
+document.getElementById('tanggal_lahir').addEventListener('change', function() {
+    var birthDateVal = this.value;
+    var ageInput = document.getElementById('estimasi_umur');
+    if (birthDateVal) {
+        var birthDate = new Date(birthDateVal);
+        var today = new Date();
+        var months = (today.getFullYear() - birthDate.getFullYear()) * 12 + (today.getMonth() - birthDate.getMonth());
+        if (today.getDate() < birthDate.getDate()) {
+            months--;
+        }
+        if (months < 0) months = 0;
+        ageInput.value = months;
+        ageInput.readOnly = true;
+    } else {
+        ageInput.value = '';
+        ageInput.readOnly = false;
+    }
+});
 </script>
 
 <?php include __DIR__ . '/../../layouts/footer.php'; ?>

@@ -16,6 +16,14 @@
                 <label>Deskripsi</label>
                 <textarea name="deskripsi" class="form-control" rows="4"></textarea>
             </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select name="status" class="form-control" required>
+                    <option value="Tersedia">Tersedia</option>
+                    <option value="Habis">Habis</option>
+                    <option value="Discontinue">Discontinue</option>
+                </select>
+            </div>
             <button type="submit" class="btn btn-primary" style="margin-top:15px;">Simpan</button>
         </form>
     </div>

@@ -16,7 +16,7 @@
             <div class="form-group">
                 <label>Pilih Kandang</label>
                 <select name="id_kandang" class="form-control" required>
-                    <?php foreach($k as $kd): ?><option value="<?= $kd['id_kandang'] ?>" <?= $data['id_kandang']==$kd['id_kandang']?'selected':'' ?>><?= $kd['nama_kandang'] ?></option><?php endforeach; ?>
+                    <?php foreach($k as $kd): ?><option value="<?= $kd['id_kandang'] ?>" <?= $data['id_kandang']==$kd['id_kandang']?'selected':'' ?>><?= htmlspecialchars($kd['kode_kandang']) ?> - <?= htmlspecialchars($kd['nama_kandang']) ?></option><?php endforeach; ?>
                 </select>
             </div>
             <div class="form-group">

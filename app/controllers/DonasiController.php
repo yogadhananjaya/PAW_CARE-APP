@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/DonasiModel.php';
+require_once __DIR__ . '/../models/PengadopsiModel.php';
 
 class DonasiController {
     private $m;
@@ -19,6 +20,8 @@ class DonasiController {
             header('Location: index.php?page=donasi');
             exit;
         }
+        $pengadopsiModel = new PengadopsiModel();
+        $p = $pengadopsiModel->getAll();
         include __DIR__ . '/../../views/Master_Data/donasi/create.php';
     }
 
@@ -29,6 +32,8 @@ class DonasiController {
             exit;
         }
         $data = $this->m->getById($id);
+        $pengadopsiModel = new PengadopsiModel();
+        $p = $pengadopsiModel->getAll();
         include __DIR__ . '/../../views/Master_Data/donasi/edit.php';
     }
 

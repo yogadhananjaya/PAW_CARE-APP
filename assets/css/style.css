@@ -2,12 +2,16 @@
    PALET WARNA CUSTOM PAWCARE (SUPERADMIN & GLOBAL)
    ========================================================================== */
 :root {
-    --krem-utama: #FDFBF7; /* Background halaman utama */
-    --krem-gelap: #EFE9DB; /* Sidebar, header tabel, card border */
-    --hitam: #1A1A1A;      /* Teks utama, Navbar dominan, Tombol utama */
+    --krem-utama: #FAF8F5; /* Background halaman utama */
+    --krem-gelap: #F4F0E6; /* Sidebar background, card border */
+    --krem-tabel: #EFE9DB; /* Header tabel */
+    --hitam: #111111;      /* Teks utama, Navbar dominan, Tombol utama, Aktif menu */
     --putih: #FFFFFF;      /* Konten dalam card, input form */
     --merah: #DE3B3B;      /* Tombol delete, notifikasi, aksen brand */
-    --text-muted: #666666; /* Teks sekunder */
+    --text-muted: #777777; /* Teks sekunder */
+    --biru-aksi: #3182CE;   /* Tombol edit */
+    --biru-bg: #EBF3FF;     /* Background tombol edit */
+    --merah-bg: #FFF5F5;    /* Background tombol hapus */
 }
 
 /* ==========================================================================
@@ -17,7 +21,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
@@ -28,40 +32,79 @@ body {
 
 a {
     text-decoration: none;
+    color: inherit;
 }
 
 /* ==========================================================================
    TOMBOL (BUTTONS) - DIADAPTASI KE PALET BARU
    ========================================================================== */
 .btn {
-    display: inline-block;
-    padding: 10px 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 22px;
     border: none;
-    border-radius: 6px;
+    border-radius: 30px;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     text-align: center;
+    outline: none;
 }
 
-.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-sm { 
+    padding: 0; 
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none !important;
+    box-shadow: none !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
 
-/* Primary diganti ke Hitam untuk ketegasan */
-.btn-primary { background-color: var(--hitam); color: var(--putih); }
-.btn-primary:hover { background-color: #333333; }
+.btn-sm svg {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2.5px;
+}
 
-/* Secondary menggunakan Krem Gelap */
-.btn-secondary { background-color: var(--krem-gelap); color: var(--hitam); border: 1px solid #dcd1ba; }
-.btn-secondary:hover { background-color: #e3d8c1; }
+.btn-primary { 
+    background-color: var(--hitam); 
+    color: var(--putih); 
+}
+.btn-primary:hover { 
+    background-color: #2a2a2a; 
+    transform: translateY(-1px);
+}
 
-/* Warning (Edit) menggunakan Krem Gelap dengan aksen tegas */
-.btn-warning { background-color: var(--krem-gelap); color: var(--hitam); border: 1px solid var(--hitam); }
-.btn-warning:hover { background-color: var(--hitam); color: var(--putih); }
+.btn-secondary { 
+    background-color: var(--krem-gelap); 
+    color: var(--hitam); 
+    border: 1px solid rgba(0, 0, 0, 0.05); 
+}
+.btn-secondary:hover { 
+    background-color: #ebe6da; 
+}
 
-/* Danger (Hapus/Batal) menggunakan Merah */
-.btn-danger { background-color: var(--merah); color: var(--putih); }
-.btn-danger:hover { background-color: #b52a2a; }
+.btn-warning { 
+    background-color: var(--biru-bg); 
+    color: var(--biru-aksi); 
+}
+.btn-warning:hover { 
+    background-color: #d2e4ff; 
+}
+
+.btn-danger { 
+    background-color: var(--merah-bg); 
+    color: var(--merah); 
+}
+.btn-danger:hover { 
+    background-color: #ffd8d8; 
+}
 
 /* ==========================================================================
    FORMULIR (FORMS) UNTUK HALAMAN CREATE & EDIT
@@ -79,24 +122,24 @@ a {
 .form-control {
     width: 100%;
     padding: 12px 15px;
-    border: 1px solid var(--krem-gelap);
-    border-radius: 6px;
+    border: 1px solid #E2DCD0;
+    border-radius: 8px;
     font-size: 14px;
     background-color: var(--putih);
     color: var(--hitam);
     outline: none;
-    transition: 0.3s;
+    transition: 0.2s;
 }
 .form-control:focus {
     border-color: var(--hitam);
-    box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.1);
+    box-shadow: 0 0 0 2px rgba(17, 17, 17, 0.05);
 }
 textarea.form-control {
     resize: vertical;
 }
 
 /* ==========================================================================
-   SIDEBAR ADMIN
+   SIDEBAR ADMIN (MODERN & PREMIUM)
    ========================================================================== */
 .sidebar {
     width: 260px;
@@ -107,42 +150,91 @@ textarea.form-control {
     overflow-y: auto;
     left: 0;
     top: 0;
-    box-shadow: 2px 0 15px rgba(0,0,0,0.03);
-    border-right: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 90px; /* Space for absolute user footer */
+    border-right: 1px solid rgba(0,0,0,0.03);
+}
+
+/* Custom Scrollbar for Sidebar */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 10px;
+}
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.15);
 }
 
 .sidebar-title {
-    padding: 20px;
-    font-size: 24px;
+    padding: 30px 24px 15px;
+    font-size: 20px;
     font-weight: 800;
-    text-align: center;
-    background-color: transparent;
     color: var(--hitam);
-    border-bottom: 2px solid var(--hitam);
     letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+}
+
+.sidebar-title .paw-icon {
+    color: var(--merah);
+    font-size: 22px;
+}
+
+.sidebar-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    padding: 18px 24px 6px;
 }
 
 .sidebar-links {
     list-style: none;
-    padding: 10px 0;
+    padding: 0 12px;
+}
+
+.sidebar-links > li {
+    margin-bottom: 2px;
 }
 
 .sidebar-links > li > a, 
-.dropdown-toggle,
-.sidebar-dropdown li a {
-    display: block;
-    padding: 15px 20px;
+.dropdown-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
     color: var(--hitam);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 500;
-    transition: 0.3s;
+    border-radius: 8px;
+    transition: all 0.2s ease;
     cursor: pointer;
-    border-left: 4px solid transparent;
+}
+
+.sidebar-links > li > a:hover, 
+.dropdown-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.sidebar-links > li > a.active, 
+.dropdown-toggle.active {
+    background-color: var(--hitam);
+    color: var(--putih) !important;
+    font-weight: 600;
 }
 
 .sidebar-dropdown {
     list-style: none;
-    background-color: rgba(255,255,255,0.5);
+    padding: 4px 0 4px 12px;
     display: none; 
 }
 
@@ -150,17 +242,101 @@ textarea.form-control {
     display: block; 
 }
 
-.sidebar-dropdown li a {
-    padding: 12px 20px 12px 40px;
-    font-size: 14px;
+.sidebar-dropdown li {
+    margin-bottom: 2px;
 }
 
-.sidebar-links > li > a:hover, 
-.dropdown-toggle:hover,
+.sidebar-dropdown li a {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    font-size: 13.5px;
+    color: #444444;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.sidebar-dropdown li a .sub-dot {
+    margin-right: 8px;
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1;
+}
+
 .sidebar-dropdown li a:hover {
-    background-color: var(--putih);
-    border-left: 4px solid var(--merah);
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.sidebar-dropdown li a.active {
+    background-color: var(--hitam);
+    color: var(--putih);
+    font-weight: 600;
+}
+
+.sidebar-dropdown li a.active .sub-dot {
+    color: var(--putih);
+}
+
+/* User profile section at the bottom of sidebar */
+.sidebar-user {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 260px;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    background-color: var(--krem-gelap);
+    z-index: 10;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar-sm {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color: var(--hitam);
+    color: var(--putih);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.user-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--hitam);
+    line-height: 1.2;
+}
+
+.user-role {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.logout-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 50%;
     color: var(--merah);
+    transition: background 0.2s;
+}
+
+.logout-icon:hover {
+    background-color: rgba(222, 59, 59, 0.1);
 }
 
 /* ==========================================================================
@@ -169,30 +345,39 @@ textarea.form-control {
 .main-wrapper {
     margin-left: 260px;
     padding: 40px;
+    min-height: 100vh;
 }
 
 .admin-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
-    border-bottom: 2px solid var(--krem-gelap);
+    margin-bottom: 30px;
     padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .admin-header h2 {
     color: var(--hitam);
-    font-size: 22px;
+    font-size: 26px;
     font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+}
+
+.admin-header p {
+    color: var(--text-muted);
+    font-size: 14px;
 }
 
 .card {
     background: var(--putih);
-    padding: 25px;
+    padding: 24px;
     border-radius: 16px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.01);
     margin-bottom: 20px;
-    border: 1px solid var(--krem-gelap);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    overflow-x: auto;
 }
 
 /* ==========================================================================
@@ -201,29 +386,54 @@ textarea.form-control {
 .crud-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
 }
 
 .crud-table th, 
 .crud-table td {
-    padding: 15px 12px;
-    border-bottom: 1px solid var(--krem-gelap);
+    padding: 16px 20px;
     text-align: left;
     font-size: 14px;
     color: var(--hitam);
+    vertical-align: middle;
 }
 
 .crud-table th {
-    background-color: var(--krem-gelap);
-    color: var(--hitam);
+    background-color: var(--krem-tabel);
+    color: #555555;
     font-weight: 700;
     text-transform: uppercase;
-    font-size: 13px;
-    letter-spacing: 0.5px;
+    font-size: 12px;
+    letter-spacing: 0.75px;
+    border: none;
+}
+
+.crud-table th:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.crud-table th:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.crud-table tr {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.crud-table tbody tr:last-child {
+    border-bottom: none;
 }
 
 .crud-table tr:hover {
-    background-color: #faf7f2;
+    background-color: rgba(0, 0, 0, 0.005);
+}
+
+.crud-table td .btn {
+    margin-right: 4px;
+}
+.crud-table td .btn:last-child {
+    margin-right: 0;
 }
 
 /* ==========================================================================
@@ -304,7 +514,7 @@ textarea.form-control {
 
 /* MEDIA QUERIES UNTUK MOBILE */
 @media (max-width: 768px) {
-    .hidden-mobile { display: none !important; } /* Sembunyikan elemen tidak penting di HP */
+    .hidden-mobile { display: none !important; }
     
     /* Navbar HP */
     .navbar { padding: 15px 5%; }
@@ -322,7 +532,8 @@ textarea.form-control {
     .main-content { padding: 20px 5%; }
     
     /* Admin Sidebar HP */
-    .sidebar { width: 100%; height: auto; position: relative; display: flex; flex-wrap: wrap; }
+    .sidebar { width: 100%; height: auto; position: relative; display: flex; flex-wrap: wrap; padding-bottom: 0; }
+    .sidebar-user { position: relative; width: 100%; border-top: 1px solid rgba(0,0,0,0.05); }
     .main-wrapper { margin-left: 0; padding: 20px; }
     .content-grid { grid-template-columns: 1fr; }
 }
@@ -368,7 +579,7 @@ textarea.form-control {
     flex: 1; 
     position: relative; 
     display: flex; 
-    justify-content: center; /* Berubah dari flex-end menjadi center */
+    justify-content: center;
     align-items: center; 
     min-height: 400px;
 }
@@ -379,12 +590,11 @@ textarea.form-control {
     background: var(--krem-gelap); 
     border-radius: 50%; 
     z-index: 1; 
-    /* Hapus properti right dan top translateY sebelumnya agar dia diam di tengah */
 }
 .pet-img { 
     z-index: 2; 
     position: relative; 
-    max-width: 320px; /* Lebar dibatasi agar sedikit lebih kecil dari lingkaran (380px) */
+    max-width: 320px;
     height: auto; 
     object-fit: contain;
 }
@@ -393,10 +603,3 @@ textarea.form-control {
 .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
 .card-pet { background: var(--putih); padding: 15px; border-radius: 20px; border: 1px solid var(--krem-gelap); transition: 0.3s; }
 .card-pet:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.05); border-color: var(--merah); }
-
-/* Video & Footer */
-.video-section { padding: 60px 8%; background: var(--putih); }
-.paw-footer { background: var(--hitam); padding: 60px 8% 20px; color: var(--putih); }
-.footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; }
-.social-links a { display: block; color: #ccc; text-decoration: none; margin-bottom: 10px; transition: 0.3s; }
-.social-links a:hover { color: var(--merah); }

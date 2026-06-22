@@ -19,6 +19,10 @@ class KandangController {
             header('Location: index.php?page=kandang');
             exit;
         }
+        // Membuat kode kandang otomatis, contoh: KND-001, KND-002, dst.
+        $nextId = $this->m->getNextId();
+        $auto_kode = "KND-" . str_pad($nextId, 3, "0", STR_PAD_LEFT);
+        
         include __DIR__ . '/../../views/Master_Data/kandang/create.php';
     }
 

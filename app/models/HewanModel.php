@@ -9,6 +9,7 @@ class HewanModel {
         $this->pdo = $pdo; 
     }
 
+    // Ambil semua hewan beserta nama jenis dan ras (JOIN)
     public function getAll() {
         $sql = "SELECT h.*, j.nama_jenis, r.nama_ras 
                 FROM hewan h
@@ -18,28 +19,37 @@ class HewanModel {
         return $this->pdo->query($sql)->fetchAll();
     }
 
+    // Ambil satu hewan berdasarkan ID
     public function getById($id) { 
         $stmt = $this->pdo->prepare("SELECT * FROM hewan WHERE id_hewan = ?"); 
         $stmt->execute([$id]); 
         return $stmt->fetch(); 
     }
 
+    // Simpan hewan baru (kolom sesuai DB baru)
     public function insert($data) {
-        $sql = "INSERT INTO hewan (id_jenis, id_ras, nama_hewan, jenis_kelamin, umur, status, foto, deskripsi) 
-                VALUES (:id_jenis, :id_ras, :nama_hewan, :jenis_kelamin, :umur, :status, :foto, :deskripsi)";
+        $sql = "INSERT INTO hewan (id_jenis, id_ras, nama_hewan, jenis_kelamin, estimasi_umur, tanggal_lahir, status_adopsi, sumber_intake, nama_donatur, kontak_donatur, tanggal_intake, keterangan_intake, url_foto_hewan, deskripsi) 
+                VALUES (:id_jenis, :id_ras, :nama_hewan, :jenis_kelamin, :estimasi_umur, :tanggal_lahir, :status_adopsi, :sumber_intake, :nama_donatur, :kontak_donatur, :tanggal_intake, :keterangan_intake, :url_foto_hewan, :deskripsi)";
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute($data);
     }
 
+    // Update data hewan (kolom sesuai DB baru)
     public function update($id, $data) {
         $sql = "UPDATE hewan SET 
                     id_jenis = :id_jenis, 
                     id_ras = :id_ras, 
                     nama_hewan = :nama_hewan, 
                     jenis_kelamin = :jenis_kelamin, 
-                    umur = :umur, 
-                    status = :status, 
-                    foto = :foto, 
+                    estimasi_umur = :estimasi_umur, 
+                    tanggal_lahir = :tanggal_lahir,
+                    status_adopsi = :status_adopsi, 
+                    sumber_intake = :sumber_intake,
+                    nama_donatur = :nama_donatur,
+                    kontak_donatur = :kontak_donatur,
+                    tanggal_intake = :tanggal_intake,
+                    keterangan_intake = :keterangan_intake,
+                    url_foto_hewan = :url_foto_hewan, 
                     deskripsi = :deskripsi 
                 WHERE id_hewan = :id";
         $data['id'] = $id;
@@ -47,15 +57,18 @@ class HewanModel {
         return $stmt->execute($data);
     }
 
+    // Hapus hewan berdasarkan ID
     public function delete($id) { 
         $stmt = $this->pdo->prepare("DELETE FROM hewan WHERE id_hewan = ?"); 
         return $stmt->execute([$id]); 
     }
 
+    // Ambil daftar jenis hewan untuk dropdown
     public function getOpsiJenis() { 
         return $this->pdo->query("SELECT * FROM jenis_hewan ORDER BY nama_jenis ASC")->fetchAll(); 
     }
 
+    // Ambil daftar ras hewan untuk dropdown
     public function getOpsiRas() { 
         return $this->pdo->query("SELECT * FROM ras ORDER BY nama_ras ASC")->fetchAll(); 
     }

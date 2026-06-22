@@ -19,7 +19,7 @@ class PengadopsiController {
             header('Location: index.php?page=pengadopsi');
             exit;
         }
-        $users = $this->m->getOpsiPengguna();
+        // Pengadopsi buat akun mandiri, tidak perlu pilih pengguna
         include __DIR__ . '/../../views/Master_Data/pengadopsi/create.php';
     }
 
@@ -30,7 +30,6 @@ class PengadopsiController {
             exit;
         }
         $data = $this->m->getById($id);
-        $users = $this->m->getOpsiPengguna();
         include __DIR__ . '/../../views/Master_Data/pengadopsi/edit.php';
     }
 

@@ -9,33 +9,58 @@ class PengadopsiModel {
         $this->pdo = $pdo; 
     }
 
+    // Ambil semua data pengadopsi, urutkan dari terbaru
     public function getAll() { 
-        return $this->pdo->query("SELECT p.*, u.username FROM pengadopsi p LEFT JOIN pengguna u ON p.id_pengguna = u.id_pengguna ORDER BY p.id_pengadopsi DESC")->fetchAll(); 
+        return $this->pdo->query("SELECT * FROM pengadopsi ORDER BY id_pengadopsi DESC")->fetchAll(); 
     }
 
+    // Ambil satu data pengadopsi berdasarkan ID
     public function getById($id) { 
         $stmt = $this->pdo->prepare("SELECT * FROM pengadopsi WHERE id_pengadopsi = ?"); 
         $stmt->execute([$id]); 
         return $stmt->fetch(); 
     }
 
+    // Simpan data pengadopsi baru (kolom sesuai DB baru)
     public function insert($d) { 
-        $stmt = $this->pdo->prepare("INSERT INTO pengadopsi (id_pengguna, nama_lengkap, nik, alamat, no_hp, status_verifikasi) VALUES (?, ?, ?, ?, ?, ?)"); 
-        return $stmt->execute([$d['id_pengguna'], $d['nama_lengkap'], $d['nik'], $d['alamat'], $d['no_hp'], $d['status_verifikasi']]); 
+        $kata_sandi = password_hash($d['kata_sandi'], PASSWORD_DEFAULT);
+        $stmt = $this->pdo->prepare("INSERT INTO pengadopsi (nama, alamat, no_hp, email, kata_sandi, status_verifikasi) VALUES (?, ?, ?, ?, ?, ?)"); 
+        return $stmt->execute([
+            $d['nama'], 
+            $d['alamat'], 
+            $d['no_hp'], 
+            $d['email'], 
+            $kata_sandi,
+            $d['status_verifikasi'] ?? 'Belum'
+        ]); 
     }
 
+    // Update data pengadopsi
     public function update($id, $d) { 
-        $stmt = $this->pdo->prepare("UPDATE pengadopsi SET id_pengguna=?, nama_lengkap=?, nik=?, alamat=?, no_hp=?, status_verifikasi=? WHERE id_pengadopsi=?"); 
-        return $stmt->execute([$d['id_pengguna'], $d['nama_lengkap'], $d['nik'], $d['alamat'], $d['no_hp'], $d['status_verifikasi'], $id]); 
+        if (!empty($d['kata_sandi'])) {
+            $kata_sandi = password_hash($d['kata_sandi'], PASSWORD_DEFAULT);
+        } else {
+            $existing = $this->getById($id);
+            $kata_sandi = $existing['kata_sandi'];
+        }
+        $stmt = $this->pdo->prepare("UPDATE pengadopsi SET nama=?, alamat=?, no_hp=?, email=?, kata_sandi=?, status_verifikasi=?, tanggal_verifikasi=?, catatan_verifikasi=? WHERE id_pengadopsi=?"); 
+        return $stmt->execute([
+            $d['nama'], 
+            $d['alamat'], 
+            $d['no_hp'], 
+            $d['email'], 
+            $kata_sandi,
+            $d['status_verifikasi'],
+            empty($d['tanggal_verifikasi']) ? null : $d['tanggal_verifikasi'],
+            $d['catatan_verifikasi'] ?? null,
+            $id
+        ]); 
     }
 
+    // Hapus pengadopsi berdasarkan ID
     public function delete($id) { 
         $stmt = $this->pdo->prepare("DELETE FROM pengadopsi WHERE id_pengadopsi = ?"); 
         return $stmt->execute([$id]); 
-    }
-
-    public function getOpsiPengguna() { 
-        return $this->pdo->query("SELECT id_pengguna, username FROM pengguna WHERE role='User' ORDER BY username ASC")->fetchAll(); 
     }
 }
 ?>

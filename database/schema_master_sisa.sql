@@ -2,21 +2,29 @@ USE paw_care;
 
 CREATE TABLE IF NOT EXISTS pengadopsi (
     id_pengadopsi INT AUTO_INCREMENT PRIMARY KEY,
-    id_pengguna INT NOT NULL,
-    nama_lengkap VARCHAR(150) NOT NULL,
-    nik VARCHAR(20) NOT NULL,
+    nama VARCHAR(100) NOT NULL,
     alamat TEXT NOT NULL,
     no_hp VARCHAR(20) NOT NULL,
-    status_verifikasi ENUM('Belum', 'Terverifikasi', 'Ditolak') DEFAULT 'Belum',
-    FOREIGN KEY (id_pengguna) REFERENCES pengguna(id_pengguna) ON DELETE CASCADE
+    email VARCHAR(100) UNIQUE NOT NULL,
+    kata_sandi VARCHAR(255) NOT NULL,
+    url_ktp VARCHAR(255) NULL,
+    status_verifikasi ENUM('Belum','Menunggu','Terverifikasi','Ditolak') DEFAULT 'Belum',
+    tanggal_verifikasi DATE NULL,
+    catatan_verifikasi TEXT NULL
 );
 
 CREATE TABLE IF NOT EXISTS donasi (
     id_donasi INT AUTO_INCREMENT PRIMARY KEY,
-    nama_donatur VARCHAR(150) NOT NULL,
-    jumlah DECIMAL(15,2) NOT NULL,
+    nama_donatur VARCHAR(100) NOT NULL,
+    id_pengadopsi INT NULL,
+    nominal DECIMAL(15,2) NOT NULL,
+    kategori ENUM('Pemasukan','Pengeluaran') NOT NULL,
+    keterangan VARCHAR(200) NULL,
     tanggal DATE NOT NULL,
-    status ENUM('Pending', 'Dikonfirmasi', 'Ditolak') DEFAULT 'Pending'
+    metode_pembayaran VARCHAR(50) NULL,
+    url_bukti VARCHAR(255) NULL,
+    status_konfirmasi ENUM('Menunggu','Dikonfirmasi','Ditolak') DEFAULT 'Menunggu',
+    FOREIGN KEY (id_pengadopsi) REFERENCES pengadopsi(id_pengadopsi) ON DELETE SET NULL
 );
 
 -- 1. Insert Data Jenis Hewan
@@ -36,14 +44,14 @@ INSERT INTO ras (id_ras, id_jenis, nama_ras) VALUES
 (7, 3, 'Anggora Inggris');
 
 -- 3. Insert 10 Data Dummy Hewan (Semua Status 'Tersedia' agar muncul di Katalog)
-INSERT INTO hewan (id_jenis, id_ras, nama_hewan, jenis_kelamin, umur, status, deskripsi) VALUES 
-(1, 1, 'Luna', 'Betina', '1 Tahun', 'Tersedia', 'Kucing persia yang tenang, penurut, dan sangat suka dibelai di area leher.'),
-(1, 2, 'Milo', 'Jantan', '6 Bulan', 'Tersedia', 'Kucing kampung rescue yang sangat aktif, sehat, dan suka mengejar bola kecil.'),
-(1, 3, 'Bella', 'Betina', '2 Tahun', 'Tersedia', 'Kucing anggora cantik dengan bulu lebat. Sudah divaksin lengkap dan ramah anak.'),
-(2, 4, 'Rocky', 'Jantan', '3 Tahun', 'Tersedia', 'Golden retriever pintar yang cocok untuk keluarga. Sangat setia dan mudah dilatih.'),
-(2, 5, 'Chiko', 'Jantan', '1 Tahun', 'Tersedia', 'Anjing ras pomeranian mungil yang menggemaskan, lincah, dan butuh banyak perhatian.'),
-(2, 6, 'Max', 'Jantan', '2 Tahun', 'Tersedia', 'Husky energik bermata biru. Membutuhkan adopter yang memiliki halaman luas untuk berlari.'),
-(2, 4, 'Daisy', 'Betina', '4 Bulan', 'Tersedia', 'Anak anjing Golden yang sangat manis, sehat, dan sedang dalam masa aktif-aktifnya.'),
-(1, 2, 'Oreo', 'Jantan', '1.5 Tahun', 'Tersedia', 'Kucing domestik dengan corak hitam putih menyerupai Oreo. Suka tidur di tempat hangat.'),
-(3, 7, 'Snowball', 'Jantan', '8 Bulan', 'Tersedia', 'Kelinci putih bersih yang jinak, suka makan wortel, dan sudah terbiasa dengan manusia.'),
-(1, 1, 'Mimi', 'Betina', '3 Bulan', 'Tersedia', 'Kitten persia abu-abu yang sangat lucu dan baru saja selesai masa karantina kesehatan.');
+INSERT INTO hewan (id_jenis, id_ras, nama_hewan, jenis_kelamin, estimasi_umur, status_adopsi, sumber_intake, tanggal_intake, deskripsi) VALUES 
+(1, 1, 'Luna', 'Betina', 1, 'Tersedia', 'Donasi', '2025-01-10', 'Kucing persia yang tenang, penurut, dan sangat suka dibelai di area leher.'),
+(1, 2, 'Milo', 'Jantan', 1, 'Tersedia', 'Donasi', '2025-02-15', 'Kucing kampung rescue yang sangat aktif, sehat, dan suka mengejar bola kecil.'),
+(1, 3, 'Bella', 'Betina', 2, 'Tersedia', 'Breeding', '2024-11-20', 'Kucing anggora cantik dengan bulu lebat. Sudah divaksin lengkap dan ramah anak.'),
+(2, 4, 'Rocky', 'Jantan', 3, 'Tersedia', 'Donasi', '2024-08-05', 'Golden retriever pintar yang cocok untuk keluarga. Sangat setia dan mudah dilatih.'),
+(2, 5, 'Chiko', 'Jantan', 1, 'Tersedia', 'Breeding', '2025-03-01', 'Anjing ras pomeranian mungil yang menggemaskan, lincah, dan butuh banyak perhatian.'),
+(2, 6, 'Max', 'Jantan', 2, 'Tersedia', 'Legacy', '2024-12-10', 'Husky energik bermata biru. Membutuhkan adopter yang memiliki halaman luas untuk berlari.'),
+(2, 4, 'Daisy', 'Betina', 1, 'Tersedia', 'Breeding', '2025-04-20', 'Anak anjing Golden yang sangat manis, sehat, dan sedang dalam masa aktif-aktifnya.'),
+(1, 2, 'Oreo', 'Jantan', 2, 'Tersedia', 'Donasi', '2025-01-25', 'Kucing domestik dengan corak hitam putih menyerupai Oreo. Suka tidur di tempat hangat.'),
+(3, 7, 'Snowball', 'Jantan', 1, 'Tersedia', 'Donasi', '2025-05-01', 'Kelinci putih bersih yang jinak, suka makan wortel, dan sudah terbiasa dengan manusia.'),
+(1, 1, 'Mimi', 'Betina', 1, 'Karantina', 'Donasi', '2025-06-01', 'Kitten persia abu-abu yang sangat lucu dan baru saja selesai masa karantina kesehatan.');

@@ -8,8 +8,14 @@
     </header>
     <div class="card" style="max-width: 600px;">
         <form action="index.php?page=kandang_edit&id=<?= $data['id_kandang'] ?>" method="POST">
+            <!-- Kode Kandang -->
             <div class="form-group">
-                <label>Nama / Kode Kandang</label>
+                <label>ID / Kode Kandang (Otomatis)</label>
+                <input type="text" name="kode_kandang" value="<?= htmlspecialchars($data['kode_kandang']) ?>" class="form-control" readonly required>
+            </div>
+            <!-- Nama Kandang -->
+            <div class="form-group">
+                <label>Nama Kandang / Blok</label>
                 <input type="text" name="nama_kandang" value="<?= htmlspecialchars($data['nama_kandang']) ?>" class="form-control" required>
             </div>
             <div class="form-group">
