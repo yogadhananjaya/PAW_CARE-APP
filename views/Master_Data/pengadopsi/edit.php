@@ -7,17 +7,23 @@
         <a href="index.php?page=pengadopsi" class="btn btn-secondary">&larr; Batal</a>
     </header>
     <div class="card" style="max-width: 700px;">
-        <form action="index.php?page=pengadopsi_edit&id=<?= $data['id_pengadopsi'] ?>" method="POST">
+        <?php if (!empty($error)): ?>
+            <div style="background-color: #fce4e4; border: 1px solid #f5c6cb; color: #721c24; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
+                ⚠️ <strong>Gagal menyimpan:</strong> <?= $error ?>
+            </div>
+        <?php endif; ?>
+
+        <form action="index.php?page=pengadopsi_edit&id=<?= $data['id_pengadopsi'] ?>" method="POST" enctype="multipart/form-data">
             <!-- Nama -->
             <div class="form-group">
                 <label>Nama Lengkap</label>
-                <input type="text" name="nama" value="<?= htmlspecialchars($data['nama']) ?>" class="form-control" required>
+                <input type="text" name="nama" value="<?= isset($_POST['nama']) ? htmlspecialchars($_POST['nama']) : htmlspecialchars($data['nama']) ?>" class="form-control" required>
             </div>
 
             <!-- Email -->
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" name="email" value="<?= htmlspecialchars($data['email']) ?>" class="form-control" required>
+                <input type="email" name="email" value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : htmlspecialchars($data['email']) ?>" class="form-control" required>
             </div>
 
             <!-- Password (kosongkan jika tidak diubah) -->
@@ -29,13 +35,27 @@
             <!-- No HP -->
             <div class="form-group">
                 <label>Nomor HP / WhatsApp</label>
-                <input type="text" name="no_hp" value="<?= htmlspecialchars($data['no_hp']) ?>" class="form-control" required>
+                <input type="text" name="no_hp" value="<?= isset($_POST['no_hp']) ? htmlspecialchars($_POST['no_hp']) : htmlspecialchars($data['no_hp']) ?>" class="form-control" required>
             </div>
 
             <!-- Alamat -->
             <div class="form-group">
                 <label>Alamat Lengkap</label>
-                <textarea name="alamat" class="form-control" rows="3" required><?= htmlspecialchars($data['alamat']) ?></textarea>
+                <textarea name="alamat" class="form-control" rows="3" required><?= isset($_POST['alamat']) ? htmlspecialchars($_POST['alamat']) : htmlspecialchars($data['alamat']) ?></textarea>
+            </div>
+
+            <!-- Foto KTP -->
+            <div class="form-group">
+                <label>Foto KTP Saat Ini</label>
+                <?php if (!empty($data['url_ktp']) && file_exists(__DIR__ . '/../../../assets/img/ktp/' . $data['url_ktp'])): ?>
+                    <div style="margin-bottom: 10px;">
+                        <img src="assets/img/ktp/<?= htmlspecialchars($data['url_ktp']) ?>" style="max-width: 200px; border-radius: 8px; border: 1px solid #ddd;">
+                    </div>
+                <?php else: ?>
+                    <p style="color:#64748b; font-style:italic; font-size:13px; margin-bottom:10px;">Belum ada foto KTP</p>
+                <?php endif; ?>
+                <label>Upload Foto KTP Baru <small style="color:#999;">(Kosongkan jika tidak ingin diubah)</small></label>
+                <input type="file" name="url_ktp" class="form-control" accept="image/*">
             </div>
 
             <!-- Status Verifikasi -->

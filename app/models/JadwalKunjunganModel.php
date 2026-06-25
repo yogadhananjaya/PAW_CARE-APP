@@ -9,9 +9,9 @@ class JadwalKunjunganModel {
         $this->pdo = $pdo; 
     }
 
-    // Ambil semua jadwal kunjungan beserta nama pengadopsi dan hewan
+    // Ambil semua jadwal kunjungan beserta nama pengadopsi, hewan, dan petugas
     public function getAll() { 
-        return $this->pdo->query("SELECT j.*, p.nama as nama_pengadopsi, h.nama_hewan FROM jadwal_kunjungan j JOIN pengadopsi p ON j.id_pengadopsi = p.id_pengadopsi JOIN hewan h ON j.id_hewan = h.id_hewan ORDER BY j.id_jadwal DESC")->fetchAll(); 
+        return $this->pdo->query("SELECT j.*, p.nama as nama_pengadopsi, h.nama_hewan, u.nama_lengkap as nama_petugas FROM jadwal_kunjungan j JOIN pengadopsi p ON j.id_pengadopsi = p.id_pengadopsi JOIN hewan h ON j.id_hewan = h.id_hewan LEFT JOIN pengguna u ON j.id_pengguna = u.id_pengguna ORDER BY j.tanggal_jadwal DESC")->fetchAll(); 
     }
 
     // Ambil satu jadwal berdasarkan ID

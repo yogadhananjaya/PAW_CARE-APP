@@ -57,5 +57,12 @@ class DonasiModel {
         $stmt = $this->pdo->prepare("DELETE FROM donasi WHERE id_donasi = ?"); 
         return $stmt->execute([$id]); 
     }
+
+    // Perbarui status konfirmasi donasi (Gaya pemula)
+    public function updateStatus($id, $status) {
+        $stmt = $this->pdo->prepare("UPDATE donasi SET status_konfirmasi = ? WHERE id_donasi = ?");
+        $hasil = $stmt->execute([$status, $id]);
+        return $hasil;
+    }
 }
 ?>

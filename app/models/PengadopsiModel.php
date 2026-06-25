@@ -21,17 +21,25 @@ class PengadopsiModel {
         return $stmt->fetch(); 
     }
 
+    // Ambil data pengadopsi berdasarkan email
+    public function getByEmail($email) { 
+        $stmt = $this->pdo->prepare("SELECT * FROM pengadopsi WHERE email = ?"); 
+        $stmt->execute([$email]); 
+        return $stmt->fetch(); 
+    }
+
     // Simpan data pengadopsi baru (kolom sesuai DB baru)
     public function insert($d) { 
         $kata_sandi = password_hash($d['kata_sandi'], PASSWORD_DEFAULT);
-        $stmt = $this->pdo->prepare("INSERT INTO pengadopsi (nama, alamat, no_hp, email, kata_sandi, status_verifikasi) VALUES (?, ?, ?, ?, ?, ?)"); 
+        $stmt = $this->pdo->prepare("INSERT INTO pengadopsi (nama, alamat, no_hp, email, kata_sandi, status_verifikasi, url_ktp) VALUES (?, ?, ?, ?, ?, ?, ?)"); 
         return $stmt->execute([
             $d['nama'], 
             $d['alamat'], 
             $d['no_hp'], 
             $d['email'], 
             $kata_sandi,
-            $d['status_verifikasi'] ?? 'Belum'
+            $d['status_verifikasi'] ?? 'Belum',
+            $d['url_ktp'] ?? null
         ]); 
     }
 
@@ -43,7 +51,7 @@ class PengadopsiModel {
             $existing = $this->getById($id);
             $kata_sandi = $existing['kata_sandi'];
         }
-        $stmt = $this->pdo->prepare("UPDATE pengadopsi SET nama=?, alamat=?, no_hp=?, email=?, kata_sandi=?, status_verifikasi=?, tanggal_verifikasi=?, catatan_verifikasi=? WHERE id_pengadopsi=?"); 
+        $stmt = $this->pdo->prepare("UPDATE pengadopsi SET nama=?, alamat=?, no_hp=?, email=?, kata_sandi=?, status_verifikasi=?, tanggal_verifikasi=?, catatan_verifikasi=?, url_ktp=? WHERE id_pengadopsi=?"); 
         return $stmt->execute([
             $d['nama'], 
             $d['alamat'], 
@@ -53,6 +61,7 @@ class PengadopsiModel {
             $d['status_verifikasi'],
             empty($d['tanggal_verifikasi']) ? null : $d['tanggal_verifikasi'],
             $d['catatan_verifikasi'] ?? null,
+            $d['url_ktp'] ?? null,
             $id
         ]); 
     }

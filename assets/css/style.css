@@ -339,6 +339,8 @@ textarea.form-control {
     background-color: rgba(222, 59, 59, 0.1);
 }
 
+
+
 /* ==========================================================================
    AREA KONTEN UTAMA & HEADER GLOBAL (CRUD)
    ========================================================================== */
@@ -603,3 +605,24 @@ textarea.form-control {
 .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
 .card-pet { background: var(--putih); padding: 15px; border-radius: 20px; border: 1px solid var(--krem-gelap); transition: 0.3s; }
 .card-pet:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.05); border-color: var(--merah); }
+
+/* Style untuk Tombol Periksa KTP */
+.btn-periksa {
+    display: inline-block;
+    background-color: var(--hitam);
+    color: var(--putih);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-periksa:hover {
+    background-color: var(--merah);
+    color: var(--putih);
+    transform: translateY(-1px);
+}

@@ -1,3 +1,14 @@
+<?php
+// =============================================================================
+// SIDEBAR DISPATCHER: Arahkan ke sidebar sesuai role pengguna
+// =============================================================================
+
+// Jika yang login adalah Koordinator, tampilkan sidebar khusus Koordinator
+if (isset($_SESSION['role']) && $_SESSION['role'] == 'Koordinator') {
+    include __DIR__ . '/sidebar_koordinator.php';
+    return; // Stop di sini, jangan lanjut ke sidebar SuperAdmin
+}
+?>
 <!-- Container utama untuk Sidebar Panel Admin -->
 <aside class="sidebar">
     <!-- Judul / Nama Aplikasi -->
@@ -11,7 +22,7 @@
         <li>
             <!-- Jika parameter page tidak di-set atau bernilai 'dashboard_superadmin', maka menu Dashboard diberi kelas 'active' (berwarna hitam) -->
             <a href="index.php?page=dashboard_superadmin" class="<?php if (!isset($_GET['page']) || $_GET['page'] == 'dashboard_superadmin') echo 'active'; ?>">
-                🏠 Dashboard
+                📊 Dashboard
             </a>
         </li>
     </ul>
@@ -70,16 +81,14 @@
     <ul class="sidebar-links">
         <li>
             <!-- Tombol Dropdown Data Transaksi. Otomatis 'active' jika halaman anak (riwayat_kesehatan, penempatan_kandang, jadwal_kunjungan, transaksi_adopsi) aktif -->
-            <div class="dropdown-toggle <?php if (isset($_GET['page']) && in_array($_GET['page'], ['riwayat_kesehatan', 'penempatan_kandang', 'jadwal_kunjungan', 'transaksi_adopsi'])) echo 'active'; ?>" onclick="toggleTransaksi()">
+            <div class="dropdown-toggle <?php if (isset($_GET['page']) && in_array($_GET['page'], ['riwayat_kesehatan', 'transaksi_adopsi'])) echo 'active'; ?>" onclick="toggleTransaksi()">
                 <span>📋 Data Transaksi</span>
-                <!-- Mengubah ikon segitiga cakar ke atas (▲) jika dropdown terbuka, dan ke bawah (▼) jika tertutup -->
-                <span id="trans-icon"><?php echo (isset($_GET['page']) && in_array($_GET['page'], ['riwayat_kesehatan', 'penempatan_kandang', 'jadwal_kunjungan', 'transaksi_adopsi'])) ? '▲' : '▼'; ?></span>
+                <span id="trans-icon"><?php echo (isset($_GET['page']) && in_array($_GET['page'], ['riwayat_kesehatan', 'transaksi_adopsi'])) ? '▲' : '▼'; ?></span>
             </div>
-            <!-- Menggunakan kelas 'show' jika salah satu halaman anak transaksi aktif agar dropdown tetap terbuka setelah perpindahan halaman -->
-            <ul class="sidebar-dropdown <?php if (isset($_GET['page']) && in_array($_GET['page'], ['riwayat_kesehatan', 'penempatan_kandang', 'jadwal_kunjungan', 'transaksi_adopsi'])) echo 'show'; ?>" id="transDropdown">
+            <ul class="sidebar-dropdown <?php if (isset($_GET['page']) && in_array($_GET['page'], ['riwayat_kesehatan', 'transaksi_adopsi'])) echo 'show'; ?>" id="transDropdown">
                 <li><a href="index.php?page=riwayat_kesehatan" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'riwayat_kesehatan') echo 'active'; ?>"><span class="sub-dot">🩺</span> Riwayat Kesehatan</a></li>
-                <li><a href="index.php?page=penempatan_kandang" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'penempatan_kandang') echo 'active'; ?>"><span class="sub-dot">📦</span> Penempatan Kandang</a></li>
-                <li><a href="index.php?page=jadwal_kunjungan" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'jadwal_kunjungan') echo 'active'; ?>"><span class="sub-dot">📅</span> Jadwal Kunjungan</a></li>
+                <li><a href="index.php?page=penempatan_kandang" onclick="return false;" style="cursor:default;"><span class="sub-dot">📦</span> Penempatan Kandang</a></li>
+                <li><a href="index.php?page=jadwal_kunjungan" onclick="return false;" style="cursor:default;"><span class="sub-dot">📅</span> Jadwal Kunjungan</a></li>
                 <li><a href="index.php?page=transaksi_adopsi" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'transaksi_adopsi') echo 'active'; ?>"><span class="sub-dot">🤝</span> Transaksi Adopsi</a></li>
             </ul>
         </li>
@@ -87,6 +96,15 @@
             <!-- Link Cetak PDF Laporan Donasi -->
             <a href="index.php?page=report_donasi" target="_blank" style="color: #3498db;">
                 📥 Laporan Donasi (PDF)
+            </a>
+        </li>
+    </ul>
+
+    <!-- Halaman Utama di atas User Profile -->
+    <ul class="sidebar-links">
+        <li>
+            <a href="index.php?page=landing" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'landing') echo 'active'; ?>">
+                🏠 HALAMAN UTAMA
             </a>
         </li>
     </ul>

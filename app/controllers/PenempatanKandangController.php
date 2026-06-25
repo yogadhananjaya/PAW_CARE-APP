@@ -41,5 +41,44 @@ class PenempatanKandangController {
         header('Location: index.php?page=penempatan_kandang');
         exit;
     }
+
+    public function koordinator() {
+        // Anti-cache: pastikan halaman selalu membaca data terbaru dari DB
+        header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+
+        // Tangani submit form penempatan
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $payload = [
+                'id_hewan'       => $_POST['id_hewan'],
+                'id_kandang'     => $_POST['id_kandang'],
+                'tanggal_masuk'  => $_POST['tanggal_masuk'],
+                'tanggal_keluar' => null
+            ];
+            $this->m->insert($payload);
+
+            // Jika checkbox "Jadikan Tersedia" dicentang, update status hewan
+            // (checkbox sekarang default tercentang di form)
+            if (isset($_POST['jadikan_tersedia']) && $_POST['jadikan_tersedia'] == '1') {
+                global $pdo;
+                $stmt = $pdo->prepare("UPDATE hewan SET status_adopsi = 'Tersedia' WHERE id_hewan = ?");
+                $stmt->execute([$payload['id_hewan']]);
+            }
+
+            // Redirect dengan timestamp untuk cache-busting
+            $ts = time();
+            header("Location: index.php?page=penempatan_kandang_koordinator&success=1&t=$ts");
+            exit;
+        }
+
+        // Tampilkan halaman penempatan + okupansi
+        $h = $this->m->getHewan();
+        $k = $this->m->getKandang();
+        $data = $this->m->getAll();
+        $okupansi = $this->m->getOkupansi();
+
+        include __DIR__ . '/../../views/Master_Transaksi/penempatan_kandang/koordinator.php';
+    }
 }
 ?>

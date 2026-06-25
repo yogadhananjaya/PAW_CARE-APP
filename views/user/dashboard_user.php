@@ -161,6 +161,7 @@ if ($adopter) {
             </div>
         </div>
         <div class="nav-right">
+            <a href="index.php?page=landing" style="color: #e67e22; font-weight: 600; font-size: 14px; text-decoration: none; margin-right: 10px;">🏠 Halaman Utama</a>
             <div class="user-profile">
                 <div class="avatar"><?= substr($_SESSION['username'], 0, 1) ?></div>
                 <div class="user-greeting">Halo, <?= htmlspecialchars($_SESSION['username']) ?> 👋</div>

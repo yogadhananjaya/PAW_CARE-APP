@@ -35,11 +35,24 @@ class PenempatanKandangModel {
     }
 
     public function getHewan() { 
-        return $this->pdo->query("SELECT id_hewan, nama_hewan FROM hewan")->fetchAll(); 
+        return $this->pdo->query("SELECT id_hewan, nama_hewan, status_adopsi FROM hewan ORDER BY nama_hewan ASC")->fetchAll(); 
     }
 
     public function getKandang() { 
-        return $this->pdo->query("SELECT id_kandang, kode_kandang, nama_kandang FROM kandang")->fetchAll(); 
+        $sql = "SELECT k.id_kandang, k.kode_kandang, k.nama_kandang, k.kapasitas,
+            (SELECT COUNT(*) FROM penempatan_kandang pk WHERE pk.id_kandang = k.id_kandang AND pk.status = 'Aktif') as terisi
+            FROM kandang k
+            ORDER BY k.kode_kandang ASC";
+        return $this->pdo->query($sql)->fetchAll(); 
+    }
+
+    // Ambil okupansi kapasitas kandang (terisi vs kapasitas)
+    public function getOkupansi() {
+        $sql = "SELECT k.id_kandang, k.kode_kandang, k.nama_kandang, k.kapasitas,
+            (SELECT COUNT(*) FROM penempatan_kandang pk WHERE pk.id_kandang = k.id_kandang AND pk.status = 'Aktif') as terisi
+            FROM kandang k
+            ORDER BY k.kode_kandang ASC";
+        return $this->pdo->query($sql)->fetchAll();
     }
 }
 ?>

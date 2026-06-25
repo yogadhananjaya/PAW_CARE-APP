@@ -42,5 +42,19 @@ class DonasiController {
         header('Location: index.php?page=donasi');
         exit;
     }
+
+    // Aksi untuk menyetujui donasi (Gaya pemula)
+    public function confirm($id) {
+        $this->m->updateStatus($id, 'Dikonfirmasi');
+        header('Location: index.php?page=donasi');
+        exit;
+    }
+
+    // Aksi untuk menolak donasi (Gaya pemula)
+    public function reject($id) {
+        $this->m->updateStatus($id, 'Ditolak');
+        header('Location: index.php?page=donasi');
+        exit;
+    }
 }
 ?>

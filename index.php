@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 session_start();
 require_once __DIR__ . '/config/connect.php';
 require_once __DIR__ . '/config/auth.php';
@@ -10,10 +12,16 @@ switch ($page) {
     case 'home':
         if (isset($_SESSION['role'])) {
             if ($_SESSION['role'] == 'SuperAdmin') header('Location: index.php?page=dashboard_superadmin');
-            elseif (in_array($_SESSION['role'], ['Koordinator', 'Perawat'])) header('Location: index.php?page=dashboard_staff');
+            elseif ($_SESSION['role'] == 'Koordinator') header('Location: index.php?page=dashboard_koordinator');
+            elseif (in_array($_SESSION['role'], ['Perawat', 'Perawat Hewan'])) header('Location: index.php?page=dashboard_staff');
             else header('Location: index.php?page=dashboard_user');
             exit;
         }
+        include __DIR__ . '/views/user/dashboard_default.php';
+        break;
+
+    case 'landing':
+        // Rute untuk kembali ke Landing Page (Halaman Utama) secara langsung
         include __DIR__ . '/views/user/dashboard_default.php';
         break;
         
@@ -80,7 +88,13 @@ switch ($page) {
 
     case 'dashboard_staff':
         if (!check_access(['Koordinator', 'Perawat', 'SuperAdmin'])) { header('Location: index.php?page=login'); exit; }
+        if ($_SESSION['role'] == 'Koordinator') { header('Location: index.php?page=dashboard_koordinator'); exit; }
         include __DIR__ . '/views/user/dashboard_staff.php';
+        break;
+
+    case 'dashboard_koordinator':
+        if (!check_access(['Koordinator', 'SuperAdmin'])) { header('Location: index.php?page=login'); exit; }
+        include __DIR__ . '/views/user/dashboard_koordinator.php';
         break;
 
     case 'dashboard_user':
@@ -188,8 +202,8 @@ switch ($page) {
         $action = 'index';
         $entity = $page;
 
-        // Mendeteksi _create, _edit, _delete dari string parameter page
-        if (in_array(end($parts), ['create', 'edit', 'delete'])) {
+        // Mendeteksi _create, _edit, _delete, _confirm, _reject, _activate, _intake, _koordinator dari string parameter page
+        if (in_array(end($parts), ['create', 'edit', 'delete', 'confirm', 'reject', 'activate', 'intake', 'koordinator'])) {
             $action = array_pop($parts);
             $entity = implode('_', $parts);
         }
@@ -197,12 +211,36 @@ switch ($page) {
         // Daftar entitas yang valid di sistem
         $valid_entities = [
             'hewan', 'jenis', 'ras', 'kandang', 'vaksin', 'pengguna', 'pengadopsi', 'donasi',
-            'riwayat_kesehatan', 'penempatan_kandang', 'jadwal_kunjungan', 'transaksi_adopsi'
+            'riwayat_kesehatan', 'penempatan_kandang', 'jadwal_kunjungan', 'transaksi_adopsi',
+            'intake_hewan'
         ];
 
+        // Entitas Master (hanya SuperAdmin)
+        $master_entities = ['hewan', 'jenis', 'ras', 'kandang', 'vaksin', 'pengguna', 'pengadopsi', 'donasi'];
+
         if (in_array($entity, $valid_entities)) {
-            // Hanya SuperAdmin, Koordinator, dan Perawat yang bisa mengakses modul CRUD
+            // Koordinator dan Perawat hanya bisa akses modul Transaksi
+            if (in_array($entity, $master_entities) && !check_access(['SuperAdmin'])) {
+                header('Location: index.php?page=dashboard_koordinator');
+                exit;
+            }
             if (!check_access(['SuperAdmin', 'Koordinator', 'Perawat'])) { header('Location: index.php?page=login'); exit; }
+            
+            // Route khusus: intake_hewan pakai HewanController
+            if ($entity == 'intake_hewan') {
+                require_once __DIR__ . '/app/controllers/HewanController.php';
+                $hewanCtrl = new HewanController();
+                $hewanCtrl->intake();
+                break;
+            }
+            
+            // Route khusus: penempatan_kandang dengan action koordinator
+            if ($entity == 'penempatan_kandang' && $action == 'koordinator') {
+                require_once __DIR__ . '/app/controllers/PenempatanKandangController.php';
+                $pkCtrl = new PenempatanKandangController();
+                $pkCtrl->koordinator();
+                break;
+            }
             
             // Mengubah format snake_case (riwayat_kesehatan) menjadi CamelCase (RiwayatKesehatanController)
             $ctrlName = str_replace(' ', '', ucwords(str_replace('_', ' ', $entity))) . 'Controller';
@@ -217,6 +255,10 @@ switch ($page) {
                 elseif ($action === 'create') $controller->create();
                 elseif ($action === 'edit') $controller->edit($id);
                 elseif ($action === 'delete') $controller->delete($id);
+                elseif ($action === 'confirm') $controller->confirm($id);
+                elseif ($action === 'reject') $controller->reject($id);
+                elseif ($action === 'activate') $controller->activate($id);
+                elseif ($action === 'intake') $controller->intake();
                 break;
             }
         }

@@ -108,5 +108,45 @@ class HewanController {
         header('Location: index.php?page=hewan');
         exit;
     }
+
+    public function intake() {
+        // Tangani submit form intake
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $foto_name = null;
+            if (isset($_FILES['url_foto_hewan']) && $_FILES['url_foto_hewan']['error'] === UPLOAD_ERR_OK) {
+                $ext = pathinfo($_FILES['url_foto_hewan']['name'], PATHINFO_EXTENSION);
+                $foto_name = 'hewan_' . time() . '.' . $ext;
+                $target_dir = __DIR__ . '/../../assets/img/hewan/' . $foto_name;
+                move_uploaded_file($_FILES['url_foto_hewan']['tmp_name'], $target_dir);
+            }
+
+            $payload = [
+                'id_jenis'          => $_POST['id_jenis'],
+                'id_ras'            => $_POST['id_ras'],
+                'nama_hewan'        => trim($_POST['nama_hewan']),
+                'jenis_kelamin'     => $_POST['jenis_kelamin'],
+                'estimasi_umur'     => (int)$_POST['estimasi_umur'],
+                'tanggal_lahir'     => null,
+                'status_adopsi'     => 'Karantina',
+                'sumber_intake'     => $_POST['sumber_intake'],
+                'nama_donatur'      => trim($_POST['nama_donatur'] ?? ''),
+                'kontak_donatur'    => trim($_POST['kontak_donatur'] ?? ''),
+                'tanggal_intake'    => $_POST['tanggal_intake'],
+                'keterangan_intake' => trim($_POST['keterangan_intake'] ?? ''),
+                'url_foto_hewan'    => $foto_name,
+                'deskripsi'         => trim($_POST['deskripsi'] ?? '')
+            ];
+
+            $this->model->insert($payload);
+            header('Location: index.php?page=intake_hewan&success=1');
+            exit;
+        }
+
+        // Tampilkan form intake + daftar inventaris
+        $jenis_list = $this->model->getOpsiJenis();
+        $ras_list = $this->model->getOpsiRas();
+        $recentHewan = $this->model->getAll();
+        include __DIR__ . '/../../views/Master_Transaksi/intake_hewan/index.php';
+    }
 }
 ?>

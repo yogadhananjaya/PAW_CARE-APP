@@ -18,15 +18,15 @@ function login($username, $password) {
     
     // Pengecekan ke database untuk role Pegawai dan User biasa
     try {
-        $stmt = $pdo->prepare("SELECT * FROM pengguna WHERE username = ?");
+        $stmt = $pdo->prepare("SELECT * FROM pengguna WHERE nama_pengguna = ?");
         $stmt->execute([$username]);
         $user = $stmt->fetch();
         
-        // Catatan: Di level produksi, disarankan menggunakan password_verify()
-        if ($user && $password === $user['password']) {
+        if ($user && password_verify($password, $user['kata_sandi'])) {
             $_SESSION['user_id'] = $user['id_pengguna'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['role'] = $user['role'];
+            $_SESSION['username'] = $user['nama_pengguna'];
+            $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
+            $_SESSION['role'] = $user['jabatan'];
             return true;
         }
     } catch (Exception $e) {

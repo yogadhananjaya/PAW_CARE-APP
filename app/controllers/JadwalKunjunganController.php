@@ -9,7 +9,10 @@ class JadwalKunjunganController {
     }
 
     public function index() {
-        $data = $this->m->getAll();
+        $all = $this->m->getAll();
+        $pending   = array_filter($all, fn($r) => $r['status_jadwal'] === 'Menunggu');
+        $confirmed = array_filter($all, fn($r) => $r['status_jadwal'] === 'Dikonfirmasi');
+        $history   = array_filter($all, fn($r) => in_array($r['status_jadwal'], ['Selesai', 'Batal']));
         include __DIR__ . '/../../views/Master_Transaksi/jadwal_kunjungan/index.php';
     }
 

@@ -5,12 +5,13 @@
         <h2>Edit Jadwal Kunjungan</h2>
         <a href="index.php?page=jadwal_kunjungan" class="btn btn-secondary">&larr; Batal</a>
     </header>
-    <div class="card" style="max-width: 600px;">
+    <div class="card" style="max-width: 650px;">
         <form action="index.php?page=jadwal_kunjungan_edit&id=<?= $data['id_jadwal'] ?>" method="POST">
             <div class="form-group">
                 <label>Pengadopsi</label>
                 <select name="id_pengadopsi" class="form-control" required>
-                    <?php foreach($a as $ad): ?><option value="<?= $ad['id_pengadopsi'] ?>" <?= $data['id_pengadopsi']==$ad['id_pengadopsi']?'selected':'' ?>><?= $ad['nama_lengkap'] ?></option><?php endforeach; ?>
+                    <option value="">-- Pilih Pengadopsi --</option>
+                    <?php foreach($a as $ad): ?><option value="<?= $ad['id_pengadopsi'] ?>" <?= $data['id_pengadopsi']==$ad['id_pengadopsi']?'selected':'' ?>><?= $ad['nama'] ?></option><?php endforeach; ?>
                 </select>
             </div>
             <div class="form-group">
@@ -20,16 +21,34 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>Tanggal & Jam</label>
-                <input type="datetime-local" name="tanggal_kunjungan" value="<?= date('Y-m-d\TH:i', strtotime($data['tanggal_kunjungan'])) ?>" class="form-control" required>
+                <label>Petugas Pendamping <small style="color:#999;">(opsional)</small></label>
+                <select name="id_pengguna" class="form-control">
+                    <option value="">-- Belum Ditugaskan --</option>
+                    <?php foreach($p as $pg): ?><option value="<?= $pg['id_pengguna'] ?>" <?= $data['id_pengguna']==$pg['id_pengguna']?'selected':'' ?>><?= $pg['nama_pengguna'] ?></option><?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Metode Kunjungan</label>
+                <select name="metode" class="form-control" required>
+                    <option value="Kunjungan ke Shelter" <?= $data['metode']=='Kunjungan ke Shelter'?'selected':'' ?>>Kunjungan ke Shelter</option>
+                    <option value="Jemput ke Rumah" <?= $data['metode']=='Jemput ke Rumah'?'selected':'' ?>>Jemput ke Rumah Adopter</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Alamat Tujuan</label>
+                <textarea name="alamat_tujuan" class="form-control" rows="2" placeholder="Alamat lengkap..."><?= htmlspecialchars($data['alamat_tujuan'] ?? '') ?></textarea>
+            </div>
+            <div class="form-group">
+                <label>Tanggal & Jam Jadwal</label>
+                <input type="datetime-local" name="tanggal_jadwal" value="<?= date('Y-m-d\TH:i', strtotime($data['tanggal_jadwal'])) ?>" class="form-control" required>
             </div>
             <div class="form-group">
                 <label>Status</label>
-                <select name="status" class="form-control">
-                    <option value="Menunggu" <?= $data['status']=='Menunggu'?'selected':'' ?>>Menunggu Konfirmasi</option>
-                    <option value="Dikonfirmasi" <?= $data['status']=='Dikonfirmasi'?'selected':'' ?>>Dikonfirmasi</option>
-                    <option value="Selesai" <?= $data['status']=='Selesai'?'selected':'' ?>>Selesai / Hadir</option>
-                    <option value="Dibatalkan" <?= $data['status']=='Dibatalkan'?'selected':'' ?>>Dibatalkan</option>
+                <select name="status_jadwal" class="form-control">
+                    <option value="Menunggu" <?= $data['status_jadwal']=='Menunggu'?'selected':'' ?>>Menunggu Konfirmasi</option>
+                    <option value="Dikonfirmasi" <?= $data['status_jadwal']=='Dikonfirmasi'?'selected':'' ?>>Dikonfirmasi</option>
+                    <option value="Selesai" <?= $data['status_jadwal']=='Selesai'?'selected':'' ?>>Selesai / Hadir</option>
+                    <option value="Batal" <?= $data['status_jadwal']=='Batal'?'selected':'' ?>>Dibatalkan</option>
                 </select>
             </div>
             <button type="submit" class="btn btn-warning" style="margin-top:15px;">Update</button>

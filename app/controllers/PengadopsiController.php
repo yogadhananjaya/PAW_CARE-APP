@@ -14,26 +14,87 @@ class PengadopsiController {
     }
 
     public function create() {
+        $error = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->m->insert($_POST);
-            header('Location: index.php?page=pengadopsi');
-            exit;
+            // Cek keunikan email
+            $db_check = $this->m->getByEmail($_POST['email']);
+            if ($db_check) {
+                $error = "Email '" . htmlspecialchars($_POST['email']) . "' sudah terdaftar! Gunakan email lain.";
+            } else {
+                // Upload foto KTP (Gaya pemula)
+                $foto_name = null;
+                if (isset($_FILES['url_ktp']) && $_FILES['url_ktp']['error'] === UPLOAD_ERR_OK) {
+                    $folder = __DIR__ . '/../../assets/img/ktp/';
+                    if (!is_dir($folder)) {
+                        mkdir($folder, 0777, true);
+                    }
+                    
+                    $nama_file_asli = $_FILES['url_ktp']['name'];
+                    $ekstensi = pathinfo($nama_file_asli, PATHINFO_EXTENSION);
+                    $foto_name = 'ktp_' . time() . '.' . $ekstensi;
+                    $target = $folder . $foto_name;
+                    move_uploaded_file($_FILES['url_ktp']['tmp_name'], $target);
+                }
+
+                $_POST['url_ktp'] = $foto_name;
+                $this->m->insert($_POST);
+                header('Location: index.php?page=pengadopsi');
+                exit;
+            }
         }
         // Pengadopsi buat akun mandiri, tidak perlu pilih pengguna
         include __DIR__ . '/../../views/Master_Data/pengadopsi/create.php';
     }
 
     public function edit($id) {
+        $pengadopsi = $this->m->getById($id);
+        $error = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->m->update($id, $_POST);
-            header('Location: index.php?page=pengadopsi');
-            exit;
+            // Cek keunikan email
+            $db_check = $this->m->getByEmail($_POST['email']);
+            if ($db_check && $db_check['id_pengadopsi'] != $id) {
+                $error = "Email '" . htmlspecialchars($_POST['email']) . "' sudah terdaftar pada pengadopsi lain! Gunakan email lain.";
+            } else {
+                $foto_name = $pengadopsi['url_ktp'];
+                if (isset($_FILES['url_ktp']) && $_FILES['url_ktp']['error'] === UPLOAD_ERR_OK) {
+                    $folder = __DIR__ . '/../../assets/img/ktp/';
+                    if (!is_dir($folder)) {
+                        mkdir($folder, 0777, true);
+                    }
+
+                    // Hapus foto lama jika ada
+                    if (!empty($pengadopsi['url_ktp'])) {
+                        $foto_lama = $folder . $pengadopsi['url_ktp'];
+                        if (file_exists($foto_lama)) {
+                            unlink($foto_lama);
+                        }
+                    }
+
+                    $nama_file_asli = $_FILES['url_ktp']['name'];
+                    $ekstensi = pathinfo($nama_file_asli, PATHINFO_EXTENSION);
+                    $foto_name = 'ktp_' . time() . '.' . $ekstensi;
+                    $target = $folder . $foto_name;
+                    move_uploaded_file($_FILES['url_ktp']['tmp_name'], $target);
+                }
+
+                $_POST['url_ktp'] = $foto_name;
+                $this->m->update($id, $_POST);
+                header('Location: index.php?page=pengadopsi');
+                exit;
+            }
         }
         $data = $this->m->getById($id);
         include __DIR__ . '/../../views/Master_Data/pengadopsi/edit.php';
     }
 
     public function delete($id) {
+        $pengadopsi = $this->m->getById($id);
+        if ($pengadopsi && !empty($pengadopsi['url_ktp'])) {
+            $foto = __DIR__ . '/../../assets/img/ktp/' . $pengadopsi['url_ktp'];
+            if (file_exists($foto)) {
+                unlink($foto);
+            }
+        }
         $this->m->delete($id);
         header('Location: index.php?page=pengadopsi');
         exit;
