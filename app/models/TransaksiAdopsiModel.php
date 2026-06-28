@@ -11,14 +11,14 @@ class TransaksiAdopsiModel {
 
     // Ambil semua transaksi adopsi beserta nama pengadopsi dan hewan
     public function getAll() { 
-        return $this->pdo->query("SELECT t.*, p.nama as nama_pengadopsi, h.nama_hewan, pg.nama_pengguna as nama_staf FROM transaksi_adopsi t JOIN pengadopsi p ON t.id_pengadopsi = p.id_pengadopsi JOIN hewan h ON t.id_hewan = h.id_hewan LEFT JOIN pengguna pg ON t.id_pengguna = pg.id_pengguna ORDER BY t.id_adopsi DESC")->fetchAll(); 
+        return $this->pdo->query("SELECT t.*, p.nama_lengkap as nama_pengadopsi, h.nama_hewan, pg.nama_pengguna as nama_staf FROM transaksi_adopsi t JOIN pengadopsi p ON t.id_pengadopsi = p.id_pengadopsi JOIN hewan h ON t.id_hewan = h.id_hewan LEFT JOIN pengguna pg ON t.id_pengguna = pg.id_pengguna ORDER BY t.id_adopsi DESC")->fetchAll(); 
     }
 
     // Ambil satu transaksi berdasarkan ID dengan data lengkap
     public function getById($id) { 
         $stmt = $this->pdo->prepare("
             SELECT t.*, 
-                p.nama as nama_pengadopsi, p.alamat as alamat_adopter, p.no_hp as hp_adopter,
+                p.nama_lengkap as nama_pengadopsi, p.alamat as alamat_adopter, p.no_hp as hp_adopter,
                 h.nama_hewan, h.jenis_kelamin, h.estimasi_umur,
                 j.nama_jenis as kategori_hewan, r.nama_ras,
                 pg.nama_pengguna as nama_staf, pg.jabatan
@@ -36,23 +36,59 @@ class TransaksiAdopsiModel {
 
     // Simpan transaksi adopsi baru (kolom sesuai DB baru)
     public function insert($d) { 
-        $stmt = $this->pdo->prepare("INSERT INTO transaksi_adopsi (id_hewan, id_pengadopsi, id_pengguna, tanggal_adopsi, status_kontrak) VALUES (?, ?, ?, ?, ?)"); 
+        $kode = buat_kode_otomatis('transaksi_adopsi', 'kode_transaksi_adopsi', 'TA');
+        
+        // ponytail: validasi agar id_pengguna yang dimasukkan benar-benar ada di db
+        $id_pengguna = null;
+        if (!empty($d['id_pengguna'])) {
+            $check = $this->pdo->prepare("SELECT COUNT(*) FROM pengguna WHERE id_pengguna = ?");
+            $check->execute([$d['id_pengguna']]);
+            if ($check->fetchColumn() > 0) {
+                $id_pengguna = $d['id_pengguna'];
+            }
+        }
+
+        $stmt = $this->pdo->prepare("INSERT INTO transaksi_adopsi (kode_transaksi_adopsi, id_hewan, id_pengadopsi, id_pengguna, tanggal_adopsi, status_kontrak) VALUES (?, ?, ?, ?, ?, ?)"); 
         return $stmt->execute([
+            $kode,
             $d['id_hewan'],
             $d['id_pengadopsi'],
-            empty($d['id_pengguna']) ? null : $d['id_pengguna'],
+            $id_pengguna,
             $d['tanggal_adopsi'],
             $d['status_kontrak'] ?? 'Draft'
         ]); 
     }
 
+    // ponytail: Cek duplikat - adopter + hewan sama dengan kontrak masih aktif
+    public function isDuplicate($id_hewan, $id_pengadopsi, $exclude_id = null) {
+        $sql = "SELECT COUNT(*) FROM transaksi_adopsi WHERE id_hewan = ? AND id_pengadopsi = ? AND status_kontrak IN ('Draft','Aktif')";
+        $params = [$id_hewan, $id_pengadopsi];
+        if ($exclude_id) {
+            $sql .= " AND id_adopsi != ?";
+            $params[] = $exclude_id;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn() > 0;
+    }
+
     // Update transaksi adopsi
     public function update($id, $d) { 
+        // ponytail: validasi agar id_pengguna yang dimasukkan benar-benar ada di db
+        $id_pengguna = null;
+        if (!empty($d['id_pengguna'])) {
+            $check = $this->pdo->prepare("SELECT COUNT(*) FROM pengguna WHERE id_pengguna = ?");
+            $check->execute([$d['id_pengguna']]);
+            if ($check->fetchColumn() > 0) {
+                $id_pengguna = $d['id_pengguna'];
+            }
+        }
+
         $stmt = $this->pdo->prepare("UPDATE transaksi_adopsi SET id_hewan=?, id_pengadopsi=?, id_pengguna=?, tanggal_adopsi=?, status_kontrak=? WHERE id_adopsi=?"); 
         return $stmt->execute([
             $d['id_hewan'],
             $d['id_pengadopsi'],
-            empty($d['id_pengguna']) ? null : $d['id_pengguna'],
+            $id_pengguna,
             $d['tanggal_adopsi'],
             $d['status_kontrak'],
             $id
@@ -73,7 +109,7 @@ class TransaksiAdopsiModel {
 
     // Ambil pengadopsi yang sudah terverifikasi untuk dropdown
     public function getPengadopsi() { 
-        return $this->pdo->query("SELECT id_pengadopsi, nama FROM pengadopsi WHERE status_verifikasi = 'Terverifikasi' ORDER BY nama ASC")->fetchAll(); 
+        return $this->pdo->query("SELECT id_pengadopsi, nama_lengkap as nama FROM pengadopsi WHERE status_verifikasi = 'Terverifikasi' ORDER BY nama_lengkap ASC")->fetchAll(); 
     }
 
     // Ambil hewan yang tersedia untuk diadopsi
@@ -84,6 +120,31 @@ class TransaksiAdopsiModel {
     // Ambil daftar pengguna admin/koordinator untuk dropdown
     public function getPengguna() {
         return $this->pdo->query("SELECT id_pengguna, nama_pengguna FROM pengguna ORDER BY nama_pengguna ASC")->fetchAll();
+    }
+
+    // ponytail: Mengubah status kontrak adopsi secara langsung
+    public function setStatus($id, $status) {
+        $stmt = $this->pdo->prepare("UPDATE transaksi_adopsi SET status_kontrak = ? WHERE id_adopsi = ?");
+        $success = $stmt->execute([$status, $id]);
+        
+        if ($success && $status === 'Batal') {
+            // Dapatkan id_hewan dari transaksi ini
+            $stmt_hewan = $this->pdo->prepare("SELECT id_hewan FROM transaksi_adopsi WHERE id_adopsi = ?");
+            $stmt_hewan->execute([$id]);
+            $id_hewan = $stmt_hewan->fetchColumn();
+            
+            if ($id_hewan) {
+                // Kembalikan status hewan menjadi Tersedia
+                $this->pdo->prepare("UPDATE hewan SET status_adopsi = 'Tersedia' WHERE id_hewan = ?")->execute([$id_hewan]);
+            }
+        }
+        return $success;
+    }
+
+    // ponytail: Menyimpan tanda tangan digital Admin/Koordinator
+    public function saveAdminSignature($id, $ttd_base64) {
+        $stmt = $this->pdo->prepare("UPDATE transaksi_adopsi SET ttd_admin = ? WHERE id_adopsi = ?");
+        return $stmt->execute([$ttd_base64, $id]);
     }
 }
 ?>

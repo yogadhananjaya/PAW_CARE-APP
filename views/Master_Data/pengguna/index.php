@@ -13,7 +13,8 @@
         <table class="crud-table">
             <thead>
                 <tr>
-                    <th width="8%">ID</th>
+                    <th width="5%">No</th>
+                    <th>Kode</th>
                     <th>Nama Lengkap</th>
                     <th>Nama Pengguna</th>
                     <th>Jabatan</th>
@@ -24,9 +25,10 @@
                 </tr>
             </thead>
             <tbody>
-                <?php foreach($data as $row): ?>
+                <?php $no = 1; foreach($data as $row): ?>
                 <tr>
-                    <td><?= htmlspecialchars($row['id_pengguna']) ?></td>
+                    <td><?= $no++ ?></td>
+                    <td><?= htmlspecialchars($row['kode_pengguna'] ?? '') ?></td>
                     <td><strong><?= htmlspecialchars($row['nama_lengkap']) ?></strong></td>
                     <td><?= htmlspecialchars($row['nama_pengguna']) ?></td>
                     <td><?= htmlspecialchars($row['jabatan']) ?></td>
@@ -34,7 +36,7 @@
                     <td>
                         <span style="padding:4px 8px; border-radius:10px; font-size:12px; font-weight:bold; 
                             background-color: <?= $row['role'] == 'SuperAdmin' ? '#e1f5fe; color:#3498db;' : '#e0f2f1; color:#00796b;' ?>">
-                            <?= htmlspecialchars($row['role']) ?>
+                            <?= $row['role'] == 'Pegawai' ? 'Pengguna' : htmlspecialchars($row['role']) ?>
                         </span>
                     </td>
                     <td>

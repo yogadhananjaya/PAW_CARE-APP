@@ -14,10 +14,16 @@
         <?php endif; ?>
 
         <form action="index.php?page=pengadopsi_edit&id=<?= $data['id_pengadopsi'] ?>" method="POST" enctype="multipart/form-data">
-            <!-- Nama -->
+            <!-- Nama Lengkap -->
             <div class="form-group">
                 <label>Nama Lengkap</label>
-                <input type="text" name="nama" value="<?= isset($_POST['nama']) ? htmlspecialchars($_POST['nama']) : htmlspecialchars($data['nama']) ?>" class="form-control" required>
+                <input type="text" name="nama_lengkap" value="<?= isset($_POST['nama_lengkap']) ? htmlspecialchars($_POST['nama_lengkap']) : htmlspecialchars($data['nama_lengkap']) ?>" class="form-control" required>
+            </div>
+
+            <!-- Username -->
+            <div class="form-group">
+                <label>Nama Pengguna (Username)</label>
+                <input type="text" name="nama_pengguna" value="<?= isset($_POST['nama_pengguna']) ? htmlspecialchars($_POST['nama_pengguna']) : htmlspecialchars($data['nama_pengguna']) ?>" class="form-control" required>
             </div>
 
             <!-- Email -->

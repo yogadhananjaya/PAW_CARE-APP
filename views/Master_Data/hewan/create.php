@@ -8,6 +8,11 @@
     </header>
 
     <div class="card" style="max-width: 850px;">
+        <?php if (!empty($error_duplikat)): ?>
+            <div style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-weight:600;font-size:14px;">
+                ⚠️ <?= htmlspecialchars($error_duplikat) ?>
+            </div>
+        <?php endif; ?>
         <form action="index.php?page=hewan_create" method="POST" enctype="multipart/form-data">
             <!-- Nama Hewan -->
             <div class="form-group">
@@ -63,13 +68,8 @@
                 <!-- Status Adopsi -->
                 <div class="form-group" style="flex: 1;">
                     <label>Status Adopsi</label>
-                    <select name="status_adopsi" class="form-control" required>
-                        <option value="Karantina">Karantina (Sakit / Adaptasi)</option>
-                        <option value="Tersedia">Tersedia (Siap Diadopsi)</option>
-                        <option value="Dalam Proses">Dalam Proses Adopsi</option>
-                        <option value="Diadopsi">Diadopsi</option>
-                        <option value="Meninggal">Meninggal</option>
-                    </select>
+                    <input type="text" value="Karantina" class="form-control" readonly style="background: #f1f5f9; cursor: not-allowed;">
+                    <input type="hidden" name="status_adopsi" value="Karantina">
                 </div>
                 <!-- Sumber Intake -->
                 <div class="form-group" style="flex: 1;">

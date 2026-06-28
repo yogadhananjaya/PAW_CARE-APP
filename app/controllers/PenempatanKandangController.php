@@ -1,19 +1,23 @@
 <?php
 require_once __DIR__ . '/../models/PenempatanKandangModel.php';
 
-class PenempatanKandangController {
+class PenempatanKandangController
+{
     private $m;
 
-    public function __construct() { 
-        $this->m = new PenempatanKandangModel(); 
+    public function __construct()
+    {
+        $this->m = new PenempatanKandangModel();
     }
 
-    public function index() {
+    public function index()
+    {
         $data = $this->m->getAll();
         include __DIR__ . '/../../views/Master_Transaksi/penempatan_kandang/index.php';
     }
 
-    public function create() {
+    public function create()
+    {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->m->insert($_POST);
             header('Location: index.php?page=penempatan_kandang');
@@ -24,7 +28,8 @@ class PenempatanKandangController {
         include __DIR__ . '/../../views/Master_Transaksi/penempatan_kandang/create.php';
     }
 
-    public function edit($id) {
+    public function edit($id)
+    {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->m->update($id, $_POST);
             header('Location: index.php?page=penempatan_kandang');
@@ -36,13 +41,15 @@ class PenempatanKandangController {
         include __DIR__ . '/../../views/Master_Transaksi/penempatan_kandang/edit.php';
     }
 
-    public function delete($id) {
+    public function delete($id)
+    {
         $this->m->delete($id);
         header('Location: index.php?page=penempatan_kandang');
         exit;
     }
 
-    public function koordinator() {
+    public function koordinator()
+    {
         // Anti-cache: pastikan halaman selalu membaca data terbaru dari DB
         header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
         header("Pragma: no-cache");
@@ -51,15 +58,21 @@ class PenempatanKandangController {
         // Tangani submit form penempatan
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $payload = [
-                'id_hewan'       => $_POST['id_hewan'],
-                'id_kandang'     => $_POST['id_kandang'],
-                'tanggal_masuk'  => $_POST['tanggal_masuk'],
+                'id_hewan' => $_POST['id_hewan'],
+                'id_kandang' => $_POST['id_kandang'],
+                'tanggal_masuk' => $_POST['tanggal_masuk'],
                 'tanggal_keluar' => null
             ];
+
+            // ponytail: Cegah jika hewan sudah berada di kandang yang sama
+            if ($this->m->isAlreadyInCage($payload['id_hewan'], $payload['id_kandang'])) {
+                header("Location: index.php?page=penempatan_kandang_koordinator&error=duplicate");
+                exit;
+            }
+
             $this->m->insert($payload);
 
             // Jika checkbox "Jadikan Tersedia" dicentang, update status hewan
-            // (checkbox sekarang default tercentang di form)
             if (isset($_POST['jadikan_tersedia']) && $_POST['jadikan_tersedia'] == '1') {
                 global $pdo;
                 $stmt = $pdo->prepare("UPDATE hewan SET status_adopsi = 'Tersedia' WHERE id_hewan = ?");
@@ -79,6 +92,15 @@ class PenempatanKandangController {
         $okupansi = $this->m->getOkupansi();
 
         include __DIR__ . '/../../views/Master_Transaksi/penempatan_kandang/koordinator.php';
+    }
+
+    // ponytail: Aksi untuk mengeluarkan hewan dari kandang secara langsung
+    public function release($id)
+    {
+        $this->m->release($id);
+        $ts = time();
+        header("Location: index.php?page=penempatan_kandang_koordinator&success_release=1&t=$ts");
+        exit;
     }
 }
 ?>

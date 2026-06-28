@@ -55,11 +55,8 @@
 
             <div class="form-group">
                 <label>Status Shelter</label>
-                <select name="status" class="form-control" required>
-                    <option value="Karantina" <?= $hewan['status'] == 'Karantina' ? 'selected' : '' ?>>Karantina</option>
-                    <option value="Tersedia" <?= $hewan['status'] == 'Tersedia' ? 'selected' : '' ?>>Tersedia (Siap Diadopsi)</option>
-                    <option value="Diadopsi" <?= $hewan['status'] == 'Diadopsi' ? 'selected' : '' ?>>Diadopsi</option>
-                </select>
+                <input type="text" value="<?= htmlspecialchars($hewan['status_adopsi']) ?>" class="form-control" readonly style="background: #f1f5f9; cursor: not-allowed;">
+                <input type="hidden" name="status_adopsi" value="<?= htmlspecialchars($hewan['status_adopsi']) ?>">
             </div>
 
             <div class="form-group">

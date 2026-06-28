@@ -65,8 +65,8 @@ function koordGetCaretIcon($current, $pages) {
 <aside class="sidebar">
 
     <!-- Logo / Nama Aplikasi -->
-    <div class="sidebar-title">
-        <span class="paw-icon">🐾</span> PAW SHELTER
+    <div class="sidebar-title" style="justify-content: center; padding: 20px 15px;">
+        <img src="assets/img/logo.png" alt="PawCare Logo" style="height: 75px; max-width: 100%; object-fit: contain; display: block;">
     </div>
 
     <!-- Bagian Menu Utama -->
@@ -83,12 +83,12 @@ function koordGetCaretIcon($current, $pages) {
     <div class="sidebar-section-title">Transaksi</div>
     <ul class="sidebar-links">
         <li>
-            <a href="index.php?page=penempatan_kandang_koordinator" onclick="return false;" style="cursor:default;">
+            <a href="index.php?page=penempatan_kandang_koordinator" class="<?php echo koordIsActive($current_page, 'penempatan_kandang_koordinator'); ?>">
                 📦 Penempatan Kandang
             </a>
         </li>
         <li>
-            <a href="index.php?page=jadwal_kunjungan" onclick="return false;" style="cursor:default;">
+            <a href="index.php?page=jadwal_kunjungan" class="<?php echo koordIsActive($current_page, 'jadwal_kunjungan'); ?>">
                 📅 Jadwal Kunjungan
             </a>
         </li>
@@ -103,7 +103,7 @@ function koordGetCaretIcon($current, $pages) {
     <div class="sidebar-section-title">Operasional</div>
     <ul class="sidebar-links">
         <li>
-            <a href="index.php?page=intake_hewan" class="<?php echo koordIsActive($current_page, 'intake_hewan'); ?>">
+            <a href="index.php?page=hewan" class="<?php echo koordIsActive($current_page, 'hewan'); ?>">
                 🐾 Intake Hewan Baru
             </a>
         </li>

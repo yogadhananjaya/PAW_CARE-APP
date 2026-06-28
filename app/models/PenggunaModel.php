@@ -21,11 +21,47 @@ class PenggunaModel {
         return $stmt->fetch(); 
     }
 
+    // ponytail: nama_pengguna (username) harus unik lintas pengguna dan pengadopsi
+    public function isDuplicate($nama_pengguna, $exclude_id = null) {
+        // Cek di tabel pengguna
+        $sql1 = "SELECT COUNT(*) FROM pengguna WHERE LOWER(nama_pengguna) = LOWER(?)";
+        $params1 = [$nama_pengguna];
+        if ($exclude_id) {
+            $sql1 .= " AND id_pengguna != ?";
+            $params1[] = $exclude_id;
+        }
+        $stmt1 = $this->pdo->prepare($sql1);
+        $stmt1->execute($params1);
+        if ($stmt1->fetchColumn() > 0) {
+            return true;
+        }
+
+        // Cek di tabel pengadopsi
+        $stmt2 = $this->pdo->prepare("SELECT COUNT(*) FROM pengadopsi WHERE LOWER(nama_pengguna) = LOWER(?)");
+        $stmt2->execute([$nama_pengguna]);
+        return $stmt2->fetchColumn() > 0;
+    }
+
+    // ponytail: nomor kontak (HP) harus unik
+    public function isDuplicateKontak($kontak, $exclude_id = null) {
+        $sql = "SELECT COUNT(*) FROM pengguna WHERE kontak = ?";
+        $params = [$kontak];
+        if ($exclude_id) {
+            $sql .= " AND id_pengguna != ?";
+            $params[] = $exclude_id;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn() > 0;
+    }
+
     // Simpan data pengguna baru (kolom sesuai DB baru)
     public function insert($data) { 
+        $kode = buat_kode_otomatis('pengguna', 'kode_pengguna', 'PG');
         $kata_sandi = password_hash($data['kata_sandi'], PASSWORD_DEFAULT);
-        $stmt = $this->pdo->prepare("INSERT INTO pengguna (nama_lengkap, jabatan, kontak, nama_pengguna, kata_sandi, role, status) VALUES (?, ?, ?, ?, ?, ?, ?)"); 
+        $stmt = $this->pdo->prepare("INSERT INTO pengguna (kode_pengguna, nama_lengkap, jabatan, kontak, nama_pengguna, kata_sandi, role, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"); 
         return $stmt->execute([
+            $kode,
             $data['nama_lengkap'], 
             $data['jabatan'], 
             $data['kontak'],

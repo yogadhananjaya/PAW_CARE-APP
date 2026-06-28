@@ -43,11 +43,28 @@ switch ($page) {
             require_once __DIR__ . '/app/models/PenggunaModel.php';
             $userModel = new PenggunaModel();
             
-            // Simpan akun baru
+            $username = trim($_POST['username']);
+            // ponytail: Validasi format username (hanya huruf, angka, underscore, 4-20 karakter)
+            if (!preg_match('/^[a-zA-Z0-9_]{4,20}$/', $username)) {
+                echo "<script>alert('Gagal: Username hanya boleh terdiri dari huruf, angka, underscore, dan panjang antara 4 sampai 20 karakter.'); window.history.back();</script>";
+                exit;
+            }
+
+            // ponytail: Cek apakah username sudah digunakan di tabel pengguna atau pengadopsi
+            if ($userModel->isDuplicate($username)) {
+                echo "<script>alert('Gagal: Username \"" . htmlspecialchars($username) . "\" sudah terdaftar! Silakan gunakan username lain.'); window.history.back();</script>";
+                exit;
+            }
+
+            // Simpan akun baru dengan field yang sesuai untuk model Pengguna
             $userModel->insert([
-                'username' => trim($_POST['username']),
-                'password' => $_POST['password'], // Catatan: Sebaiknya di-hash di production
-                'role' => 'User'
+                'nama_lengkap' => $username,
+                'jabatan' => 'User',
+                'kontak' => '',
+                'nama_pengguna' => $username,
+                'kata_sandi' => $_POST['password'],
+                'role' => 'User',
+                'status' => 'Aktif'
             ]);
             
             // Langsung otomatiskan login setelah berhasil daftar
@@ -60,15 +77,31 @@ switch ($page) {
     case 'process_verifikasi':
         if (!check_access(['User'])) { header('Location: index.php?page=login'); exit; }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // PERUBAHAN: Status default diubah dari 'Belum' menjadi 'Terverifikasi'
-            $stmt = $pdo->prepare("INSERT INTO pengadopsi (id_pengguna, nama_lengkap, nik, alamat, no_hp, status_verifikasi) VALUES (?, ?, ?, ?, ?, 'Terverifikasi')");
+            $user_id = $_SESSION['user_id'];
+            
+            // Ambil username dari tabel pengguna
+            $stmt_user = $pdo->prepare("SELECT nama_pengguna FROM pengguna WHERE id_pengguna = ?");
+            $stmt_user->execute([$user_id]);
+            $user_info = $stmt_user->fetch();
+            $username_aktif = $user_info ? $user_info['nama_pengguna'] : '';
+            
+            // Buat email default & kode pengadopsi otomatis
+            $email_default = $username_aktif . '@pawcare.com';
+            $kode_adopter = buat_kode_otomatis('pengadopsi', 'kode_pengadopsi', 'AD');
+
+            // Simpan data diri lengkap pengadopsi
+            $stmt = $pdo->prepare("INSERT INTO pengadopsi (id_pengguna, kode_pengadopsi, nama_lengkap, nama_pengguna, email, nik, alamat, no_hp, status_verifikasi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Terverifikasi')");
             $stmt->execute([
-                $_SESSION['user_id'], 
+                $user_id, 
+                $kode_adopter,
                 trim($_POST['nama_lengkap']), 
+                $username_aktif,
+                $email_default,
                 trim($_POST['nik']), 
                 trim($_POST['alamat']), 
                 trim($_POST['no_hp'])
             ]);
+            
             // Langsung kembalikan ke dashboard user agar melihat status sukses
             header('Location: index.php?page=dashboard_user');
             exit;
@@ -102,7 +135,53 @@ switch ($page) {
         include __DIR__ . '/views/user/dashboard_user.php';
         break;
 
-    // --- FITUR TANDA TANGAN & SIMPAN ---
+    // --- WIZARD ADOPSI BARU (Langkah 1-4) ---
+    case 'proses_adopsi':
+        if (!check_access(['User'])) { header('Location: index.php?page=login'); exit; }
+        include __DIR__ . '/views/user/proses_adopsi.php';
+        break;
+
+    case 'proses_adopsi_submit':
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: index.php?page=dashboard_user'); exit; }
+        if (!isset($_SESSION['user_id'])) { header('Location: index.php?page=login'); exit; }
+
+        // Ambil id_pengadopsi dari user yang login
+        $stmt_adopter = $pdo->prepare("SELECT id_pengadopsi FROM pengadopsi WHERE id_pengguna = ?");
+        $stmt_adopter->execute([$_SESSION['user_id']]);
+        $adopter_data = $stmt_adopter->fetch();
+
+        if (!$adopter_data) {
+            echo "<script>alert('Profil pengadopsi belum lengkap. Harap isi data diri terlebih dahulu.'); window.location.href='index.php?page=dashboard_user';</script>";
+            exit;
+        }
+
+        $id_hewan       = intval($_POST['id_hewan'] ?? 0);
+        $ttd_base64     = $_POST['tanda_tangan_png'] ?? '';
+        $metode_bayar   = htmlspecialchars($_POST['metode_pembayaran'] ?? 'Transfer Bank');
+        $id_pengadopsi  = $adopter_data['id_pengadopsi'];
+
+        // Pastikan hewan masih tersedia sebelum disimpan (cegah double booking)
+        $stmt_cek = $pdo->prepare("SELECT id_hewan FROM hewan WHERE id_hewan = ? AND status_adopsi = 'Tersedia'");
+        $stmt_cek->execute([$id_hewan]);
+        if (!$stmt_cek->fetch()) {
+            echo "<script>alert('Maaf, hewan ini sudah tidak tersedia.'); window.location.href='index.php?page=dashboard_user&tab=katalog';</script>";
+            exit;
+        }
+
+        // Buat kode transaksi otomatis
+        $kode_transaksi = buat_kode_otomatis('transaksi_adopsi', 'kode_transaksi_adopsi', 'TA');
+
+        // Simpan transaksi adopsi baru
+        $stmt_insert = $pdo->prepare("INSERT INTO transaksi_adopsi (kode_transaksi_adopsi, id_hewan, id_pengadopsi, tanggal_adopsi, status_kontrak, ttd_adopter) VALUES (?, ?, ?, CURDATE(), 'Ditandatangani', ?)");
+        $stmt_insert->execute([$kode_transaksi, $id_hewan, $id_pengadopsi, $ttd_base64]);
+
+        // Ubah status hewan menjadi 'Dalam Proses'
+        $pdo->prepare("UPDATE hewan SET status_adopsi = 'Dalam Proses' WHERE id_hewan = ?")->execute([$id_hewan]);
+
+        echo "<script>alert('✅ Pengajuan adopsi berhasil! Silakan tunggu konfirmasi dari tim PawCare.'); window.location.href='index.php?page=dashboard_user&tab=pengajuan';</script>";
+        exit;
+
+    // --- FITUR TANDA TANGAN & SIMPAN (lama, dipertahankan) ---
     case 'tanda_tangan':
         if (!check_access(['User'])) { header('Location: index.php?page=login'); exit; }
         include __DIR__ . '/views/user/tanda_tangan.php';
@@ -202,8 +281,8 @@ switch ($page) {
         $action = 'index';
         $entity = $page;
 
-        // Mendeteksi _create, _edit, _delete, _confirm, _reject, _activate, _intake, _koordinator dari string parameter page
-        if (in_array(end($parts), ['create', 'edit', 'delete', 'confirm', 'reject', 'activate', 'intake', 'koordinator'])) {
+        // Mendeteksi _create, _edit, _delete, _confirm, _reject, _activate, _intake, _koordinator, _recommend, _release, _complete, _sign dari string parameter page
+        if (in_array(end($parts), ['create', 'edit', 'delete', 'confirm', 'reject', 'activate', 'intake', 'koordinator', 'recommend', 'release', 'complete', 'sign'])) {
             $action = array_pop($parts);
             $entity = implode('_', $parts);
         }
@@ -219,12 +298,20 @@ switch ($page) {
         $master_entities = ['hewan', 'jenis', 'ras', 'kandang', 'vaksin', 'pengguna', 'pengadopsi', 'donasi'];
 
         if (in_array($entity, $valid_entities)) {
-            // Koordinator dan Perawat hanya bisa akses modul Transaksi
-            if (in_array($entity, $master_entities) && !check_access(['SuperAdmin'])) {
-                header('Location: index.php?page=dashboard_koordinator');
+            // ponytail: validasi rbac ketat sesuai matriks hak akses
+            if (!check_rbac($entity, $action)) {
+                $user_role = isset($_SESSION['role']) ? $_SESSION['role'] : '';
+                if ($user_role == 'SuperAdmin') {
+                    header('Location: index.php?page=dashboard_superadmin');
+                } elseif ($user_role == 'Koordinator') {
+                    header('Location: index.php?page=dashboard_koordinator');
+                } elseif ($user_role == 'Perawat' || $user_role == 'Perawat Hewan') {
+                    header('Location: index.php?page=dashboard_staff');
+                } else {
+                    header('Location: index.php?page=login');
+                }
                 exit;
             }
-            if (!check_access(['SuperAdmin', 'Koordinator', 'Perawat'])) { header('Location: index.php?page=login'); exit; }
             
             // Route khusus: intake_hewan pakai HewanController
             if ($entity == 'intake_hewan') {
@@ -259,6 +346,10 @@ switch ($page) {
                 elseif ($action === 'reject') $controller->reject($id);
                 elseif ($action === 'activate') $controller->activate($id);
                 elseif ($action === 'intake') $controller->intake();
+                elseif ($action === 'recommend') $controller->recommend($id);
+                elseif ($action === 'release') $controller->release($id);
+                elseif ($action === 'complete') $controller->complete($id);
+                elseif ($action === 'sign') $controller->sign($id);
                 break;
             }
         }

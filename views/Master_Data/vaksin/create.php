@@ -7,10 +7,15 @@
         <a href="index.php?page=vaksin" class="btn btn-secondary">&larr; Batal</a>
     </header>
     <div class="card" style="max-width: 600px;">
+        <?php if (!empty($error_duplikat)): ?>
+            <div style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-weight:600;font-size:14px;">
+                ⚠️ <?= htmlspecialchars($error_duplikat) ?>
+            </div>
+        <?php endif; ?>
         <form action="index.php?page=vaksin_create" method="POST">
             <div class="form-group">
                 <label>Nama Vaksin</label>
-                <input type="text" name="nama_vaksin" class="form-control" required>
+                <input type="text" name="nama_vaksin" class="form-control" value="<?= htmlspecialchars($_POST['nama_vaksin'] ?? '') ?>" required autofocus>
             </div>
             <div class="form-group">
                 <label>Deskripsi</label>

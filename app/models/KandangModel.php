@@ -19,6 +19,19 @@ class KandangModel {
         return $stmt->fetch(); 
     }
 
+    // ponytail: kode_kandang dan nama_kandang harus unik
+    public function isDuplicate($kode_kandang, $nama_kandang, $exclude_id = null) {
+        $sql = "SELECT COUNT(*) FROM kandang WHERE (LOWER(kode_kandang) = LOWER(?) OR LOWER(nama_kandang) = LOWER(?))";
+        $params = [$kode_kandang, $nama_kandang];
+        if ($exclude_id) {
+            $sql .= " AND id_kandang != ?";
+            $params[] = $exclude_id;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn() > 0;
+    }
+
     public function insert($data) { 
         $stmt = $this->pdo->prepare("INSERT INTO kandang (kode_kandang, nama_kandang, kapasitas, status) VALUES (?, ?, ?, ?)"); 
         return $stmt->execute([$data['kode_kandang'], $data['nama_kandang'], $data['kapasitas'], $data['status']]); 

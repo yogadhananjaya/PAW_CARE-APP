@@ -18,6 +18,11 @@ op
             <h3 style="font-size: 16px; font-weight: 700; color: #4f46e5; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
                 ➕ Inisiasi Adopsi Baru
             </h3>
+            <?php if (!empty($error_duplikat)): ?>
+                <div style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-weight:600;font-size:14px;">
+                    ⚠️ <?= htmlspecialchars($error_duplikat) ?>
+                </div>
+            <?php endif; ?>
             <form action="index.php?page=transaksi_adopsi_create" method="POST">
                 <!-- Adopter -->
                 <div class="form-group" style="margin-bottom: 15px;">
@@ -61,6 +66,8 @@ op
             <table class="crud-table" style="width: 100%; border-collapse: collapse; text-align: left;">
                 <thead>
                     <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <th style="padding: 12px 10px; font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; width: 5%;">No</th>
+                        <th style="padding: 12px 10px; font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Kode</th>
                         <th style="padding: 12px 10px; font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Hewan</th>
                         <th style="padding: 12px 10px; font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Adopter</th>
                         <th style="padding: 12px 10px; font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Status Kontrak</th>
@@ -70,8 +77,16 @@ op
                 </thead>
                 <tbody>
                     <?php if (count($data) > 0): ?>
-                        <?php foreach($data as $row): ?>
+                        <?php $no = 1; foreach($data as $row): ?>
                         <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <!-- NO & KODE -->
+                            <td style="padding: 16px 10px; font-size: 14px; font-weight: 500; color: #334155;">
+                                <?= $no++ ?>
+                            </td>
+                            <td style="padding: 16px 10px; font-size: 14px; font-weight: 500; color: #334155;">
+                                <?= htmlspecialchars($row['kode_transaksi_adopsi'] ?? '') ?>
+                            </td>
+                            
                             <!-- HEWAN -->
                             <td style="padding: 16px 10px;">
                                 <div style="font-weight: 700; color: #0f172a;"><?= htmlspecialchars($row['nama_hewan']) ?></div>
@@ -97,6 +112,9 @@ op
                                 } elseif ($row['status_kontrak'] == 'Aktif') {
                                     $statusText = 'AKTIF';
                                     $bg = '#dcfce7'; $color = '#15803d';
+                                } elseif ($row['status_kontrak'] == 'Batal') {
+                                    $statusText = 'BATAL / DITOLAK';
+                                    $bg = '#fef2f2'; $color = '#b91c1c';
                                 }
                                 ?>
                                 <span style="padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; background-color: <?= $bg ?>; color: <?= $color ?>; display: inline-block;">
@@ -114,15 +132,17 @@ op
                                 <a href="index.php?page=transaksi_adopsi_edit&id=<?= $row['id_adopsi'] ?>" class="btn" style="border: 1px solid #cbd5e1; background: #ffffff; color: #475569; padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 13px; text-decoration: none; display: inline-block; cursor: pointer; transition: background 0.2s; margin-right: 4px;">
                                     Buka Kontrak
                                 </a>
-                                <a href="index.php?page=transaksi_adopsi_delete&id=<?= $row['id_adopsi'] ?>" class="btn" onclick="return confirm('Hapus transaksi adopsi ini?');" style="border: 1px solid #fecaca; background: #ffffff; color: #ef4444; padding: 6px 8px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; vertical-align: middle;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                                </a>
+                                <?php if (($_SESSION['role'] ?? '') === 'SuperAdmin' && $row['status_kontrak'] !== 'Batal'): ?>
+                                    <a href="index.php?page=transaksi_adopsi_reject&id=<?= $row['id_adopsi'] ?>" class="btn" onclick="return confirm('Batalkan transaksi adopsi ini?');" style="border: 1px solid #fecaca; background: #ffffff; color: #ef4444; padding: 6px 12px; font-size: 13px; font-weight: 600; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; vertical-align: middle;">
+                                        Tolak
+                                    </a>
+                                <?php endif; ?>
                             </td>
                         </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="5" style="padding: 30px; text-align: center; color: #94a3b8; font-size: 14px;">
+                            <td colspan="7" style="padding: 30px; text-align: center; color: #94a3b8; font-size: 14px;">
                                 Belum ada data transaksi adopsi terdaftar.
                             </td>
                         </tr>

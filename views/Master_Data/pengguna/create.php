@@ -7,17 +7,22 @@
         <a href="index.php?page=pengguna" class="btn btn-secondary">&larr; Batal</a>
     </header>
     <div class="card" style="max-width: 700px;">
+        <?php if (!empty($error_duplikat)): ?>
+            <div style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-weight:600;font-size:14px;">
+                ⚠️ <?= htmlspecialchars($error_duplikat) ?>
+            </div>
+        <?php endif; ?>
         <form action="index.php?page=pengguna_create" method="POST">
             <!-- Nama Lengkap -->
             <div class="form-group">
                 <label>Nama Lengkap</label>
-                <input type="text" name="nama_lengkap" class="form-control" required placeholder="Contoh: Budi Santoso">
+                <input type="text" name="nama_lengkap" class="form-control" value="<?= htmlspecialchars($_POST['nama_lengkap'] ?? '') ?>" required placeholder="Contoh: Budi Santoso">
             </div>
 
             <!-- Nama Pengguna (username) -->
             <div class="form-group">
                 <label>Nama Pengguna (Username)</label>
-                <input type="text" name="nama_pengguna" class="form-control" required autocomplete="off" placeholder="Contoh: budi.santoso">
+                <input type="text" name="nama_pengguna" class="form-control" value="<?= htmlspecialchars($_POST['nama_pengguna'] ?? '') ?>" required autocomplete="off" placeholder="Contoh: budi.santoso">
             </div>
 
             <!-- Password -->
@@ -31,9 +36,10 @@
                 <div class="form-group" style="flex:1;">
                     <label>Jabatan</label>
                     <select name="jabatan" class="form-control" required>
-                        <option value="Koordinator">Koordinator</option>
-                        <option value="Perawat Hewan">Perawat Hewan</option>
-                        <option value="SuperAdmin">SuperAdmin</option>
+                        <?php $post_jabatan = $_POST['jabatan'] ?? ''; ?>
+                        <option value="Koordinator" <?= $post_jabatan == 'Koordinator' ? 'selected' : '' ?>>Koordinator</option>
+                        <option value="Perawat Hewan" <?= $post_jabatan == 'Perawat Hewan' ? 'selected' : '' ?>>Perawat Hewan</option>
+                        <option value="SuperAdmin" <?= $post_jabatan == 'SuperAdmin' ? 'selected' : '' ?>>SuperAdmin</option>
                     </select>
                 </div>
 
@@ -41,8 +47,9 @@
                 <div class="form-group" style="flex:1;">
                     <label>Role Akses</label>
                     <select name="role" class="form-control">
-                        <option value="Pegawai">Pegawai</option>
-                        <option value="SuperAdmin">SuperAdmin</option>
+                        <?php $post_role = $_POST['role'] ?? ''; ?>
+                        <option value="Pegawai" <?= $post_role == 'Pegawai' ? 'selected' : '' ?>>Pengguna</option>
+                        <option value="SuperAdmin" <?= $post_role == 'SuperAdmin' ? 'selected' : '' ?>>SuperAdmin</option>
                     </select>
                 </div>
             </div>
@@ -50,16 +57,17 @@
             <!-- Kontak -->
             <div class="form-group">
                 <label>Nomor Kontak / HP</label>
-                <input type="text" name="kontak" class="form-control" required placeholder="Contoh: 08123456789">
+                <input type="text" name="kontak" class="form-control" value="<?= htmlspecialchars($_POST['kontak'] ?? '') ?>" required placeholder="Contoh: 08123456789">
             </div>
 
             <!-- Status -->
             <div class="form-group">
                 <label>Status Akun</label>
                 <select name="status" class="form-control">
-                    <option value="Aktif">Aktif</option>
-                    <option value="Suspended">Suspended</option>
-                    <option value="Resign">Resign</option>
+                    <?php $post_status = $_POST['status'] ?? ''; ?>
+                    <option value="Aktif" <?= $post_status == 'Aktif' ? 'selected' : '' ?>>Aktif</option>
+                    <option value="Suspended" <?= $post_status == 'Suspended' ? 'selected' : '' ?>>Suspended</option>
+                    <option value="Resign" <?= $post_status == 'Resign' ? 'selected' : '' ?>>Resign</option>
                 </select>
             </div>
 

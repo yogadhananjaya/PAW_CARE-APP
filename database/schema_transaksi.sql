@@ -2,6 +2,7 @@ USE paw_care;
 
 CREATE TABLE IF NOT EXISTS riwayat_kesehatan (
     id_riwayat INT AUTO_INCREMENT PRIMARY KEY,
+    kode_riwayat_kesehatan VARCHAR(10) UNIQUE,
     id_hewan INT NOT NULL,
     id_pengguna INT NOT NULL,
     tipe ENUM('Perawatan','Vaksinasi') NOT NULL,
@@ -15,6 +16,7 @@ CREATE TABLE IF NOT EXISTS riwayat_kesehatan (
 
 CREATE TABLE IF NOT EXISTS penempatan_kandang (
     id_penempatan INT AUTO_INCREMENT PRIMARY KEY,
+    kode_penempatan_kandang VARCHAR(10) UNIQUE,
     id_hewan INT NOT NULL,
     id_kandang INT NOT NULL,
     tanggal_masuk DATE NOT NULL,
@@ -26,6 +28,7 @@ CREATE TABLE IF NOT EXISTS penempatan_kandang (
 
 CREATE TABLE IF NOT EXISTS jadwal_kunjungan (
     id_jadwal INT AUTO_INCREMENT PRIMARY KEY,
+    kode_jadwal_kunjungan VARCHAR(10) UNIQUE,
     id_pengadopsi INT NOT NULL,
     id_hewan INT NOT NULL,
     id_pengguna INT NULL,
@@ -40,11 +43,12 @@ CREATE TABLE IF NOT EXISTS jadwal_kunjungan (
 
 CREATE TABLE IF NOT EXISTS transaksi_adopsi (
     id_adopsi INT AUTO_INCREMENT PRIMARY KEY,
+    kode_transaksi_adopsi VARCHAR(10) UNIQUE,
     id_hewan INT NOT NULL,
     id_pengadopsi INT NOT NULL,
     id_pengguna INT NULL,
     tanggal_adopsi DATE NOT NULL,
-    status_kontrak ENUM('Draft','Ditandatangani','Aktif') DEFAULT 'Draft',
+    status_kontrak ENUM('Draft','Ditandatangani','Aktif','Batal') DEFAULT 'Draft',
     ttd_adopter LONGTEXT NULL,
     ttd_admin LONGTEXT NULL,
     FOREIGN KEY (id_hewan) REFERENCES hewan(id_hewan) ON DELETE CASCADE,

@@ -7,10 +7,15 @@
         <a href="index.php?page=jenis" class="btn btn-secondary">&larr; Batal</a>
     </header>
     <div class="card" style="max-width: 600px;">
+        <?php if (!empty($error_duplikat)): ?>
+            <div style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-weight:600;font-size:14px;">
+                ⚠️ <?= htmlspecialchars($error_duplikat) ?>
+            </div>
+        <?php endif; ?>
         <form action="index.php?page=jenis_create" method="POST">
             <div class="form-group">
                 <label>Nama Jenis Hewan</label>
-                <input type="text" name="nama_jenis" class="form-control" placeholder="Contoh: Kucing, Anjing..." required autofocus>
+                <input type="text" name="nama_jenis" class="form-control" placeholder="Contoh: Kucing, Anjing..." value="<?= htmlspecialchars($_POST['nama_jenis'] ?? '') ?>" required autofocus>
             </div>
             <button type="submit" class="btn btn-primary" style="margin-top:15px;">Simpan</button>
         </form>

@@ -19,9 +19,23 @@ class VaksinModel {
         return $stmt->fetch(); 
     }
 
+    // ponytail: nama_vaksin harus unik (case-insensitive)
+    public function isDuplicate($nama_vaksin, $exclude_id = null) {
+        $sql = "SELECT COUNT(*) FROM vaksin WHERE LOWER(nama_vaksin) = LOWER(?)";
+        $params = [$nama_vaksin];
+        if ($exclude_id) {
+            $sql .= " AND id_vaksin != ?";
+            $params[] = $exclude_id;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn() > 0;
+    }
+
     public function insert($nama, $desk, $status) { 
-        $stmt = $this->pdo->prepare("INSERT INTO vaksin (nama_vaksin, deskripsi, status) VALUES (?, ?, ?)"); 
-        return $stmt->execute([$nama, $desk, $status]); 
+        $kode = buat_kode_otomatis('vaksin', 'kode_vaksin', 'VK');
+        $stmt = $this->pdo->prepare("INSERT INTO vaksin (kode_vaksin, nama_vaksin, deskripsi, status) VALUES (?, ?, ?, ?)"); 
+        return $stmt->execute([$kode, $nama, $desk, $status]); 
     }
 
     public function update($id, $nama, $desk, $status) { 

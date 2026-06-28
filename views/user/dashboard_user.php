@@ -195,7 +195,7 @@ if ($adopter) {
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div class="welcome-card" style="margin: 0;">
                         <h4 style="margin-bottom: 10px;">📋 Ringkasan Aktivitas</h4>
-                        <p style="color:#555;">Anda telah mendaftarkan profil pengadopsi dengan NIK: <strong><?= htmlspecialchars($adopter['nik']) ?></strong>.</p>
+                        <p style="color:#555;">Anda telah mendaftarkan profil pengadopsi dengan NIK: <strong><?= htmlspecialchars($adopter['nik'] ?? '') ?></strong>.</p>
                     </div>
                     <div class="welcome-card" style="margin: 0; border-left: 4px solid #e67e22;">
                         <h4 style="margin-bottom: 10px;">💡 Tips Hari Ini</h4>
@@ -209,10 +209,13 @@ if ($adopter) {
                     <div class="catalog-grid">
                         <?php foreach ($katalog_hewan as $hewan): ?>
                             <div class="pet-card">
-                                <?php if (!empty($hewan['url_foto_hewan'])): ?>
-                                    <img src="assets/img/hewan/<?= htmlspecialchars($hewan['url_foto_hewan']) ?>" class="pet-img" alt="Foto">
+                                <?php 
+                                $foto_path = 'assets/img/hewan/' . ($hewan['url_foto_hewan'] ?? '');
+                                if (!empty($hewan['url_foto_hewan']) && file_exists(__DIR__ . '/../../' . $foto_path)): 
+                                ?>
+                                    <img src="<?= htmlspecialchars($foto_path) ?>" class="pet-img" alt="Foto">
                                 <?php else: ?>
-                                    <div class="pet-img" style="display:flex; align-items:center; justify-content:center; color:#bdc3c7; font-size:13px;">No Visual</div>
+                                    <div class="pet-img" style="display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:32px; background:#f1f5f9;">🐾</div>
                                 <?php endif; ?>
                                 <div class="pet-name"><?= htmlspecialchars($hewan['nama_hewan']) ?></div>
                                 <div class="pet-breed"><?= htmlspecialchars($hewan['nama_jenis']) ?> - <?= htmlspecialchars($hewan['nama_ras']) ?></div>
@@ -220,7 +223,7 @@ if ($adopter) {
                                     <span class="tag"><?= htmlspecialchars($hewan['jenis_kelamin']) ?></span>
                                     <span class="tag"><?= htmlspecialchars($hewan['estimasi_umur']) ?> bln</span>
                                 </div>
-                                <a href="index.php?page=tanda_tangan&id=<?= $hewan['id_hewan'] ?>" class="btn-adopt">Ajukan Adopsi</a>
+                                <a href="index.php?page=proses_adopsi&id=<?= $hewan['id_hewan'] ?>" class="btn-adopt">Adopsi Sekarang</a>
                             </div>
                         <?php endforeach; ?>
                     </div>

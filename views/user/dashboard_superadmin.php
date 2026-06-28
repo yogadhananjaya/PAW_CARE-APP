@@ -6,9 +6,19 @@ $stmt_count = $pdo->query("SELECT COUNT(*) FROM pengadopsi WHERE status_verifika
 $count_menunggu = $stmt_count->fetchColumn();
 
 // Ambil list 5 adopter dengan status_verifikasi bukan 'Terverifikasi' untuk ditampilkan di antrean
-$stmt_list = $pdo->query("SELECT id_pengadopsi, nama, email FROM pengadopsi WHERE status_verifikasi != 'Terverifikasi' ORDER BY id_pengadopsi ASC LIMIT 5");
+$stmt_list = $pdo->query("SELECT id_pengadopsi, nama_lengkap, email FROM pengadopsi WHERE status_verifikasi != 'Terverifikasi' ORDER BY id_pengadopsi ASC LIMIT 5");
 $antrean_ktp = $stmt_list->fetchAll();
 
+// Ambil total hewan tersedia
+$stmt_hewan_tersedia = $pdo->query("SELECT COUNT(*) FROM hewan WHERE status_adopsi = 'Tersedia'");
+$total_tersedia = $stmt_hewan_tersedia->fetchColumn();
+
+// Ambil total hewan karantina
+$stmt_hewan_karantina = $pdo->query("SELECT COUNT(*) FROM hewan WHERE status_adopsi = 'Karantina'");
+$total_karantina = $stmt_hewan_karantina->fetchColumn();
+
+$stmt_donasi_bulan = $pdo->query("SELECT SUM(nominal) FROM donasi WHERE status_konfirmasi = 'Dikonfirmasi' AND MONTH(tanggal) = MONTH(CURDATE()) AND YEAR(tanggal) = YEAR(CURDATE())");
+$total_donasi = $stmt_donasi_bulan->fetchColumn() ?? 0;
 // Ambil data adopsi per bulan untuk tahun ini
 $stmt_chart = $pdo->query("
     SELECT MONTH(tanggal_adopsi) as bulan_num, COUNT(*) as jumlah 
@@ -28,6 +38,27 @@ foreach ($chart_data as $row) {
         $adopsi_counts[$idx] = intval($row['jumlah']);
     }
 }
+
+// Ambil data realtime untuk Pemberitahuan Penting
+// 1. Transaksi adopsi menunggu persetujuan kontrak
+$stmt_notif_adopsi = $pdo->query("
+    SELECT t.id_adopsi, h.nama_hewan, p.nama_lengkap 
+    FROM transaksi_adopsi t
+    JOIN hewan h ON t.id_hewan = h.id_hewan
+    JOIN pengadopsi p ON t.id_pengadopsi = p.id_pengadopsi
+    WHERE t.status_kontrak = 'Ditandatangani'
+    LIMIT 2
+");
+$notif_adopsi = $stmt_notif_adopsi->fetchAll();
+
+// 2. Hewan karantina yang butuh persetujuan rilis
+$stmt_notif_karantina = $pdo->query("
+    SELECT id_hewan, nama_hewan 
+    FROM hewan 
+    WHERE status_adopsi = 'Karantina' AND rekomendasi_adopsi = 1 
+    LIMIT 2
+");
+$notif_karantina = $stmt_notif_karantina->fetchAll();
 ?>
 <?php include __DIR__ . '/../layouts/header.php'; ?>
 <?php include __DIR__ . '/../layouts/sidebar_admin.php'; ?>
@@ -47,11 +78,11 @@ foreach ($chart_data as $row) {
     <div class="stats-grid">
         <div class="stat-card">
             <h3>Total Hewan Tersedia</h3>
-            <div class="value">42</div>
+            <div class="value"><?= $total_tersedia ?></div>
         </div>
         <div class="stat-card alert">
             <h3>Hewan Karantina / Sakit</h3>
-            <div class="value">8</div>
+            <div class="value"><?= $total_karantina ?></div>
         </div>
         <div class="stat-card">
             <h3>Adopter Belum Verifikasi</h3>
@@ -59,7 +90,7 @@ foreach ($chart_data as $row) {
         </div>
         <div class="stat-card">
             <h3>Total Donasi Bulan Ini</h3>
-            <div class="value" style="font-size: 24px; margin-top:10px;">Rp 4.500.000</div>
+            <div class="value" style="font-size: 24px; margin-top:10px;">Rp <?= number_format($total_donasi, 0, ',', '.') ?></div>
         </div>
     </div>
 
@@ -93,21 +124,46 @@ foreach ($chart_data as $row) {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td><strong>Adopsi Baru</strong></td>
-                            <td>Menunggu persetujuan E-Contract (Milo)</td>
-                            <td><span class="badge badge-red">Urgent</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Verifikasi KTP</strong></td>
-                            <td>Terdapat 3 user baru menunggu cek KTP</td>
-                            <td><span class="badge badge-dark">Pending</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Kesehatan Hewan</strong></td>
-                            <td>Jadwal Vaksinasi Rabies (Rocky) terlewat</td>
-                            <td><span class="badge badge-red">Urgent</span></td>
-                        </tr>
+                        <?php 
+                        $has_notif = false;
+                        
+                        // Render adopsi baru menunggu persetujuan
+                        foreach ($notif_adopsi as $na) {
+                            $has_notif = true;
+                            echo '<tr>';
+                            echo '<td><strong>Adopsi Baru</strong></td>';
+                            echo '<td>Menunggu persetujuan E-Contract (' . htmlspecialchars($na['nama_hewan']) . ' oleh ' . htmlspecialchars($na['nama_lengkap']) . ')</td>';
+                            echo '<td><span class="badge badge-red">Urgent</span></td>';
+                            echo '</tr>';
+                        }
+
+                        // Render verifikasi KTP tertunda
+                        if ($count_menunggu > 0) {
+                            $has_notif = true;
+                            echo '<tr>';
+                            echo '<td><strong>Verifikasi KTP</strong></td>';
+                            echo '<td>Terdapat ' . $count_menunggu . ' calon adopter baru menunggu verifikasi</td>';
+                            echo '<td><span class="badge badge-dark">Pending</span></td>';
+                            echo '</tr>';
+                        }
+
+                        // Render hewan karantina siap dirilis
+                        foreach ($notif_karantina as $nk) {
+                            $has_notif = true;
+                            echo '<tr>';
+                            echo '<td><strong>Kesehatan Hewan</strong></td>';
+                            echo '<td>Hewan karantina (' . htmlspecialchars($nk['nama_hewan']) . ') siap dirilis ke katalog</td>';
+                            echo '<td><span class="badge badge-red">Urgent</span></td>';
+                            echo '</tr>';
+                        }
+
+                        // Jika tidak ada pemberitahuan penting
+                        if (!$has_notif) {
+                            echo '<tr>';
+                            echo '<td colspan="3" style="text-align:center; color:#94a3b8; padding: 20px 0;">✅ Semua sistem berjalan dengan baik. Tidak ada notifikasi mendesak.</td>';
+                            echo '</tr>';
+                        }
+                        ?>
                     </tbody>
                 </table>
             </div>
@@ -130,7 +186,7 @@ foreach ($chart_data as $row) {
                             <?php foreach ($antrean_ktp as $adopter): ?>
                                 <tr>
                                     <td>
-                                        <div style="font-weight: 700; color: var(--hitam);"><?= htmlspecialchars($adopter['nama']) ?></div>
+                                        <div style="font-weight: 700; color: var(--hitam);"><?= htmlspecialchars($adopter['nama_lengkap']) ?></div>
                                         <div style="font-size: 12px; color: var(--text-muted);"><?= htmlspecialchars($adopter['email']) ?></div>
                                     </td>
                                     <td style="text-align: right; padding-right: 15px;">

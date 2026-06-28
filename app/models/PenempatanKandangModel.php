@@ -20,8 +20,13 @@ class PenempatanKandangModel {
     }
 
     public function insert($d) { 
-        $stmt = $this->pdo->prepare("INSERT INTO penempatan_kandang (id_hewan, id_kandang, tanggal_masuk, tanggal_keluar) VALUES (?, ?, ?, ?)"); 
-        return $stmt->execute([$d['id_hewan'], $d['id_kandang'], $d['tanggal_masuk'], empty($d['tanggal_keluar']) ? null : $d['tanggal_keluar']]); 
+        // ponytail: otomatis nonaktifkan penempatan kandang sebelumnya untuk hewan ini
+        $deactive = $this->pdo->prepare("UPDATE penempatan_kandang SET status = 'Riwayat', tanggal_keluar = ? WHERE id_hewan = ? AND status = 'Aktif'");
+        $deactive->execute([$d['tanggal_masuk'], $d['id_hewan']]);
+
+        $kode = buat_kode_otomatis('penempatan_kandang', 'kode_penempatan_kandang', 'PK');
+        $stmt = $this->pdo->prepare("INSERT INTO penempatan_kandang (kode_penempatan_kandang, id_hewan, id_kandang, tanggal_masuk, tanggal_keluar) VALUES (?, ?, ?, ?, ?)"); 
+        return $stmt->execute([$kode, $d['id_hewan'], $d['id_kandang'], $d['tanggal_masuk'], empty($d['tanggal_keluar']) ? null : $d['tanggal_keluar']]); 
     }
 
     public function update($id, $d) { 
@@ -32,6 +37,19 @@ class PenempatanKandangModel {
     public function delete($id) { 
         $stmt = $this->pdo->prepare("DELETE FROM penempatan_kandang WHERE id_penempatan = ?"); 
         return $stmt->execute([$id]); 
+    }
+
+    // ponytail: Cek apakah hewan sudah aktif di kandang tersebut
+    public function isAlreadyInCage($id_hewan, $id_kandang) {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM penempatan_kandang WHERE id_hewan = ? AND id_kandang = ? AND status = 'Aktif'");
+        $stmt->execute([$id_hewan, $id_kandang]);
+        return $stmt->fetchColumn() > 0;
+    }
+
+    // ponytail: Keluarkan hewan dari kandang (Ubah status jadi Riwayat dan set tanggal_keluar)
+    public function release($id) {
+        $stmt = $this->pdo->prepare("UPDATE penempatan_kandang SET status = 'Riwayat', tanggal_keluar = CURDATE() WHERE id_penempatan = ?");
+        return $stmt->execute([$id]);
     }
 
     public function getHewan() { 

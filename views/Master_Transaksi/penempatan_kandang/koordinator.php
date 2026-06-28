@@ -9,6 +9,7 @@ $nama_lengkap_session = "Koordinator";
 if (isset($_SESSION['nama_lengkap'])) {
     $nama_lengkap_session = $_SESSION['nama_lengkap'];
 }
+$current_role = $_SESSION['role'] ?? '';
 
 // Ambil pesan sukses jika ada
 $show_success = false;
@@ -17,13 +18,13 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
 }
 ?>
 <?php include __DIR__ . '/../../layouts/header.php'; ?>
-<?php include __DIR__ . '/../../layouts/sidebar_koordinator.php'; ?>
+<?php include __DIR__ . '/../../layouts/sidebar_admin.php'; ?>
 
 <style>
     /* Style khusus halaman penempatan */
     .pk-grid-top {
         display: grid;
-        grid-template-columns: 1fr 1.3fr;
+        grid-template-columns: <?= in_array($current_role, ['Perawat', 'Perawat Hewan']) ? '1fr' : '1fr 1.3fr' ?>;
         gap: 25px;
         align-items: start;
         margin-bottom: 25px;
@@ -202,17 +203,24 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
 <!-- ===================================================================== -->
 <div class="main-wrapper">
 
-    <!-- Pesan sukses -->
+    <!-- Pesan notifikasi -->
     <?php if ($show_success): ?>
         <div class="alert-sukses">✅ Hewan berhasil ditempatkan ke kandang.</div>
     <?php endif; ?>
+    <?php if (isset($_GET['success_release']) && $_GET['success_release'] == '1'): ?>
+        <div class="alert-sukses">✅ Hewan berhasil dikeluarkan dari kandang.</div>
+    <?php endif; ?>
+    <?php if (isset($_GET['error']) && $_GET['error'] == 'duplicate'): ?>
+        <div class="alert-sukses" style="background:#fee2e2; color:#b91c1c; border-color:#fecaca;">⚠️ Hewan sudah aktif berada di kandang pilihan tersebut!</div>
+    <?php endif; ?>
 
-    <!-- Baris 1: Form di kiri, Daftar Lokasi di kanan -->
+    <!-- Baris 1: Form di kiri (disembunyikan untuk Perawat), Daftar Lokasi di kanan -->
     <div class="pk-grid-top">
 
         <!-- ============================== -->
         <!-- KOLOM KIRI: FORM TEMPATKAN     -->
         <!-- ============================== -->
+        <?php if (!in_array($current_role, ['Perawat', 'Perawat Hewan'])): ?>
         <div class="pk-card">
             <div class="pk-card-header pk-form-header">
                 <span>🏠</span> Tempatkan / Pindahkan Hewan
@@ -266,6 +274,7 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
                 <button type="submit" class="pk-submit">Tempatkan Hewan</button>
             </form>
         </div>
+        <?php endif; ?>
 
         <!-- ============================== -->
         <!-- KOLOM KANAN: DAFTAR LOKASI     -->
@@ -278,35 +287,56 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
             <table class="pk-table">
                 <thead>
                     <tr>
-                        <th>Nama Hewan</th>
-                        <th>Kandang Saat Ini</th>
+                        <th style="padding-left: 20px;">Nama Hewan</th>
+                        <th>Kode Kandang</th>
                         <th>Tanggal Masuk</th>
-                        <th>Status Hewan</th>
+                        <th>Status</th>
+                        <?php if (!in_array($current_role, ['Perawat', 'Perawat Hewan'])): ?>
+                        <th>Aksi</th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
-                    if (isset($data) && count($data) > 0) {
-                        $ditampilkan = array_slice($data, 0, 10);
-                        foreach ($ditampilkan as $pk) {
-                            $nama_hewan_pk = htmlspecialchars($pk['nama_hewan']);
-                            $kode_kandang_pk = htmlspecialchars($pk['kode_kandang']);
-                            $tanggal_masuk_pk = date('d M Y', strtotime($pk['tanggal_masuk']));
+                    // Kelompokkan data penempatan yang berstatus 'Aktif' berdasarkan Kandang
+                    $grouped = [];
+                    if (isset($data) && is_array($data)) {
+                        foreach ($data as $pk) {
+                            if (($pk['status'] ?? '') === 'Aktif') {
+                                $kandang_key = $pk['kode_kandang'] . ' - ' . $pk['nama_kandang'];
+                                $grouped[$kandang_key][] = $pk;
+                            }
+                        }
+                    }
 
-                            // Tentukan status hewan (default Tersedia)
-                            $status_hewan = 'Tersedia';
-                            $badge_class = 'pk-badge-tersedia';
-
-                            echo '<tr>';
-                            echo '<td><span class="pk-animal-name">' . $nama_hewan_pk . '</span></td>';
-                            echo '<td><span class="pk-badge-kandang">' . strtoupper($kode_kandang_pk) . '</span></td>';
-                            echo '<td>' . $tanggal_masuk_pk . '</td>';
-                            echo '<td><span class="pk-badge-status ' . $badge_class . '">' . strtoupper($status_hewan) . '</span></td>';
+                    if (count($grouped) > 0) {
+                        foreach ($grouped as $kandang_name => $items) {
+                            // Render baris sub-header kategori kandang
+                            echo '<tr style="background: #f1f5f9; font-weight: bold;">';
+                            echo '<td colspan="5" style="padding: 10px 15px; color: #4f46e5; border-bottom: 2px solid #cbd5e1;">🏢 ' . htmlspecialchars($kandang_name) . '</td>';
                             echo '</tr>';
+                            
+                            foreach ($items as $pk) {
+                                $nama_hewan_pk = htmlspecialchars($pk['nama_hewan']);
+                                $tanggal_masuk_pk = date('d M Y', strtotime($pk['tanggal_masuk']));
+                                
+                                echo '<tr>';
+                                echo '<td style="padding-left: 30px;"><span class="pk-animal-name">🐕 ' . $nama_hewan_pk . '</span></td>';
+                                echo '<td><span class="pk-badge-kandang">' . htmlspecialchars($pk['kode_kandang']) . '</span></td>';
+                                echo '<td>' . $tanggal_masuk_pk . '</td>';
+                                echo '<td><span class="pk-badge-status pk-badge-tersedia">AKTIF</span></td>';
+                                if (!in_array($current_role, ['Perawat', 'Perawat Hewan'])) {
+                                    echo '<td>';
+                                    echo '<a href="index.php?page=penempatan_kandang_release&id=' . $pk['id_penempatan'] . '" class="btn" style="border: 1px solid #fecaca; background: #fff5f5; color: var(--merah); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center;" onclick="return confirm(\'Keluarkan hewan ' . addslashes($nama_hewan_pk) . ' dari kandang ini?\')">Keluarkan</a>';
+                                    echo '</td>';
+                                }
+                                echo '</tr>';
+                            }
                         }
                     } else {
+                        $colspan = in_array($current_role, ['Perawat', 'Perawat Hewan']) ? 4 : 5;
                         echo '<tr>';
-                        echo '<td colspan="4" style="padding: 30px; text-align: center; color: #94a3b8;">Belum ada data penempatan.</td>';
+                        echo '<td colspan="' . $colspan . '" style="padding: 30px; text-align: center; color: #94a3b8;">Belum ada hewan di dalam kandang saat ini.</td>';
                         echo '</tr>';
                     }
                     ?>
@@ -372,6 +402,67 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
                 } else {
                     echo '<tr>';
                     echo '<td colspan="3" style="padding: 30px; text-align: center; color: #94a3b8;">Belum ada data kandang.</td>';
+                    echo '</tr>';
+                }
+                ?>
+            </tbody>
+        </table>
+    </div>
+
+    
+    <!-- BARIS 3: RIWAYAT PENEMPATAN    -->
+    
+    <?php
+    $riwayat_list = [];
+    if (isset($data) && is_array($data)) {
+        foreach ($data as $pk) {
+            if (($pk['status'] ?? '') === 'Riwayat') {
+                $riwayat_list[] = $pk;
+            }
+        }
+    }
+    ?>
+    <div class="pk-card" style="margin-top: 25px;">
+        <div class="pk-card-header">
+            <span>📜</span> Riwayat Penempatan Kandang (Log Masuk-Keluar)
+        </div>
+
+        <table class="pk-table">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">No</th>
+                    <th>Kode</th>
+                    <th>Nama Hewan</th>
+                    <th>Kandang</th>
+                    <th>Tanggal Masuk</th>
+                    <th>Tanggal Keluar</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                if (count($riwayat_list) > 0) {
+                    $no = 1;
+                    foreach ($riwayat_list as $r) {
+                        $nama_hewan_r = htmlspecialchars($r['nama_hewan']);
+                        $kode_kandang_r = htmlspecialchars($r['kode_kandang']);
+                        $nama_kandang_r = htmlspecialchars($r['nama_kandang']);
+                        $tgl_masuk = date('d M Y', strtotime($r['tanggal_masuk']));
+                        $tgl_keluar = !empty($r['tanggal_keluar']) ? date('d M Y', strtotime($r['tanggal_keluar'])) : '—';
+                        
+                        echo '<tr>';
+                        echo '<td>' . $no++ . '</td>';
+                        echo '<td>' . htmlspecialchars($r['kode_penempatan_kandang'] ?? '') . '</td>';
+                        echo '<td><span class="pk-animal-name">🐕 ' . $nama_hewan_r . '</span></td>';
+                        echo '<td><span class="pk-badge-kandang">' . $kode_kandang_r . ' - ' . $nama_kandang_r . '</span></td>';
+                        echo '<td>' . $tgl_masuk . '</td>';
+                        echo '<td>' . $tgl_keluar . '</td>';
+                        echo '<td><span class="pk-badge-status" style="background:#f1f5f9; color:#64748b; padding:4px 8px; border-radius:12px; font-size:11px; font-weight:700;">RIWAYAT</span></td>';
+                        echo '</tr>';
+                    }
+                } else {
+                    echo '<tr>';
+                    echo '<td colspan="7" style="padding: 30px; text-align: center; color: #94a3b8;">Belum ada riwayat penempatan kandang.</td>';
                     echo '</tr>';
                 }
                 ?>

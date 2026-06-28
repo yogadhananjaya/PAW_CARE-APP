@@ -13,7 +13,8 @@
         <table class="crud-table">
             <thead>
                 <tr>
-                    <th width="8%">ID</th>
+                    <th width="5%">No</th>
+                    <th>Kode</th>
                     <th>Hewan</th>
                     <th>Nama Kandang</th>
                     <th>Tanggal Masuk</th>
@@ -22,9 +23,10 @@
                 </tr>
             </thead>
             <tbody>
-                <?php foreach($data as $row): ?>
+                <?php $no = 1; foreach($data as $row): ?>
                 <tr>
-                    <td><?= htmlspecialchars($row['id_penempatan']) ?></td>
+                    <td><?= $no++ ?></td>
+                    <td><?= htmlspecialchars($row['kode_penempatan_kandang'] ?? '') ?></td>
                     <td><strong><?= htmlspecialchars($row['nama_hewan']) ?></strong></td>
                     <td><?= htmlspecialchars($row['kode_kandang']) ?> - <?= htmlspecialchars($row['nama_kandang']) ?></td>
                     <td><?= htmlspecialchars($row['tanggal_masuk']) ?></td>

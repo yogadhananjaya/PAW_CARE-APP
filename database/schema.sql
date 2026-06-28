@@ -3,6 +3,7 @@ USE paw_care;
 
 CREATE TABLE IF NOT EXISTS pengguna (
     id_pengguna INT AUTO_INCREMENT PRIMARY KEY,
+    kode_pengguna VARCHAR(10) UNIQUE,
     nama_lengkap VARCHAR(100) NOT NULL,
     jabatan ENUM('SuperAdmin','Perawat Hewan','Koordinator') NOT NULL,
     kontak VARCHAR(20) NOT NULL,
@@ -14,11 +15,13 @@ CREATE TABLE IF NOT EXISTS pengguna (
 
 CREATE TABLE IF NOT EXISTS jenis_hewan (
     id_jenis INT AUTO_INCREMENT PRIMARY KEY,
+    kode_jenis_hewan VARCHAR(10) UNIQUE,
     nama_jenis VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS ras (
     id_ras INT AUTO_INCREMENT PRIMARY KEY,
+    kode_ras VARCHAR(10) UNIQUE,
     id_jenis INT NOT NULL,
     nama_ras VARCHAR(100) NOT NULL,
     FOREIGN KEY (id_jenis) REFERENCES jenis_hewan(id_jenis) ON DELETE CASCADE
@@ -26,7 +29,7 @@ CREATE TABLE IF NOT EXISTS ras (
 
 CREATE TABLE IF NOT EXISTS kandang (
     id_kandang INT AUTO_INCREMENT PRIMARY KEY,
-    kode_kandang VARCHAR(20) NOT NULL,
+    kode_kandang VARCHAR(20) UNIQUE NOT NULL,
     nama_kandang VARCHAR(50) NOT NULL,
     kapasitas INT NOT NULL,
     status ENUM('Tersedia', 'Penuh', 'Perbaikan') DEFAULT 'Tersedia'
@@ -34,6 +37,7 @@ CREATE TABLE IF NOT EXISTS kandang (
 
 CREATE TABLE IF NOT EXISTS vaksin (
    id_vaksin INT AUTO_INCREMENT PRIMARY KEY,
+    kode_vaksin VARCHAR(10) UNIQUE,
     nama_vaksin VARCHAR(100) NOT NULL,
     deskripsi TEXT NULL,
     status ENUM('Tersedia','Habis','Discontinue') DEFAULT 'Tersedia'
@@ -41,6 +45,7 @@ CREATE TABLE IF NOT EXISTS vaksin (
 
 CREATE TABLE IF NOT EXISTS hewan (
     id_hewan INT AUTO_INCREMENT PRIMARY KEY,
+    kode_hewan VARCHAR(10) UNIQUE,
     id_ras INT NOT NULL,
     id_jenis INT NOT NULL,
     nama_hewan VARCHAR(100) NOT NULL,
@@ -48,6 +53,7 @@ CREATE TABLE IF NOT EXISTS hewan (
     jenis_kelamin ENUM('Jantan','Betina') NOT NULL,
     tanggal_lahir DATE NULL, 
     status_adopsi ENUM('Karantina','Tersedia','Dalam Proses','Diadopsi','Meninggal') DEFAULT 'Tersedia',
+    rekomendasi_adopsi TINYINT DEFAULT 0,
     sumber_intake ENUM('Breeding','Donasi','Legacy') NOT NULL,
     nama_donatur VARCHAR(100) NULL,
     kontak_donatur VARCHAR(20) NULL,
