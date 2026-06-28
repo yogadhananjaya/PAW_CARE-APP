@@ -19,8 +19,20 @@ $katalog_hewan = $stmt_hewan->fetchAll();
             <select><option>Semua Lokasi</option><option>Jakarta</option></select>
         </div>
         <div class="nav-right">
-            <a href="index.php?page=login" class="nav-btn btn-outline hidden-mobile">Masuk</a>
-            <a href="index.php?page=login" class="nav-btn btn-fill">Daftar / Login</a>
+            <?php if (isset($_SESSION['role'])): 
+                // Tentukan halaman dashboard yang sesuai dengan role
+                $target_dash = 'dashboard_user';
+                if ($_SESSION['role'] === 'SuperAdmin') $target_dash = 'dashboard_superadmin';
+                elseif ($_SESSION['role'] === 'Koordinator') $target_dash = 'dashboard_koordinator';
+                elseif (in_array($_SESSION['role'], ['Perawat', 'Perawat Hewan'])) $target_dash = 'dashboard_staff';
+            ?>
+                <!-- ponytail: Tombol Dashboard & Keluar untuk user yang sudah login (Tema Sesuai Screenshot & Palet Utama) -->
+                <a href="index.php?page=<?= $target_dash ?>" class="nav-btn" style="background-color: var(--merah); color: var(--putih); border: 2px solid var(--merah); font-weight: 700; box-shadow: 0 4px 10px rgba(222, 59, 59, 0.25);">Dashboard</a>
+                <a href="index.php?page=logout" class="nav-btn" style="background-color: var(--putih); color: #64748b; border: 2px solid #e2e8f0; font-weight: 600;">Keluar</a>
+            <?php else: ?>
+                <a href="index.php?page=login" class="nav-btn btn-outline hidden-mobile">Masuk</a>
+                <a href="index.php?page=login" class="nav-btn btn-fill">Daftar / Login</a>
+            <?php endif; ?>
         </div>
     </nav>
 
