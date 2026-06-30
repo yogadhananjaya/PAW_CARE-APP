@@ -23,10 +23,10 @@ function login($username, $password) {
         $adopter = $stmt_adopter->fetch();
         
         if ($adopter && password_verify($password, $adopter['kata_sandi'])) {
-            // ponytail: Jika belum ada id_pengguna yang terhubung, buat otomatis di tabel pengguna agar dashboard user bisa dimuat
+            //  Jika belum ada id_pengguna yang terhubung, buat otomatis di tabel pengguna agar dashboard user bisa dimuat
             if (empty($adopter['id_pengguna'])) {
                 $kode_pg = buat_kode_otomatis('pengguna', 'kode_pengguna', 'PG');
-                $stmt_insert = $pdo->prepare("INSERT INTO pengguna (kode_pengguna, nama_lengkap, jabatan, kontak, nama_pengguna, kata_sandi, role, status) VALUES (?, ?, 'User', ?, ?, ?, 'User', 'Aktif')");
+                $stmt_insert = $pdo->prepare("INSERT INTO pengguna (kode_pengguna, nama_lengkap, jabatan, kontak, nama_pengguna, kata_sandi, role, status) VALUES (?, ?, 'Pengadopsi', ?, ?, ?, 'User', 'Aktif')");
                 $stmt_insert->execute([
                     $kode_pg,
                     $adopter['nama_lengkap'],
@@ -60,6 +60,7 @@ function login($username, $password) {
             $_SESSION['username'] = $user['nama_pengguna'];
             $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
             $_SESSION['role'] = $user['jabatan'];
+            $_SESSION['jabatan'] = $user['jabatan'];
             return true;
         }
     } catch (Exception $e) {
@@ -102,7 +103,7 @@ function check_access($allowed_roles = []) {
     return in_array($role, $allowed_roles);
 }
 
-// ponytail: Fungsi check_rbac super sederhana untuk memeriksa hak akses berdasarkan Role
+//  Fungsi check_rbac super sederhana untuk memeriksa hak akses berdasarkan Role
 function check_rbac($entity, $action) {
     if (session_status() == PHP_SESSION_NONE) {
         session_start();

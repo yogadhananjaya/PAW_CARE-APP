@@ -35,22 +35,32 @@
                 <!-- Jabatan -->
                 <div class="form-group" style="flex:1;">
                     <label>Jabatan</label>
-                    <select name="jabatan" class="form-control" required>
-                        <?php $curr_jabatan = $_POST['jabatan'] ?? $data['jabatan']; ?>
-                        <option value="Koordinator" <?= $curr_jabatan == 'Koordinator' ? 'selected' : '' ?>>Koordinator</option>
-                        <option value="Perawat Hewan" <?= $curr_jabatan == 'Perawat Hewan' ? 'selected' : '' ?>>Perawat Hewan</option>
-                        <option value="SuperAdmin" <?= $curr_jabatan == 'SuperAdmin' ? 'selected' : '' ?>>SuperAdmin</option>
-                    </select>
+                    <?php if ($data['nama_pengguna'] === 'pawcare'): ?>
+                        <select name="jabatan" class="form-control" readonly style="pointer-events: none; background: #e9ecef;">
+                            <option value="SuperAdmin" selected>SuperAdmin</option>
+                        </select>
+                    <?php else: ?>
+                        <select name="jabatan" class="form-control" required>
+                            <?php $curr_jabatan = $_POST['jabatan'] ?? $data['jabatan']; ?>
+                            <option value="Koordinator" <?= $curr_jabatan == 'Koordinator' ? 'selected' : '' ?>>Koordinator</option>
+                            <option value="Perawat Hewan" <?= $curr_jabatan == 'Perawat Hewan' ? 'selected' : '' ?>>Perawat Hewan</option>
+                        </select>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Role -->
                 <div class="form-group" style="flex:1;">
                     <label>Role Akses</label>
-                    <select name="role" class="form-control">
-                        <?php $curr_role = $_POST['role'] ?? $data['role']; ?>
-                        <option value="Pegawai" <?= $curr_role == 'Pegawai' ? 'selected' : '' ?>>Pengguna</option>
-                        <option value="SuperAdmin" <?= $curr_role == 'SuperAdmin' ? 'selected' : '' ?>>SuperAdmin</option>
-                    </select>
+                    <?php if ($data['nama_pengguna'] === 'pawcare'): ?>
+                        <select name="role" class="form-control" readonly style="pointer-events: none; background: #e9ecef;">
+                            <option value="SuperAdmin" selected>SuperAdmin</option>
+                        </select>
+                    <?php else: ?>
+                        <select name="role" class="form-control" required>
+                            <?php $curr_role = $_POST['role'] ?? $data['role']; ?>
+                            <option value="Pengguna" <?= $curr_role == 'Pengguna' ? 'selected' : '' ?>>Pengguna</option>
+                        </select>
+                    <?php endif; ?>
                 </div>
             </div>
 

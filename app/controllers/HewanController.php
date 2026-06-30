@@ -126,6 +126,14 @@ class HewanController {
     }
 
     public function recommend($id) {
+        global $pdo;
+        // Prasyarat: hewan harus punya minimal 1 riwayat vaksinasi
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM riwayat_kesehatan WHERE id_hewan = ? AND tipe = 'Vaksinasi' AND deleted_at IS NULL");
+        $stmt->execute([$id]);
+        if ($stmt->fetchColumn() == 0) {
+            header('Location: index.php?page=hewan&error=belum_vaksinasi');
+            exit;
+        }
         $this->model->rekomendasikan($id);
         header('Location: index.php?page=hewan');
         exit;

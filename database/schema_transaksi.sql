@@ -9,6 +9,9 @@ CREATE TABLE IF NOT EXISTS riwayat_kesehatan (
     id_vaksin INT NULL,
     tanggal DATE NOT NULL,
     deskripsi TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
     FOREIGN KEY (id_hewan) REFERENCES hewan(id_hewan) ON DELETE CASCADE,
     FOREIGN KEY (id_pengguna) REFERENCES pengguna(id_pengguna) ON DELETE CASCADE,
     FOREIGN KEY (id_vaksin) REFERENCES vaksin(id_vaksin) ON DELETE SET NULL

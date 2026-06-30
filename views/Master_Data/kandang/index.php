@@ -18,6 +18,7 @@
                     <th width="5%">No</th>
                     <th>Kode Kandang</th>
                     <th>Nama Kandang / Blok</th>
+                    <th>Jenis Hewan</th>
                     <th>Kapasitas (Ekor)</th>
                     <th>Status</th>
                     <th width="12%">Aksi</th>
@@ -29,6 +30,7 @@
                     <td><?= $no++ ?></td>
                     <td><?= htmlspecialchars($row['kode_kandang']) ?></td>
                     <td><strong><?= htmlspecialchars($row['nama_kandang']) ?></strong></td>
+                    <td><?= htmlspecialchars($row['nama_jenis'] ?? '—') ?></td>
                     <td><?= htmlspecialchars($row['kapasitas']) ?> Ekor</td>
                     <td>
                         <span style="padding:4px 8px; border-radius:10px; font-size:12px; font-weight:bold; 

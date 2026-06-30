@@ -21,14 +21,17 @@ class TransaksiAdopsiModel {
                 p.nama_lengkap as nama_pengadopsi, p.alamat as alamat_adopter, p.no_hp as hp_adopter,
                 h.nama_hewan, h.jenis_kelamin, h.estimasi_umur,
                 j.nama_jenis as kategori_hewan, r.nama_ras,
-                pg.nama_pengguna as nama_staf, pg.jabatan
+                pg.nama_pengguna as nama_staf, pg.jabatan,
+                jk.status_jadwal
             FROM transaksi_adopsi t 
             JOIN pengadopsi p ON t.id_pengadopsi = p.id_pengadopsi 
             JOIN hewan h ON t.id_hewan = h.id_hewan 
             JOIN jenis_hewan j ON h.id_jenis = j.id_jenis
             JOIN ras r ON h.id_ras = r.id_ras
-            LEFT JOIN pengguna pg ON t.id_pengguna = pg.id_pengguna 
+            LEFT JOIN pengguna pg ON t.id_pengguna = pg.id_pengguna
+            LEFT JOIN jadwal_kunjungan jk ON t.id_pengadopsi = jk.id_pengadopsi AND t.id_hewan = jk.id_hewan
             WHERE t.id_adopsi = ?
+            ORDER BY jk.id_jadwal DESC LIMIT 1
         "); 
         $stmt->execute([$id]); 
         return $stmt->fetch(); 
@@ -101,25 +104,39 @@ class TransaksiAdopsiModel {
         return $stmt->execute([$id]); 
     }
 
-    // Aktifkan kontrak
+    // Aktifkan kontrak dan ubah status hewan menjadi Diadopsi
     public function activate($id) {
         $stmt = $this->pdo->prepare("UPDATE transaksi_adopsi SET status_kontrak = 'Aktif' WHERE id_adopsi = ?");
-        return $stmt->execute([$id]);
+        $result = $stmt->execute([$id]);
+        // Update status hewan menjadi final
+        $stmt_h = $this->pdo->prepare("UPDATE hewan h JOIN transaksi_adopsi t ON h.id_hewan = t.id_hewan SET h.status_adopsi = 'Diadopsi' WHERE t.id_adopsi = ?");
+        $stmt_h->execute([$id]);
+        return $result;
     }
 
-    // Ambil pengadopsi yang sudah terverifikasi untuk dropdown
+    // Ambil pengadopsi yang sudah terverifikasi dan "nganggur" (tidak memegang transaksi aktif Draft/Aktif)
     public function getPengadopsi() { 
-        return $this->pdo->query("SELECT id_pengadopsi, nama_lengkap as nama FROM pengadopsi WHERE status_verifikasi = 'Terverifikasi' ORDER BY nama_lengkap ASC")->fetchAll(); 
+        return $this->pdo->query("SELECT id_pengadopsi, nama_lengkap as nama FROM pengadopsi WHERE status_verifikasi = 'Terverifikasi' AND id_pengadopsi NOT IN (SELECT id_pengadopsi FROM transaksi_adopsi WHERE status_kontrak IN ('Draft', 'Aktif')) ORDER BY nama_lengkap ASC")->fetchAll(); 
     }
 
-    // Ambil hewan yang tersedia untuk diadopsi
+    // Ambil hewan yang tersedia dan tidak terikat transaksi aktif (Draft/Aktif)
     public function getHewan() { 
-        return $this->pdo->query("SELECT id_hewan, nama_hewan FROM hewan WHERE status_adopsi IN ('Tersedia','Dalam Proses')")->fetchAll(); 
+        return $this->pdo->query("SELECT id_hewan, nama_hewan FROM hewan WHERE status_adopsi IN ('Tersedia','Dalam Proses') AND id_hewan NOT IN (SELECT id_hewan FROM transaksi_adopsi WHERE status_kontrak IN ('Draft', 'Aktif'))")->fetchAll(); 
     }
 
     // Ambil daftar pengguna admin/koordinator untuk dropdown
     public function getPengguna() {
         return $this->pdo->query("SELECT id_pengguna, nama_pengguna FROM pengguna ORDER BY nama_pengguna ASC")->fetchAll();
+    }
+
+    // Ambil ID Koordinator pertama dari database
+    public function getFirstKoordinatorId() {
+        return $this->pdo->query("SELECT id_pengguna FROM pengguna WHERE jabatan = 'Koordinator' LIMIT 1")->fetchColumn();
+    }
+
+    // Ambil daftar Koordinator yang "nganggur" (tidak memegang transaksi aktif Draft/Aktif)
+    public function getCoordinators() {
+        return $this->pdo->query("SELECT id_pengguna, nama_lengkap, nama_pengguna FROM pengguna WHERE jabatan = 'Koordinator' AND id_pengguna NOT IN (SELECT id_pengguna FROM transaksi_adopsi WHERE status_kontrak IN ('Draft', 'Aktif') AND id_pengguna IS NOT NULL) ORDER BY nama_lengkap ASC")->fetchAll();
     }
 
     // ponytail: Mengubah status kontrak adopsi secara langsung
@@ -145,6 +162,12 @@ class TransaksiAdopsiModel {
     public function saveAdminSignature($id, $ttd_base64) {
         $stmt = $this->pdo->prepare("UPDATE transaksi_adopsi SET ttd_admin = ? WHERE id_adopsi = ?");
         return $stmt->execute([$ttd_base64, $id]);
+    }
+
+    // ponytail: Assign koordinator ke transaksi (first-come-first-serve)
+    public function assignKoordinator($id, $id_pengguna) {
+        $stmt = $this->pdo->prepare("UPDATE transaksi_adopsi SET id_pengguna = ? WHERE id_adopsi = ? AND id_pengguna IS NULL");
+        return $stmt->execute([$id_pengguna, $id]);
     }
 }
 ?>

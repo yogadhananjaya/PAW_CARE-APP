@@ -46,6 +46,17 @@ op
                     </select>
                 </div>
 
+                <!-- Koordinator / Staf -->
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 8px; display: block;">Koordinator Penanggung Jawab</label>
+                    <select name="id_pengguna" class="form-control" required style="width:100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-size: 14px;">
+                        <option value="">-- Pilih Koordinator --</option>
+                        <?php foreach($coordinators as $c): ?>
+                            <option value="<?= $c['id_pengguna'] ?>"><?= htmlspecialchars($c['nama_lengkap']) ?> (<?= htmlspecialchars($c['nama_pengguna']) ?>)</option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
                 <!-- Tanggal Mulai Adopsi -->
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label style="font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 8px; display: block;">Tanggal Mulai Adopsi</label>
@@ -132,7 +143,7 @@ op
                                 <a href="index.php?page=transaksi_adopsi_edit&id=<?= $row['id_adopsi'] ?>" class="btn" style="border: 1px solid #cbd5e1; background: #ffffff; color: #475569; padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 13px; text-decoration: none; display: inline-block; cursor: pointer; transition: background 0.2s; margin-right: 4px;">
                                     Buka Kontrak
                                 </a>
-                                <?php if (($_SESSION['role'] ?? '') === 'SuperAdmin' && $row['status_kontrak'] !== 'Batal'): ?>
+                                <?php if (($_SESSION['role'] ?? '') === 'SuperAdmin' && $row['status_kontrak'] !== 'Batal' && (empty($row['ttd_adopter']) || empty($row['ttd_admin']))): ?>
                                     <a href="index.php?page=transaksi_adopsi_reject&id=<?= $row['id_adopsi'] ?>" class="btn" onclick="return confirm('Batalkan transaksi adopsi ini?');" style="border: 1px solid #fecaca; background: #ffffff; color: #ef4444; padding: 6px 12px; font-size: 13px; font-weight: 600; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; vertical-align: middle;">
                                         Tolak
                                     </a>

@@ -2,17 +2,20 @@ USE paw_care;
 
 CREATE TABLE IF NOT EXISTS pengadopsi (
     id_pengadopsi INT AUTO_INCREMENT PRIMARY KEY,
+    id_pengguna INT NULL,
     kode_pengadopsi VARCHAR(10) UNIQUE,
     nama_lengkap VARCHAR(100) NOT NULL,
     nama_pengguna VARCHAR(50) NOT NULL,
     alamat TEXT NOT NULL,
     no_hp VARCHAR(20) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
+    nik VARCHAR(30) NULL,
     kata_sandi VARCHAR(255) NOT NULL,   
     url_ktp VARCHAR(255) NULL,
     status_verifikasi ENUM('Belum','Menunggu','Terverifikasi','Ditolak') DEFAULT 'Belum',
     tanggal_verifikasi DATE NULL,
-    catatan_verifikasi TEXT NULL
+    catatan_verifikasi TEXT NULL,
+    FOREIGN KEY (id_pengguna) REFERENCES pengguna(id_pengguna) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS donasi (

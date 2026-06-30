@@ -41,34 +41,59 @@ switch ($page) {
     case 'process_register':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             require_once __DIR__ . '/app/models/PenggunaModel.php';
+            require_once __DIR__ . '/app/models/PengadopsiModel.php';
             $userModel = new PenggunaModel();
+            $adopterModel = new PengadopsiModel();
             
             $username = trim($_POST['username']);
-            // ponytail: Validasi format username (hanya huruf, angka, underscore, 4-20 karakter)
+            $password = $_POST['password'];
+            // Validasi format username (hanya huruf, angka, underscore, 4-20 karakter)
             if (!preg_match('/^[a-zA-Z0-9_]{4,20}$/', $username)) {
                 echo "<script>alert('Gagal: Username hanya boleh terdiri dari huruf, angka, underscore, dan panjang antara 4 sampai 20 karakter.'); window.history.back();</script>";
                 exit;
             }
 
-            // ponytail: Cek apakah username sudah digunakan di tabel pengguna atau pengadopsi
+            // Cek apakah username sudah digunakan di tabel pengguna atau pengadopsi
             if ($userModel->isDuplicate($username)) {
                 echo "<script>alert('Gagal: Username \"" . htmlspecialchars($username) . "\" sudah terdaftar! Silakan gunakan username lain.'); window.history.back();</script>";
                 exit;
             }
 
-            // Simpan akun baru dengan field yang sesuai untuk model Pengguna
+            // 1. Simpan ke tabel pengguna dulu agar dapat id_pengguna
             $userModel->insert([
                 'nama_lengkap' => $username,
-                'jabatan' => 'User',
-                'kontak' => '',
+                'jabatan' => 'Koordinator', // default untuk user umum agar aman di backend jika terakses
+                'kontak' => '-',
                 'nama_pengguna' => $username,
-                'kata_sandi' => $_POST['password'],
+                'kata_sandi' => $password,
                 'role' => 'User',
                 'status' => 'Aktif'
             ]);
             
+            // Dapatkan id_pengguna yang baru saja dibuat
+            $new_user_id = $pdo->lastInsertId();
+
+            // 2. Simpan otomatis ke tabel pengadopsi
+            $adopterModel->insert([
+                'nama_lengkap' => $username,
+                'nama_pengguna' => $username,
+                'alamat' => '-', // Default karena baru daftar
+                'no_hp' => '-', // Default karena baru daftar
+                'email' => $username . '@pawcare.com', // Email default/placeholder
+                'kata_sandi' => $password,
+                'status_verifikasi' => 'Belum',
+                'url_ktp' => null
+            ]);
+            
+            // Dapatkan id_pengadopsi yang baru saja dibuat untuk dihubungkan
+            $new_adopter_id = $pdo->lastInsertId();
+            
+            // Hubungkan id_pengguna di tabel pengadopsi
+            $stmt_update = $pdo->prepare("UPDATE pengadopsi SET id_pengguna = ? WHERE id_pengadopsi = ?");
+            $stmt_update->execute([$new_user_id, $new_adopter_id]);
+            
             // Langsung otomatiskan login setelah berhasil daftar
-            login(trim($_POST['username']), $_POST['password']);
+            login($username, $password);
             header('Location: index.php?page=home');
             exit;
         }
@@ -79,27 +104,79 @@ switch ($page) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user_id = $_SESSION['user_id'];
             
-            // Ambil username dari tabel pengguna
-            $stmt_user = $pdo->prepare("SELECT nama_pengguna FROM pengguna WHERE id_pengguna = ?");
-            $stmt_user->execute([$user_id]);
-            $user_info = $stmt_user->fetch();
-            $username_aktif = $user_info ? $user_info['nama_pengguna'] : '';
-            
-            // Buat email default & kode pengadopsi otomatis
-            $email_default = $username_aktif . '@pawcare.com';
-            $kode_adopter = buat_kode_otomatis('pengadopsi', 'kode_pengadopsi', 'AD');
+            $nama_lengkap = trim($_POST['nama_lengkap']);
+            $nik = trim($_POST['nik']);
+            $no_hp = trim($_POST['no_hp']);
+            $alamat = trim($_POST['alamat']);
 
-            // Simpan data diri lengkap pengadopsi
-            $stmt = $pdo->prepare("INSERT INTO pengadopsi (id_pengguna, kode_pengadopsi, nama_lengkap, nama_pengguna, email, nik, alamat, no_hp, status_verifikasi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Terverifikasi')");
+            // 1. Validasi Nama Lengkap (hanya huruf dan spasi, min 3 karakter)
+            if (!preg_match("/^[a-zA-Z\s]{3,100}$/", $nama_lengkap)) {
+                echo "<script>alert('Gagal: Nama lengkap hanya boleh terdiri dari huruf dan spasi, minimal 3 karakter.'); window.history.back();</script>";
+                exit;
+            }
+
+            // 2. Validasi NIK (harus tepat 16 digit angka)
+            if (!preg_match("/^[0-9]{16}$/", $nik)) {
+                echo "<script>alert('Gagal: NIK harus terdiri dari tepat 16 digit angka.'); window.history.back();</script>";
+                exit;
+            }
+
+            // 3. Validasi Nomor HP / WhatsApp (angka saja, panjang 10-15 digit)
+            if (!preg_match("/^[0-9]{10,15}$/", $no_hp)) {
+                echo "<script>alert('Gagal: Nomor WhatsApp hanya boleh berisi angka dengan panjang 10 hingga 15 digit.'); window.history.back();</script>";
+                exit;
+            }
+
+            // 4. Validasi Alamat (minimal 10 karakter)
+            if (strlen($alamat) < 10) {
+                echo "<script>alert('Gagal: Alamat domisili harus diisi lengkap, minimal 10 karakter.'); window.history.back();</script>";
+                exit;
+            }
+
+            $url_ktp = null;
+            if (isset($_FILES['foto_ktp']) && $_FILES['foto_ktp']['error'] === UPLOAD_ERR_OK) {
+                $fileTmpPath = $_FILES['foto_ktp']['tmp_name'];
+                $fileName = $_FILES['foto_ktp']['name'];
+                $fileSize = $_FILES['foto_ktp']['size'];
+                $fileType = $_FILES['foto_ktp']['type'];
+                $fileNameCmps = explode(".", $fileName);
+                $fileExtension = strtolower(end($fileNameCmps));
+                
+                $allowedfileExtensions = ['jpg', 'gif', 'png', 'jpeg'];
+                if (in_array($fileExtension, $allowedfileExtensions)) {
+                    if ($fileSize <= 2 * 1024 * 1024) { // Maksimal 2MB
+                        $uploadFileDir = __DIR__ . '/uploads/ktp/';
+                        if (!is_dir($uploadFileDir)) {
+                            mkdir($uploadFileDir, 0755, true);
+                        }
+                        $newFileName = 'ktp_' . $user_id . '_' . time() . '.' . $fileExtension;
+                        $dest_path = $uploadFileDir . $newFileName;
+                        
+                        if (move_uploaded_file($fileTmpPath, $dest_path)) {
+                            $url_ktp = 'uploads/ktp/' . $newFileName;
+                        }
+                    } else {
+                        echo "<script>alert('Gagal: Ukuran file KTP tidak boleh melebihi 2MB.'); window.history.back();</script>";
+                        exit;
+                    }
+                } else {
+                    echo "<script>alert('Gagal: Format file KTP hanya boleh JPG, JPEG, atau PNG.'); window.history.back();</script>";
+                    exit;
+                }
+            } else {
+                echo "<script>alert('Gagal: Foto KTP wajib diunggah.'); window.history.back();</script>";
+                exit;
+            }
+            
+            // Lakukan update data diri lengkap pengadopsi yang sudah terbuat saat register (ubah ke status 'Menunggu')
+            $stmt = $pdo->prepare("UPDATE pengadopsi SET nama_lengkap = ?, nik = ?, alamat = ?, no_hp = ?, url_ktp = ?, status_verifikasi = 'Menunggu' WHERE id_pengguna = ?");
             $stmt->execute([
-                $user_id, 
-                $kode_adopter,
                 trim($_POST['nama_lengkap']), 
-                $username_aktif,
-                $email_default,
                 trim($_POST['nik']), 
                 trim($_POST['alamat']), 
-                trim($_POST['no_hp'])
+                trim($_POST['no_hp']),
+                $url_ktp,
+                $user_id
             ]);
             
             // Langsung kembalikan ke dashboard user agar melihat status sukses
@@ -159,6 +236,9 @@ switch ($page) {
         $ttd_base64     = $_POST['tanda_tangan_png'] ?? '';
         $metode_bayar   = htmlspecialchars($_POST['metode_pembayaran'] ?? 'Transfer Bank');
         $id_pengadopsi  = $adopter_data['id_pengadopsi'];
+        $metode_kunjungan = htmlspecialchars($_POST['metode'] ?? 'Kunjungan ke Shelter');
+        $tanggal_jadwal   = $_POST['tanggal_jadwal'] ?? date('Y-m-d H:i:s');
+        $alamat_tujuan    = ($metode_kunjungan === 'Jemput ke Rumah') ? htmlspecialchars($_POST['alamat_tujuan'] ?? '') : null;
 
         // Pastikan hewan masih tersedia sebelum disimpan (cegah double booking)
         $stmt_cek = $pdo->prepare("SELECT id_hewan FROM hewan WHERE id_hewan = ? AND status_adopsi = 'Tersedia'");
@@ -178,7 +258,12 @@ switch ($page) {
         // Ubah status hewan menjadi 'Dalam Proses'
         $pdo->prepare("UPDATE hewan SET status_adopsi = 'Dalam Proses' WHERE id_hewan = ?")->execute([$id_hewan]);
 
-        echo "<script>alert('✅ Pengajuan adopsi berhasil! Silakan tunggu konfirmasi dari tim PawCare.'); window.location.href='index.php?page=dashboard_user&tab=pengajuan';</script>";
+        // Simpan jadwal kunjungan
+        $kode_jadwal = buat_kode_otomatis('jadwal_kunjungan', 'kode_jadwal_kunjungan', 'JK');
+        $stmt_jadwal = $pdo->prepare("INSERT INTO jadwal_kunjungan (kode_jadwal_kunjungan, id_pengadopsi, id_hewan, metode, tanggal_jadwal, alamat_tujuan, status_jadwal) VALUES (?, ?, ?, ?, ?, ?, 'Menunggu')");
+        $stmt_jadwal->execute([$kode_jadwal, $id_pengadopsi, $id_hewan, $metode_kunjungan, $tanggal_jadwal, $alamat_tujuan]);
+
+        echo "<script>alert('✅ Pengajuan adopsi berhasil! Jadwal kunjungan telah dibuat. Silakan tunggu konfirmasi dari tim PawCare.'); window.location.href='index.php?page=dashboard_user&tab=pengajuan';</script>";
         exit;
 
     // --- FITUR TANDA TANGAN & SIMPAN (lama, dipertahankan) ---
@@ -211,6 +296,69 @@ switch ($page) {
             exit;
         }
         break;
+
+    // --- KONTRAK ADOPSI (View & Sign untuk Adopter) ---
+    case 'kontrak_adopsi':
+        if (!check_access(['User'])) { header('Location: index.php?page=login'); exit; }
+        require_once __DIR__ . '/app/models/TransaksiAdopsiModel.php';
+        $m = new TransaksiAdopsiModel();
+        $id = intval($_GET['id'] ?? 0);
+        // Verifikasi kepemilikan transaksi
+        $stmt_own = $pdo->prepare("SELECT t.id_adopsi FROM transaksi_adopsi t JOIN pengadopsi p ON t.id_pengadopsi = p.id_pengadopsi WHERE t.id_adopsi = ? AND p.id_pengguna = ?");
+        $stmt_own->execute([$id, $_SESSION['user_id']]);
+        if (!$stmt_own->fetch()) {
+            header('Location: index.php?page=dashboard_user&tab=pengajuan');
+            exit;
+        }
+        // Proses tanda tangan adopter
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $ttd_base64 = $_POST['ttd_adopter'] ?? '';
+            if (!empty($ttd_base64)) {
+                $stmt_sign = $pdo->prepare("UPDATE transaksi_adopsi SET ttd_adopter = ?, status_kontrak = 'Ditandatangani' WHERE id_adopsi = ? AND status_kontrak = 'Draft' AND ttd_adopter IS NULL");
+                $stmt_sign->execute([$ttd_base64, $id]);
+                header("Location: index.php?page=kontrak_adopsi&id=$id&signed=1");
+                exit;
+            }
+        }
+        $data = $m->getById($id);
+        include __DIR__ . '/views/user/kontrak_adopsi.php';
+        break;
+
+    // --- BATALKAN PENGAJUAN ADOPSI (oleh Adopter) ---
+    case 'proses_adopsi_batal':
+        if (!check_access(['User'])) { header('Location: index.php?page=login'); exit; }
+        $id = intval($_GET['id'] ?? 0);
+        $stmt_b = $pdo->prepare("SELECT t.id_hewan, t.status_kontrak FROM transaksi_adopsi t JOIN pengadopsi p ON t.id_pengadopsi = p.id_pengadopsi WHERE t.id_adopsi = ? AND p.id_pengguna = ?");
+        $stmt_b->execute([$id, $_SESSION['user_id']]);
+        $trx = $stmt_b->fetch();
+        if ($trx && $trx['status_kontrak'] == 'Draft') {
+            $pdo->prepare("UPDATE transaksi_adopsi SET status_kontrak = 'Batal' WHERE id_adopsi = ?")->execute([$id]);
+            $pdo->prepare("UPDATE hewan SET status_adopsi = 'Tersedia' WHERE id_hewan = ?")->execute([$trx['id_hewan']]);
+        }
+        header('Location: index.php?page=dashboard_user&tab=pengajuan');
+        exit;
+
+    // --- KARANTINA SELESAI (one-click dari Riwayat Kesehatan) ---
+    case 'riwayat_kesehatan_karantina':
+        if (!check_access(['Perawat'])) { header('Location: index.php?page=login'); exit; }
+        require_once __DIR__ . '/app/models/RiwayatKesehatanModel.php';
+        $m = new RiwayatKesehatanModel();
+        $id = intval($_GET['id'] ?? 0);
+        $vaksinasi = $m->getById($id);
+        if ($vaksinasi && $vaksinasi['tipe'] === 'Vaksinasi') {
+            $m->insert([
+                'id_hewan' => $vaksinasi['id_hewan'],
+                'id_pengguna' => $vaksinasi['id_pengguna'],
+                'tipe' => 'Karantina Selesai',
+                'id_vaksin' => null,
+                'tanggal' => date('Y-m-d'),
+                'deskripsi' => 'Karantina selesai, hewan siap rilis.'
+            ]);
+            $m->delete($id); // soft-delete Vaksinasi
+            $m->rilisKarantina($vaksinasi['id_hewan']); // rekomendasi_adopsi = 1
+        }
+        header('Location: index.php?page=riwayat_kesehatan');
+        exit;
 
     // --- INTEGRASI MIDTRANS PAYMENT GATEWAY SNAP ---
     case 'bayar_donasi':
@@ -298,7 +446,7 @@ switch ($page) {
         $master_entities = ['hewan', 'jenis', 'ras', 'kandang', 'vaksin', 'pengguna', 'pengadopsi', 'donasi'];
 
         if (in_array($entity, $valid_entities)) {
-            // ponytail: validasi rbac ketat sesuai matriks hak akses
+            //  validasi rbac ketat sesuai matriks hak akses
             if (!check_rbac($entity, $action)) {
                 $user_role = isset($_SESSION['role']) ? $_SESSION['role'] : '';
                 if ($user_role == 'SuperAdmin') {

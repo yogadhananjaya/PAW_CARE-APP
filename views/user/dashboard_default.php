@@ -1,7 +1,7 @@
 <?php
 // Menarik data hewan dari database untuk ditampilkan di Homepage
 require_once __DIR__ . '/../../config/connect.php';
-$stmt_hewan = $pdo->query("SELECT h.*, j.nama_jenis, r.nama_ras FROM hewan h JOIN jenis_hewan j ON h.id_jenis = j.id_jenis JOIN ras r ON h.id_ras = r.id_ras WHERE h.status_adopsi = 'Tersedia' ORDER BY h.id_hewan DESC LIMIT 6");
+$stmt_hewan = $pdo->query("SELECT h.*, j.nama_jenis, r.nama_ras FROM hewan h JOIN jenis_hewan j ON h.id_jenis = j.id_jenis JOIN ras r ON h.id_ras = r.id_ras WHERE h.status_adopsi = 'Tersedia' AND h.rekomendasi_adopsi = 1 ORDER BY h.id_hewan DESC LIMIT 6");
 $katalog_hewan = $stmt_hewan->fetchAll();
 ?>
 <!DOCTYPE html>

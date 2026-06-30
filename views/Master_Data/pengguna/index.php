@@ -1,4 +1,4 @@
-<?php include __DIR__ . '/../../layouts/header.php'; ?>
+ <?php include __DIR__ . '/../../layouts/header.php'; ?>
 <?php include __DIR__ . '/../../layouts/sidebar_admin.php'; ?>
 
 <div class="main-wrapper">
@@ -36,7 +36,7 @@
                     <td>
                         <span style="padding:4px 8px; border-radius:10px; font-size:12px; font-weight:bold; 
                             background-color: <?= $row['role'] == 'SuperAdmin' ? '#e1f5fe; color:#3498db;' : '#e0f2f1; color:#00796b;' ?>">
-                            <?= $row['role'] == 'Pegawai' ? 'Pengguna' : htmlspecialchars($row['role']) ?>
+                            <?= $row['role'] == 'Pengguna' ? 'Pengguna' : htmlspecialchars($row['role']) ?>
                         </span>
                     </td>
                     <td>
@@ -49,9 +49,11 @@
                         <a href="index.php?page=pengguna_edit&id=<?= $row['id_pengguna'] ?>" class="btn btn-sm btn-warning" title="Edit">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                         </a>
+                        <?php if ($row['nama_pengguna'] !== 'pawcare'): ?>
                         <a href="index.php?page=pengguna_delete&id=<?= $row['id_pengguna'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Hapus akun ini?');" title="Hapus">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                         </a>
+                        <?php endif; ?>
                     </td>
                 </tr>
                 <?php endforeach; ?>

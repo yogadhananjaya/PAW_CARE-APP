@@ -1,7 +1,6 @@
 <?php
 global $pdo;
 
-// Pastikan user sudah login
 if (empty($_SESSION['user_id'])) {
     header("Location: index.php?page=login");
     exit;
@@ -9,8 +8,7 @@ if (empty($_SESSION['user_id'])) {
 
 $id_hewan = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-// Ambil data hewan
-$stmt = $pdo->prepare("SELECT h.*, r.nama_ras, j.nama_jenis FROM hewan h JOIN ras r ON h.id_ras = r.id_ras JOIN jenis_hewan j ON h.id_jenis = j.id_jenis WHERE h.id_hewan = ? AND h.status_adopsi = 'Tersedia'");
+$stmt = $pdo->prepare("SELECT h.*, r.nama_ras, j.nama_jenis FROM hewan h JOIN ras r ON h.id_ras = r.id_ras JOIN jenis_hewan j ON h.id_jenis = j.id_jenis WHERE h.id_hewan = ? AND h.status_adopsi = 'Tersedia' AND h.rekomendasi_adopsi = 1");
 $stmt->execute([$id_hewan]);
 $hewan = $stmt->fetch();
 
@@ -54,7 +52,7 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
         position: relative;
         z-index: 2;
         background: #ffffff;
-        padding: 0 10px;
+        padding: 0 6px;
         text-align: center;
         flex: 1;
     }
@@ -71,6 +69,7 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
         margin: 0 auto 10px;
         border: 4px solid #ffffff;
         transition: 0.3s;
+        font-size: 13px;
     }
     .step-indicator.active .step-circle {
         background: #4f46e5;
@@ -82,19 +81,13 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
         color: #ffffff;
     }
     .step-title {
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 700;
         color: #64748b;
     }
-    .step-indicator.active .step-title {
-        color: #4f46e5;
-    }
-    .wizard-panel {
-        display: none;
-    }
-    .wizard-panel.active {
-        display: block;
-    }
+    .step-indicator.active .step-title { color: #4f46e5; }
+    .wizard-panel { display: none; }
+    .wizard-panel.active { display: block; }
     .btn-wizard {
         padding: 12px 24px;
         border-radius: 10px;
@@ -104,26 +97,11 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
         font-size: 14px;
         transition: 0.2s;
     }
-    .btn-next {
-        background: #4f46e5;
-        color: #ffffff;
-    }
-    .btn-next:hover {
-        background: #4338ca;
-    }
-    .btn-prev {
-        background: #f1f5f9;
-        color: #475569;
-    }
-    .btn-prev:hover {
-        background: #e2e8f0;
-    }
-    .btn-wizard:disabled {
-        background: #cbd5e1;
-        color: #94a3b8;
-        cursor: not-allowed;
-    }
-    /* Kuis */
+    .btn-next { background: #4f46e5; color: #ffffff; }
+    .btn-next:hover { background: #4338ca; }
+    .btn-prev { background: #f1f5f9; color: #475569; }
+    .btn-prev:hover { background: #e2e8f0; }
+    .btn-wizard:disabled { background: #cbd5e1; color: #94a3b8; cursor: not-allowed; }
     .kuis-box {
         background: #f8fafc;
         border-radius: 12px;
@@ -131,11 +109,7 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
         margin-bottom: 20px;
         border: 1px solid #e2e8f0;
     }
-    .kuis-options {
-        display: flex;
-        gap: 15px;
-        margin-top: 10px;
-    }
+    .kuis-options { display: flex; gap: 15px; margin-top: 10px; }
     .kuis-option {
         flex: 1;
         border: 2px solid #cbd5e1;
@@ -146,12 +120,7 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
         font-weight: 600;
         transition: 0.2s;
     }
-    .kuis-option.selected {
-        border-color: #4f46e5;
-        background: #eeebff;
-        color: #4f46e5;
-    }
-    /* Surat Perjanjian */
+    .kuis-option.selected { border-color: #4f46e5; background: #eeebff; color: #4f46e5; }
     .surat-preview {
         border: 1px solid #cbd5e1;
         background: #ffffff;
@@ -163,9 +132,7 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
         font-family: 'Courier New', Courier, monospace;
         font-size: 13px;
         line-height: 1.6;
-        position: relative;
     }
-    /* Tanda Tangan */
     .sig-area {
         border: 2px dashed #cbd5e1;
         border-radius: 12px;
@@ -177,16 +144,12 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
     }
     #signature-canvas {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
         cursor: crosshair;
     }
-    /* Materai Simulasi */
     .materai-badge {
-        width: 100px;
-        height: 130px;
+        width: 100px; height: 130px;
         border: 2px dashed #92400e;
         background: #fef3c7;
         color: #92400e;
@@ -201,8 +164,14 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
         padding: 5px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     }
-    /* Payment */
     .payment-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 20px;
+        background: #f8fafc;
+    }
+    .visit-card {
         border: 1px solid #e2e8f0;
         border-radius: 12px;
         padding: 25px;
@@ -218,7 +187,6 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
             Anda mengajukan adopsi untuk: <strong><?= htmlspecialchars($hewan['nama_hewan']) ?></strong> (<?= htmlspecialchars($hewan['nama_jenis']) ?> - <?= htmlspecialchars($hewan['nama_ras']) ?>)
         </p>
 
-        <!-- STEP INDICATORS -->
         <div class="wizard-steps">
             <div class="step-indicator active" id="indicator-1">
                 <div class="step-circle">1</div>
@@ -234,6 +202,10 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
             </div>
             <div class="step-indicator" id="indicator-4">
                 <div class="step-circle">4</div>
+                <div class="step-title">Jadwal</div>
+            </div>
+            <div class="step-indicator" id="indicator-5">
+                <div class="step-circle">5</div>
                 <div class="step-title">Pembayaran</div>
             </div>
         </div>
@@ -276,7 +248,7 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
                 </div>
 
                 <div style="text-align: right; margin-top: 30px;">
-                    <button type="button" class="btn-wizard btn-next" id="btn-next-1" disabled onclick="nextStep(2)">Lanjutkan Langkah 2</button>
+                    <button type="button" class="btn-wizard btn-next" id="btn-next-1" disabled onclick="nextStep(2)">Lanjutkan ke Perjanjian</button>
                 </div>
             </div>
 
@@ -317,7 +289,7 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
 
                 <div style="display: flex; justify-content: space-between; margin-top: 30px;">
                     <button type="button" class="btn-wizard btn-prev" onclick="prevStep(1)">Kembali</button>
-                    <button type="button" class="btn-wizard btn-next" id="btn-next-2" disabled onclick="nextStep(3)">Lanjutkan Langkah 3</button>
+                    <button type="button" class="btn-wizard btn-next" id="btn-next-2" disabled onclick="nextStep(3)">Lanjutkan ke Tanda Tangan</button>
                 </div>
             </div>
 
@@ -327,14 +299,11 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
                 <p style="color: #64748b; font-size: 13px; margin-bottom: 25px;">Silakan buat tanda tangan Anda langsung di dalam kotak kanvas di bawah. Tanda tangan akan diposisikan secara otomatis bersama materai simulasi.</p>
 
                 <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px;">
-                    <!-- Materai Simulasi -->
                     <div class="materai-badge">
                         <span style="font-size: 9px; opacity: 0.8;">SIMULASI MATERAI</span>
                         <span style="font-size: 12px; margin: 4px 0;">TEMPEL</span>
                         <span style="font-size: 10px; font-weight: 800; border-top: 1px solid #92400e; padding-top: 2px;">Rp 10.000</span>
                     </div>
-
-                    <!-- Tempat Kanvas Tanda Tangan -->
                     <div style="flex: 1;">
                         <div class="sig-area">
                             <canvas id="signature-canvas"></canvas>
@@ -347,13 +316,40 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
 
                 <div style="display: flex; justify-content: space-between; margin-top: 30px;">
                     <button type="button" class="btn-wizard btn-prev" onclick="prevStep(2)">Kembali</button>
-                    <button type="button" class="btn-wizard btn-next" id="btn-next-3" onclick="saveSignatureAndNext()">Lanjutkan Langkah 4</button>
+                    <button type="button" class="btn-wizard btn-next" id="btn-next-3" onclick="saveSignatureAndNext()">Lanjutkan ke Jadwal</button>
                 </div>
             </div>
 
-            <!-- LANGKAH 4: GATEWAY PEMBAYARAN -->
+            <!-- LANGKAH 4: JADWAL KUNJUNGAN -->
             <div class="wizard-panel" id="panel-4">
-                <h3 style="margin-bottom: 20px; color: #1e293b;">4. Konfirmasi & Pembayaran Administrasi</h3>
+                <h3 style="margin-bottom: 10px; color: #1e293b;">4. Tentukan Jadwal Kunjungan atau Penjemputan</h3>
+                <p style="color: #64748b; font-size: 13px; margin-bottom: 25px;">Pilih metode dan waktu kunjungan untuk proses adopsi.</p>
+
+                <div class="visit-card">
+                    <label style="font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 5px; display: block;">Metode</label>
+                    <select name="metode" id="metode_kunjungan" class="pk-input" onchange="toggleAlamatField()" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; margin-bottom: 15px;">
+                        <option value="Kunjungan ke Shelter">Kunjungan ke Shelter</option>
+                        <option value="Jemput ke Rumah">Jemput ke Rumah</option>
+                    </select>
+
+                    <label style="font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 5px; display: block;">Tanggal & Waktu</label>
+                    <input type="datetime-local" name="tanggal_jadwal" class="pk-input" required min="<?= date('Y-m-d\TH:i') ?>" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; margin-bottom: 15px;">
+
+                    <div id="alamat_tujuan_wrapper" style="display: none;">
+                        <label style="font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 5px; display: block;">Alamat Pengantaran / Penjemputan</label>
+                        <textarea name="alamat_tujuan" class="pk-input" placeholder="Tuliskan alamat lengkap pengantaran hewan" rows="3" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; margin-bottom: 15px;"></textarea>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-top: 30px;">
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep(3)">Kembali</button>
+                    <button type="button" class="btn-wizard btn-next" id="btn-next-4" onclick="validateAndNext4()">Lanjutkan ke Pembayaran</button>
+                </div>
+            </div>
+
+            <!-- LANGKAH 5: GATEWAY PEMBAYARAN -->
+            <div class="wizard-panel" id="panel-5">
+                <h3 style="margin-bottom: 20px; color: #1e293b;">5. Konfirmasi & Pembayaran Administrasi</h3>
 
                 <div class="payment-card">
                     <h4 style="margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; color: #334155;">Ringkasan Invoice Adopsi</h4>
@@ -388,7 +384,7 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
                 </div>
 
                 <div style="display: flex; justify-content: space-between; margin-top: 30px;">
-                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep(3)">Kembali</button>
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep(4)">Kembali</button>
                     <button type="submit" class="btn-wizard btn-next" style="background:#10b981; color:#fff;">Bayar & Selesaikan Adopsi</button>
                 </div>
             </div>
@@ -398,19 +394,13 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
 </div>
 
 <script>
-    // Penanganan Kuis Langkah 1
     let kuisAnswers = { 1: null, 2: null, 3: null };
 
     function selectOption(qNum, value, el) {
-        // Hapus pilihan di grup yang sama
         const options = el.parentNode.querySelectorAll('.kuis-option');
         options.forEach(opt => opt.classList.remove('selected'));
-        
-        // Pilih opsi baru
         el.classList.add('selected');
         kuisAnswers[qNum] = value;
-
-        // Validasi jika ketiga kuis bernilai "ya"
         if (kuisAnswers[1] === 'ya' && kuisAnswers[2] === 'ya' && kuisAnswers[3] === 'ya') {
             document.getElementById('btn-next-1').disabled = false;
         } else {
@@ -418,12 +408,29 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
         }
     }
 
-    // Penanganan Checklist Langkah 2
     function toggleNext2(chk) {
         document.getElementById('btn-next-2').disabled = !chk.checked;
     }
 
-    // Penanganan Pilihan Pembayaran Langkah 4
+    function toggleAlamatField() {
+        var metode = document.getElementById('metode_kunjungan').value;
+        var wrapper = document.getElementById('alamat_tujuan_wrapper');
+        if (metode === 'Jemput ke Rumah') {
+            wrapper.style.display = 'block';
+        } else {
+            wrapper.style.display = 'none';
+        }
+    }
+
+    function validateAndNext4() {
+        var metode = document.getElementById('metode_kunjungan').value;
+        var tanggal = document.querySelector('input[name="tanggal_jadwal"]').value;
+        var alamat = document.querySelector('textarea[name="alamat_tujuan"]').value;
+        if (!tanggal) { alert('Silakan pilih tanggal dan waktu kunjungan.'); return; }
+        if (metode === 'Jemput ke Rumah' && !alamat.trim()) { alert('Silakan isi alamat pengantaran untuk metode Jemput ke Rumah.'); return; }
+        nextStep(5);
+    }
+
     function selectPayment(el) {
         const labels = el.parentNode.querySelectorAll('label');
         labels.forEach(l => {
@@ -439,82 +446,47 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
         el.querySelector('input').checked = true;
     }
 
-    // Navigasi Langkah
     function nextStep(step) {
-        // Sembunyikan semua panel
         document.querySelectorAll('.wizard-panel').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.step-indicator').forEach(i => i.classList.remove('active'));
-
-        // Aktifkan panel terpilih
         document.getElementById('panel-' + step).classList.add('active');
         document.getElementById('indicator-' + step).classList.add('active');
-
-        // Mark langkah sebelumnya sebagai completed
         for (let i = 1; i < step; i++) {
             document.getElementById('indicator-' + i).classList.add('completed');
         }
-
-        // Inisialisasi kanvas jika masuk langkah 3
-        if (step === 3) {
-            setTimeout(initCanvas, 100);
-        }
+        if (step === 3) { setTimeout(initCanvas, 100); }
     }
 
     function prevStep(step) {
         document.querySelectorAll('.wizard-panel').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.step-indicator').forEach(i => {
-            i.classList.remove('active');
-            i.classList.remove('completed');
-        });
-
+        document.querySelectorAll('.step-indicator').forEach(i => { i.classList.remove('active'); i.classList.remove('completed'); });
         document.getElementById('panel-' + step).classList.add('active');
         document.getElementById('indicator-' + step).classList.add('active');
-
         for (let i = 1; i < step; i++) {
             document.getElementById('indicator-' + i).classList.add('completed');
         }
     }
 
-    // KANVAS TANDA TANGAN (HTML5)
     let canvas, ctx, drawing = false;
-
     function initCanvas() {
         canvas = document.getElementById('signature-canvas');
         if (!canvas) return;
         ctx = canvas.getContext('2d');
-        
-        // Sesuaikan ukuran kanvas dengan container fisiknya
         canvas.width = canvas.offsetWidth;
         canvas.height = canvas.offsetHeight;
-
         ctx.strokeStyle = '#0f172a';
         ctx.lineWidth = 3;
         ctx.lineCap = 'round';
-
-        // Event Mouse
         canvas.addEventListener('mousedown', startDraw);
         canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseup', stopDraw);
         canvas.addEventListener('mouseleave', stopDraw);
-
-        // Event Touch (Mobile)
         canvas.addEventListener('touchstart', startDrawTouch);
         canvas.addEventListener('touchmove', drawTouch);
         canvas.addEventListener('touchend', stopDraw);
     }
-
-    function startDraw(e) {
-        drawing = true;
-        ctx.beginPath();
-        ctx.moveTo(e.offsetX, e.offsetY);
-    }
-
-    function draw(e) {
-        if (!drawing) return;
-        ctx.lineTo(e.offsetX, e.offsetY);
-        ctx.stroke();
-    }
-
+    function startDraw(e) { drawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); }
+    function draw(e) { if (!drawing) return; ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); }
     function startDrawTouch(e) {
         drawing = true;
         const rect = canvas.getBoundingClientRect();
@@ -522,7 +494,6 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
         ctx.moveTo(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
         e.preventDefault();
     }
-
     function drawTouch(e) {
         if (!drawing) return;
         const rect = canvas.getBoundingClientRect();
@@ -530,19 +501,9 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
         ctx.stroke();
         e.preventDefault();
     }
-
-    function stopDraw() {
-        drawing = false;
-    }
-
-    function clearSignature() {
-        if (ctx && canvas) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-    }
-
+    function stopDraw() { drawing = false; }
+    function clearSignature() { if (ctx && canvas) { ctx.clearRect(0, 0, canvas.width, canvas.height); } }
     function saveSignatureAndNext() {
-        // Konversi kanvas tanda tangan menjadi DataURL base64
         const dataURL = canvas.toDataURL('image/png');
         document.getElementById('tanda_tangan_png').value = dataURL;
         nextStep(4);

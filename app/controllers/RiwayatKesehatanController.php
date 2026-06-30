@@ -15,10 +15,29 @@ class RiwayatKesehatanController {
     }
 
     public function create() {
+        $error_duplikat = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->m->insert($_POST);
-            header('Location: index.php?page=riwayat_kesehatan');
-            exit;
+            $id_vaksin = empty($_POST['id_vaksin']) ? null : $_POST['id_vaksin'];
+            if ($_POST['tipe'] === 'Vaksinasi' && $this->m->perluPerawatanDulu($_POST['id_hewan'])) {
+                $error_duplikat = "Hewan ini belum memiliki catatan Perawatan! Lakukan pemeriksaan umum (Perawatan) terlebih dahulu sebelum mencatat Vaksinasi.";
+            } elseif ($_POST['tipe'] === 'Karantina Selesai' && $this->m->perluVaksinasiDulu($_POST['id_hewan'])) {
+                $error_duplikat = "Hewan ini belum memiliki catatan Vaksinasi! Lakukan Vaksinasi terlebih dahulu sebelum menyelesaikan Karantina.";
+            } elseif ($this->m->isDuplicate($_POST['id_hewan'], $_POST['tipe'], $id_vaksin, $_POST['tanggal'])) {
+                $error_duplikat = "Rekam medis duplikat! Hewan ini sudah memiliki catatan " . ($_POST['tipe'] === 'Vaksinasi' ? 'vaksinasi dengan vaksin yang sama' : ($_POST['tipe'] === 'Karantina Selesai' ? 'Karantina Selesai' : 'perawatan')) . " pada tanggal tersebut.";
+            } else {
+                $this->m->insert($_POST);
+                // Selesaikan Perawatan jika ini Vaksinasi lanjutan
+                $dari = intval($_POST['dari_sebelumnya'] ?? 0);
+                if ($dari > 0) {
+                    $this->m->delete($dari);
+                }
+                // Karantina Selesai: auto rilis hewan ke Tersedia + rekomendasi
+                if ($_POST['tipe'] === 'Karantina Selesai') {
+                    $this->m->rilisKarantina($_POST['id_hewan']);
+                }
+                header('Location: index.php?page=riwayat_kesehatan');
+                exit;
+            }
         }
         $h = $this->m->getHewan();
         $v = $this->m->getVaksin();
@@ -31,16 +50,23 @@ class RiwayatKesehatanController {
         $user_id = $_SESSION['user_id'] ?? 0;
         $role    = $_SESSION['role'] ?? '';
 
-        // ponytail: Tolak jika tidak memiliki hak akses (bukan pemilik atau lebih dari 24 jam)
+        // Tolak jika bukan pemilik (PIC) catatan ini
         if (!$record || !$this->m->canModify($record, $user_id, $role)) {
             header('Location: index.php?page=riwayat_kesehatan&alert=locked');
             exit;
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->m->update($id, $_POST);
-            header('Location: index.php?page=riwayat_kesehatan');
-            exit;
+            $id_vaksin = empty($_POST['id_vaksin']) ? null : $_POST['id_vaksin'];
+            if ($_POST['tipe'] === 'Vaksinasi' && $this->m->perluPerawatanDulu($_POST['id_hewan'])) {
+                $error_duplikat = "Hewan ini belum memiliki catatan Perawatan! Lakukan pemeriksaan umum (Perawatan) terlebih dahulu sebelum mencatat Vaksinasi.";
+            } elseif ($this->m->isDuplicate($_POST['id_hewan'], $_POST['tipe'], $id_vaksin, $_POST['tanggal'], $id)) {
+                $error_duplikat = "Rekam medis duplikat! Hewan ini sudah memiliki catatan " . ($_POST['tipe'] === 'Vaksinasi' ? 'vaksinasi dengan vaksin yang sama' : 'perawatan') . " pada tanggal tersebut.";
+            } else {
+                $this->m->update($id, $_POST);
+                header('Location: index.php?page=riwayat_kesehatan');
+                exit;
+            }
         }
         $data = $record;
         $h = $this->m->getHewan();
@@ -54,7 +80,7 @@ class RiwayatKesehatanController {
         $user_id = $_SESSION['user_id'] ?? 0;
         $role    = $_SESSION['role'] ?? '';
 
-        // ponytail: Tolak penghapusan jika tidak memiliki hak akses
+        // Tolak penghapusan jika bukan pemilik (PIC) catatan ini
         if (!$record || !$this->m->canModify($record, $user_id, $role)) {
             header('Location: index.php?page=riwayat_kesehatan&alert=locked');
             exit;

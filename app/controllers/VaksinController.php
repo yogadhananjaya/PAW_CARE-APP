@@ -19,7 +19,7 @@ class VaksinController {
             if ($this->m->isDuplicate($_POST['nama_vaksin'])) {
                 $error_duplikat = "Vaksin '" . htmlspecialchars($_POST['nama_vaksin']) . "' sudah terdaftar!";
             } else {
-                $this->m->insert($_POST['nama_vaksin'], $_POST['deskripsi'], $_POST['status']);
+                $this->m->insert($_POST['nama_vaksin'], $_POST['id_jenis'] ?? [], $_POST['deskripsi'], $_POST['status'], $_POST['stok'] ?? 0);
                 header('Location: index.php?page=vaksin');
                 exit;
             }
@@ -33,7 +33,7 @@ class VaksinController {
             if ($this->m->isDuplicate($_POST['nama_vaksin'], $id)) {
                 $error_duplikat = "Vaksin '" . htmlspecialchars($_POST['nama_vaksin']) . "' sudah terdaftar!";
             } else {
-                $this->m->update($id, $_POST['nama_vaksin'], $_POST['deskripsi'], $_POST['status']);
+                $this->m->update($id, $_POST['nama_vaksin'], $_POST['id_jenis'] ?? [], $_POST['deskripsi'], $_POST['status'], $_POST['stok'] ?? 0);
                 header('Location: index.php?page=vaksin');
                 exit;
             }

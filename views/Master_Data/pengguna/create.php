@@ -39,17 +39,15 @@
                         <?php $post_jabatan = $_POST['jabatan'] ?? ''; ?>
                         <option value="Koordinator" <?= $post_jabatan == 'Koordinator' ? 'selected' : '' ?>>Koordinator</option>
                         <option value="Perawat Hewan" <?= $post_jabatan == 'Perawat Hewan' ? 'selected' : '' ?>>Perawat Hewan</option>
-                        <option value="SuperAdmin" <?= $post_jabatan == 'SuperAdmin' ? 'selected' : '' ?>>SuperAdmin</option>
                     </select>
                 </div>
 
                 <!-- Role -->
                 <div class="form-group" style="flex:1;">
                     <label>Role Akses</label>
-                    <select name="role" class="form-control">
-                        <?php $post_role = $_POST['role'] ?? ''; ?>
-                        <option value="Pegawai" <?= $post_role == 'Pegawai' ? 'selected' : '' ?>>Pengguna</option>
-                        <option value="SuperAdmin" <?= $post_role == 'SuperAdmin' ? 'selected' : '' ?>>SuperAdmin</option>
+                    <select name="role" class="form-control" required>
+                        <?php $post_role = $_POST['role'] ?? 'Pengguna'; ?>
+                        <option value="Pengguna" <?= $post_role == 'Pengguna' ? 'selected' : '' ?>>Pengguna</option>
                     </select>
                 </div>
             </div>

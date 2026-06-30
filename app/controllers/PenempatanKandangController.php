@@ -64,9 +64,15 @@ class PenempatanKandangController
                 'tanggal_keluar' => null
             ];
 
-            // ponytail: Cegah jika hewan sudah berada di kandang yang sama
+            //  Cegah jika hewan sudah berada di kandang yang sama
             if ($this->m->isAlreadyInCage($payload['id_hewan'], $payload['id_kandang'])) {
                 header("Location: index.php?page=penempatan_kandang_koordinator&error=duplicate");
+                exit;
+            }
+
+            //  Cegah jika jenis hewan tidak cocok dengan jenis kandang
+            if (!$this->m->checkJenisCocok($payload['id_hewan'], $payload['id_kandang'])) {
+                header("Location: index.php?page=penempatan_kandang_koordinator&error=jenis_tidak_cocok");
                 exit;
             }
 
@@ -94,7 +100,7 @@ class PenempatanKandangController
         include __DIR__ . '/../../views/Master_Transaksi/penempatan_kandang/koordinator.php';
     }
 
-    // ponytail: Aksi untuk mengeluarkan hewan dari kandang secara langsung
+    //  Aksi untuk mengeluarkan hewan dari kandang secara langsung
     public function release($id)
     {
         $this->m->release($id);

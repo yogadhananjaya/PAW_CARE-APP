@@ -269,15 +269,12 @@ $riwayat_saya = $stmt_riwayat->fetchAll();
             </thead>
             <tbody>
                 <?php foreach ($riwayat_saya as $r):
-                    $bisa_ubah = (time() - strtotime($r['created_at'])) < 86400;
                     $tipe_map = [
                         'Vaksinasi'  => ['label'=>'Vaksinasi', 'class'=>'badge-vaksin'],
                         'Pemeriksaan'=> ['label'=>'Periksa',   'class'=>'badge-periksa'],
                         'Pengobatan' => ['label'=>'Obat',      'class'=>'badge-obat'],
                     ];
                     $tipe_info = $tipe_map[$r['tipe']] ?? ['label'=>$r['tipe'], 'class'=>'badge-lain'];
-                    $sisa_menit = max(0, 86400 - (time() - strtotime($r['created_at'])));
-                    $sisa_jam   = floor($sisa_menit / 3600);
                 ?>
                 <tr>
                     <td><strong>🐾 <?= htmlspecialchars($r['nama_hewan']) ?></strong></td>
@@ -290,12 +287,7 @@ $riwayat_saya = $stmt_riwayat->fetchAll();
                     <td><?= date('d M Y', strtotime($r['tanggal'])) ?></td>
                     <td style="color:#94a3b8; font-size:12px;"><?= date('d M, H:i', strtotime($r['created_at'])) ?></td>
                     <td>
-                        <?php if ($bisa_ubah): ?>
-                            <span style="color:#16a34a; font-size:12px; font-weight:700;">✏️ Bisa diubah</span>
-                            <br><span class="lock-icon">🔓 Terkunci dalam <?= $sisa_jam ?>j</span>
-                        <?php else: ?>
-                            <span style="color:#94a3b8; font-size:12px;">🔒 Terkunci</span>
-                        <?php endif; ?>
+                        <span style="color:#16a34a; font-size:12px; font-weight:700;">✏️ Bisa diubah</span>
                     </td>
                 </tr>
                 <?php endforeach; ?>

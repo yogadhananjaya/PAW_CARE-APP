@@ -80,7 +80,7 @@ class HewanModel {
 
     // Setujui rilis hewan ke katalog (Aksi Koordinator)
     public function setujuiRilis($id) {
-        $stmt = $this->pdo->prepare("UPDATE hewan SET status_adopsi = 'Tersedia', rekomendasi_adopsi = 0 WHERE id_hewan = ?");
+        $stmt = $this->pdo->prepare("UPDATE hewan SET status_adopsi = 'Tersedia' WHERE id_hewan = ?");
         return $stmt->execute([$id]);
     }
 

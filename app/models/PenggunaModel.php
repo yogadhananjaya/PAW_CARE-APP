@@ -11,7 +11,7 @@ class PenggunaModel {
 
     // Ambil semua data pengguna, urutkan dari terbaru
     public function getAll() { 
-        return $this->pdo->query("SELECT * FROM pengguna ORDER BY id_pengguna DESC")->fetchAll(); 
+        return $this->pdo->query("SELECT * FROM pengguna WHERE role != 'User' ORDER BY id_pengguna DESC")->fetchAll(); 
     }
 
     // Ambil satu data pengguna berdasarkan ID

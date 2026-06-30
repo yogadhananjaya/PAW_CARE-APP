@@ -102,7 +102,7 @@ if (isset($_GET['id'])) {
                 <?php 
                 $file_exists = false;
                 if (!empty($active_adopter['url_ktp'])) {
-                    $filepath = __DIR__ . '/../../../assets/img/ktp/' . $active_adopter['url_ktp'];
+                    $filepath = __DIR__ . '/../../../' . $active_adopter['url_ktp'];
                     if (file_exists($filepath)) {
                         $file_exists = true;
                     }
@@ -111,8 +111,8 @@ if (isset($_GET['id'])) {
 
                 <?php if ($file_exists): ?>
                     <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:10px; border-radius:12px; text-align:center;">
-                        <a href="assets/img/ktp/<?= htmlspecialchars($active_adopter['url_ktp']) ?>" target="_blank">
-                            <img src="assets/img/ktp/<?= htmlspecialchars($active_adopter['url_ktp']) ?>" style="max-width:100%; max-height:280px; border-radius:8px; border:1px solid #e2e8f0; box-shadow:0 4px 12px rgba(0,0,0,0.05);" alt="Foto KTP">
+                        <a href="<?= htmlspecialchars($active_adopter['url_ktp']) ?>" target="_blank">
+                            <img src="<?= htmlspecialchars($active_adopter['url_ktp']) ?>" style="max-width:100%; max-height:280px; border-radius:8px; border:1px solid #e2e8f0; box-shadow:0 4px 12px rgba(0,0,0,0.05);" alt="Foto KTP">
                         </a>
                         <p style="color:#64748b; font-size:12px; margin-top:8px;">Klik gambar untuk memperbesar di tab baru</p>
                     </div>

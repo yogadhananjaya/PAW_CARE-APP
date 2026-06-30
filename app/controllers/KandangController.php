@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/KandangModel.php';
+require_once __DIR__ . '/../models/JenisModel.php';
 
 class KandangController {
     private $m;
@@ -26,6 +27,8 @@ class KandangController {
         }
         $nextId = $this->m->getNextId();
         $auto_kode = "KND-" . str_pad($nextId, 3, "0", STR_PAD_LEFT);
+        $jenisModel = new JenisModel();
+        $jenis_list = $jenisModel->getAll();
         include __DIR__ . '/../../views/Master_Data/kandang/create.php';
     }
 
@@ -41,6 +44,8 @@ class KandangController {
             }
         }
         $data = $this->m->getById($id);
+        $jenisModel = new JenisModel();
+        $jenis_list = $jenisModel->getAll();
         include __DIR__ . '/../../views/Master_Data/kandang/edit.php';
     }
 

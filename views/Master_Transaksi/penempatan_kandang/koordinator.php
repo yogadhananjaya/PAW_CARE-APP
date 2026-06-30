@@ -213,6 +213,9 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
     <?php if (isset($_GET['error']) && $_GET['error'] == 'duplicate'): ?>
         <div class="alert-sukses" style="background:#fee2e2; color:#b91c1c; border-color:#fecaca;">⚠️ Hewan sudah aktif berada di kandang pilihan tersebut!</div>
     <?php endif; ?>
+    <?php if (isset($_GET['error']) && $_GET['error'] == 'jenis_tidak_cocok'): ?>
+        <div class="alert-sukses" style="background:#fee2e2; color:#b91c1c; border-color:#fecaca;">⚠️ Jenis hewan tidak cocok dengan jenis kandang!</div>
+    <?php endif; ?>
 
     <!-- Baris 1: Form di kiri (disembunyikan untuk Perawat), Daftar Lokasi di kanan -->
     <div class="pk-grid-top">
@@ -231,10 +234,10 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
                 <!-- Pilih Hewan -->
                 <div class="pk-field">
                     <label class="pk-label">Pilih Hewan</label>
-                    <select name="id_hewan" class="pk-input" required>
+                    <select name="id_hewan" id="select-hewan" class="pk-input" required>
                         <option value="">-- Pilih Hewan --</option>
                         <?php foreach ($h as $hw): ?>
-                            <option value="<?php echo $hw['id_hewan']; ?>">
+                            <option value="<?php echo $hw['id_hewan']; ?>" data-jenis="<?php echo $hw['id_jenis']; ?>">
                                 <?php echo htmlspecialchars($hw['nama_hewan']); ?> (Status: <?php echo htmlspecialchars($hw['status_adopsi']); ?>)
                             </option>
                         <?php endforeach; ?>
@@ -244,14 +247,14 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
                 <!-- Kandang Tujuan -->
                 <div class="pk-field">
                     <label class="pk-label">Kandang Tujuan</label>
-                    <select name="id_kandang" class="pk-input" required>
+                    <select name="id_kandang" id="select-kandang" class="pk-input" required>
                         <option value="">-- Pilih Kandang --</option>
                         <?php foreach ($k as $kd): 
                             $kapasitas_kd = intval($kd['kapasitas']);
                             $terisi_kd = intval($kd['terisi']);
                             $sisa_slot = $kapasitas_kd - $terisi_kd;
                         ?>
-                            <option value="<?php echo $kd['id_kandang']; ?>" <?php if ($sisa_slot <= 0) echo 'disabled'; ?>>
+                            <option value="<?php echo $kd['id_kandang']; ?>" data-jenis="<?php echo $kd['id_jenis']; ?>" data-full="<?php echo ($sisa_slot <= 0) ? '1' : '0'; ?>" <?php if ($sisa_slot <= 0) echo 'disabled'; ?>>
                                 <?php echo htmlspecialchars($kd['kode_kandang'] . ' - ' . $kd['nama_kandang']); ?> (Sisa Slot: <?php echo $sisa_slot; ?>/<?php echo $kapasitas_kd; ?>)<?php if ($sisa_slot <= 0) echo ' - PENUH'; ?>
                             </option>
                         <?php endforeach; ?>
@@ -288,6 +291,7 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
                 <thead>
                     <tr>
                         <th style="padding-left: 20px;">Nama Hewan</th>
+                        <th>Jenis Hewan</th>
                         <th>Kode Kandang</th>
                         <th>Tanggal Masuk</th>
                         <th>Status</th>
@@ -313,15 +317,17 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
                         foreach ($grouped as $kandang_name => $items) {
                             // Render baris sub-header kategori kandang
                             echo '<tr style="background: #f1f5f9; font-weight: bold;">';
-                            echo '<td colspan="5" style="padding: 10px 15px; color: #4f46e5; border-bottom: 2px solid #cbd5e1;">🏢 ' . htmlspecialchars($kandang_name) . '</td>';
+                            echo '<td colspan="6" style="padding: 10px 15px; color: #4f46e5; border-bottom: 2px solid #cbd5e1;">🏢 ' . htmlspecialchars($kandang_name) . '</td>';
                             echo '</tr>';
                             
                             foreach ($items as $pk) {
                                 $nama_hewan_pk = htmlspecialchars($pk['nama_hewan']);
+                                $nama_jenis_pk = htmlspecialchars($pk['nama_jenis'] ?? '—');
                                 $tanggal_masuk_pk = date('d M Y', strtotime($pk['tanggal_masuk']));
                                 
                                 echo '<tr>';
                                 echo '<td style="padding-left: 30px;"><span class="pk-animal-name">🐕 ' . $nama_hewan_pk . '</span></td>';
+                                echo '<td>' . $nama_jenis_pk . '</td>';
                                 echo '<td><span class="pk-badge-kandang">' . htmlspecialchars($pk['kode_kandang']) . '</span></td>';
                                 echo '<td>' . $tanggal_masuk_pk . '</td>';
                                 echo '<td><span class="pk-badge-status pk-badge-tersedia">AKTIF</span></td>';
@@ -334,7 +340,7 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
                             }
                         }
                     } else {
-                        $colspan = in_array($current_role, ['Perawat', 'Perawat Hewan']) ? 4 : 5;
+                        $colspan = in_array($current_role, ['Perawat', 'Perawat Hewan']) ? 5 : 6;
                         echo '<tr>';
                         echo '<td colspan="' . $colspan . '" style="padding: 30px; text-align: center; color: #94a3b8;">Belum ada hewan di dalam kandang saat ini.</td>';
                         echo '</tr>';
@@ -433,6 +439,7 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
                     <th style="width: 5%;">No</th>
                     <th>Kode</th>
                     <th>Nama Hewan</th>
+                    <th>Jenis Hewan</th>
                     <th>Kandang</th>
                     <th>Tanggal Masuk</th>
                     <th>Tanggal Keluar</th>
@@ -445,6 +452,7 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
                     $no = 1;
                     foreach ($riwayat_list as $r) {
                         $nama_hewan_r = htmlspecialchars($r['nama_hewan']);
+                        $nama_jenis_r = htmlspecialchars($r['nama_jenis'] ?? '—');
                         $kode_kandang_r = htmlspecialchars($r['kode_kandang']);
                         $nama_kandang_r = htmlspecialchars($r['nama_kandang']);
                         $tgl_masuk = date('d M Y', strtotime($r['tanggal_masuk']));
@@ -454,6 +462,7 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
                         echo '<td>' . $no++ . '</td>';
                         echo '<td>' . htmlspecialchars($r['kode_penempatan_kandang'] ?? '') . '</td>';
                         echo '<td><span class="pk-animal-name">🐕 ' . $nama_hewan_r . '</span></td>';
+                        echo '<td>' . $nama_jenis_r . '</td>';
                         echo '<td><span class="pk-badge-kandang">' . $kode_kandang_r . ' - ' . $nama_kandang_r . '</span></td>';
                         echo '<td>' . $tgl_masuk . '</td>';
                         echo '<td>' . $tgl_keluar . '</td>';
@@ -462,7 +471,7 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
                     }
                 } else {
                     echo '<tr>';
-                    echo '<td colspan="7" style="padding: 30px; text-align: center; color: #94a3b8;">Belum ada riwayat penempatan kandang.</td>';
+                    echo '<td colspan="8" style="padding: 30px; text-align: center; color: #94a3b8;">Belum ada riwayat penempatan kandang.</td>';
                     echo '</tr>';
                 }
                 ?>
@@ -471,5 +480,39 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
     </div>
 
 </div>
+
+<script>
+document.getElementById('select-hewan').addEventListener('change', function() {
+    var selectedOption = this.options[this.selectedIndex];
+    var idJenisHewan = selectedOption.getAttribute('data-jenis');
+    
+    var selectKandang = document.getElementById('select-kandang');
+    var optionsKandang = selectKandang.options;
+    
+    // Reset selection
+    selectKandang.value = "";
+    
+    for (var i = 0; i < optionsKandang.length; i++) {
+        var opt = optionsKandang[i];
+        if (opt.value === "") {
+            opt.style.display = "block";
+            continue;
+        }
+        
+        var idJenisKandang = opt.getAttribute('data-jenis');
+        if (!idJenisHewan || idJenisHewan === idJenisKandang) {
+            opt.style.display = "block";
+            if (opt.getAttribute('data-full') === '1') {
+                opt.disabled = true;
+            } else {
+                opt.disabled = false;
+            }
+        } else {
+            opt.style.display = "none";
+            opt.disabled = true;
+        }
+    }
+});
+</script>
 
 <?php include __DIR__ . '/../../layouts/footer.php'; ?>

@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS pengguna (
     kontak VARCHAR(20) NOT NULL,
     nama_pengguna VARCHAR(50) UNIQUE NOT NULL,
     kata_sandi VARCHAR(255) NOT NULL,
-    role ENUM('SuperAdmin','Pegawai') NOT NULL,
+    role ENUM('SuperAdmin','User') NOT NULL,
     status ENUM('Aktif','Suspended','Resign') DEFAULT 'Aktif'
 );
 
@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS kandang (
     id_kandang INT AUTO_INCREMENT PRIMARY KEY,
     kode_kandang VARCHAR(20) UNIQUE NOT NULL,
     nama_kandang VARCHAR(50) NOT NULL,
+    id_jenis INT NOT NULL,
     kapasitas INT NOT NULL,
     status ENUM('Tersedia', 'Penuh', 'Perbaikan') DEFAULT 'Tersedia'
 );
@@ -40,7 +41,16 @@ CREATE TABLE IF NOT EXISTS vaksin (
     kode_vaksin VARCHAR(10) UNIQUE,
     nama_vaksin VARCHAR(100) NOT NULL,
     deskripsi TEXT NULL,
-    status ENUM('Tersedia','Habis','Discontinue') DEFAULT 'Tersedia'
+    status ENUM('Tersedia','Habis','Discontinue') DEFAULT 'Tersedia',
+    stok INT DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS vaksin_jenis (
+    id_vaksin INT NOT NULL,
+    id_jenis INT NOT NULL,
+    PRIMARY KEY (id_vaksin, id_jenis),
+    FOREIGN KEY (id_vaksin) REFERENCES vaksin(id_vaksin) ON DELETE CASCADE,
+    FOREIGN KEY (id_jenis) REFERENCES jenis_hewan(id_jenis) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS hewan (

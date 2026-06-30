@@ -18,8 +18,10 @@
                     <th width="5%">No</th>
                     <th>Kode</th>
                     <th>Nama Vaksin</th>
+                    <th>Jenis Hewan</th>
                     <th>Deskripsi Peruntukan</th>
                     <th>Status</th>
+                    <th>Stok</th>
                     <th width="12%">Aksi</th>
                 </tr>
             </thead>
@@ -29,11 +31,18 @@
                     <td><?= $no++ ?></td>
                     <td><?= htmlspecialchars($row['kode_vaksin'] ?? '') ?></td>
                     <td><strong><?= htmlspecialchars($row['nama_vaksin']) ?></strong></td>
+                    <td><?= htmlspecialchars($row['nama_jenis'] ?? 'Semua Jenis') ?></td>
                     <td><?= htmlspecialchars($row['deskripsi']) ?></td>
                     <td>
                         <span style="padding:4px 8px; border-radius:10px; font-size:12px; font-weight:bold; 
                             background-color: <?= $row['status'] == 'Tersedia' ? '#e2fbe8; color:#2ecc71;' : ($row['status'] == 'Habis' ? '#fce4e4; color:#e74c3c;' : '#fff3cd; color:#f1c40f;') ?>">
                             <?= htmlspecialchars($row['status']) ?>
+                        </span>
+                    </td>
+                    <td>
+                        <?php $stok = $row['stok'] ?? 0; ?>
+                        <span style="font-weight:700; color:<?= $stok < 5 ? '#ef4444' : '#15803d' ?>">
+                            <?= $stok ?> <?= $stok < 5 ? '⚠️' : '' ?>
                         </span>
                     </td>
                     <td>

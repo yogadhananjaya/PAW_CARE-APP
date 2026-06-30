@@ -12,6 +12,11 @@
         <?php endif; ?>
     </header>
     <div class="card">
+        <?php if (isset($_GET['error']) && $_GET['error'] == 'belum_vaksinasi'): ?>
+            <div style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; border-radius:10px; padding:12px 18px; margin-bottom:15px; font-weight:600; font-size:14px;">
+                ⚠️ Hewan harus memiliki minimal 1 rekam Vaksinasi sebelum dapat direkomendasikan.
+            </div>
+        <?php endif; ?>
         <table class="crud-table">
             <thead>
                 <tr>

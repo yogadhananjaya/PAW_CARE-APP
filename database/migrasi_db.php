@@ -15,7 +15,7 @@ foreach ($sql_files as $file) {
     if (file_exists($file)) {
         try {
             $sql = file_get_contents($file);
-            
+
             // Hapus delimiter trigger karena PDO tidak mendukung delimiter multi-statement secara default
             // Kita akan membagi SQL berdasarkan titik koma (;) yang aman
             $queries = explode(';', $sql);

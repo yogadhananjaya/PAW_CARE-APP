@@ -10,7 +10,7 @@ class KandangModel {
     }
 
     public function getAll() { 
-        return $this->pdo->query("SELECT * FROM kandang ORDER BY id_kandang DESC")->fetchAll(); 
+        return $this->pdo->query("SELECT k.*, j.nama_jenis FROM kandang k LEFT JOIN jenis_hewan j ON k.id_jenis = j.id_jenis ORDER BY k.id_kandang DESC")->fetchAll(); 
     }
 
     public function getById($id) { 
@@ -33,13 +33,13 @@ class KandangModel {
     }
 
     public function insert($data) { 
-        $stmt = $this->pdo->prepare("INSERT INTO kandang (kode_kandang, nama_kandang, kapasitas, status) VALUES (?, ?, ?, ?)"); 
-        return $stmt->execute([$data['kode_kandang'], $data['nama_kandang'], $data['kapasitas'], $data['status']]); 
+        $stmt = $this->pdo->prepare("INSERT INTO kandang (kode_kandang, nama_kandang, id_jenis, kapasitas, status) VALUES (?, ?, ?, ?, ?)"); 
+        return $stmt->execute([$data['kode_kandang'], $data['nama_kandang'], $data['id_jenis'], $data['kapasitas'], $data['status']]); 
     }
 
     public function update($id, $data) { 
-        $stmt = $this->pdo->prepare("UPDATE kandang SET kode_kandang=?, nama_kandang=?, kapasitas=?, status=? WHERE id_kandang=?"); 
-        return $stmt->execute([$data['kode_kandang'], $data['nama_kandang'], $data['kapasitas'], $data['status'], $id]); 
+        $stmt = $this->pdo->prepare("UPDATE kandang SET kode_kandang=?, nama_kandang=?, id_jenis=?, kapasitas=?, status=? WHERE id_kandang=?"); 
+        return $stmt->execute([$data['kode_kandang'], $data['nama_kandang'], $data['id_jenis'], $data['kapasitas'], $data['status'], $id]); 
     }
 
     public function delete($id) { 

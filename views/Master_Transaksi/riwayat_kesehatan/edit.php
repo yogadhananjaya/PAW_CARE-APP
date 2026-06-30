@@ -6,13 +6,18 @@
         <a href="index.php?page=riwayat_kesehatan" class="btn btn-secondary">&larr; Batal</a>
     </header>
     <div class="card" style="max-width: 650px;">
+        <?php if (!empty($error_duplikat)): ?>
+            <div style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-weight:600;font-size:14px;">
+                ⚠️ <?= htmlspecialchars($error_duplikat) ?>
+            </div>
+        <?php endif; ?>
         <form action="index.php?page=riwayat_kesehatan_edit&id=<?= $data['id_riwayat'] ?>" method="POST">
             <!-- Pilih Hewan -->
             <div class="form-group">
                 <label>Pilih Hewan</label>
-                <select name="id_hewan" class="form-control" required>
+                <select name="id_hewan" id="hewan_select" class="form-control" required onchange="filterVaksin()">
                     <?php foreach($h as $hw): ?>
-                        <option value="<?= $hw['id_hewan'] ?>" <?= $data['id_hewan'] == $hw['id_hewan'] ? 'selected' : '' ?>><?= $hw['nama_hewan'] ?></option>
+                        <option value="<?= $hw['id_hewan'] ?>" data-jenis="<?= $hw['id_jenis'] ?>" <?= $data['id_hewan'] == $hw['id_hewan'] ? 'selected' : '' ?>><?= $hw['nama_hewan'] ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -29,10 +34,17 @@
             <!-- Vaksin (muncul jika tipe = Vaksinasi) -->
             <div class="form-group" id="vaksin_section" style="<?= $data['tipe'] == 'Vaksinasi' ? '' : 'display:none;' ?>">
                 <label>Pilih Vaksin</label>
-                <select name="id_vaksin" class="form-control">
-                    <option value="">-- Tidak Ada / Pilih Vaksin --</option>
+                <select name="id_vaksin" id="vaksin_select" class="form-control">
+                    <option value="">-- Pilih Vaksin --</option>
                     <?php foreach($v as $vk): ?>
-                        <option value="<?= $vk['id_vaksin'] ?>" <?= $data['id_vaksin'] == $vk['id_vaksin'] ? 'selected' : '' ?>><?= $vk['nama_vaksin'] ?></option>
+                        <?php $v_disabled = ($vk['status'] !== 'Tersedia' || ($vk['stok'] ?? 0) == 0) && $data['id_vaksin'] != $vk['id_vaksin']; ?>
+                        <option value="<?= $vk['id_vaksin'] ?>" data-jenis-list="<?= $vk['id_jenis_list'] ?? '' ?>" <?= $data['id_vaksin'] == $vk['id_vaksin'] ? 'selected' : '' ?> <?= $v_disabled ? 'disabled style="color:#94a3b8;"' : '' ?>>
+                            <?= htmlspecialchars($vk['nama_vaksin']) ?>
+                            <?php if ($vk['status'] !== 'Tersedia'): ?> (<?= $vk['status'] ?>)
+                            <?php elseif (($vk['stok'] ?? 0) == 0): ?> (Habis - Stok 0)
+                            <?php elseif (($vk['stok'] ?? 0) < 5): ?> ⚠️ (Segera Restock)
+                            <?php endif; ?>
+                        </option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -69,6 +81,19 @@ function toggleVaksin() {
     var tipe = document.getElementById('tipe_select').value;
     document.getElementById('vaksin_section').style.display = (tipe === 'Vaksinasi') ? 'block' : 'none';
 }
+function filterVaksin() {
+    var hewan = document.getElementById('hewan_select');
+    var jenis = hewan.options[hewan.selectedIndex].getAttribute('data-jenis');
+    var opts = document.getElementById('vaksin_select').options;
+    for (var i = 1; i < opts.length; i++) {
+        var vList = opts[i].getAttribute('data-jenis-list');
+        if (!vList) { opts[i].style.display = ''; continue; }
+        var arr = vList.split(',');
+        opts[i].style.display = arr.includes(jenis) ? '' : 'none';
+    }
+    opts[0].selected = true;
+}
+filterVaksin();
 </script>
 
 <?php include __DIR__ . '/../../layouts/footer.php'; ?>

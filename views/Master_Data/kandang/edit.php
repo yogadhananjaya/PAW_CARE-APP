@@ -23,6 +23,19 @@
                 <label>Nama Kandang / Blok</label>
                 <input type="text" name="nama_kandang" value="<?= htmlspecialchars($_POST['nama_kandang'] ?? $data['nama_kandang']) ?>" class="form-control" required>
             </div>
+            <!-- Jenis Hewan -->
+            <div class="form-group">
+                <label>Jenis Hewan</label>
+                <select name="id_jenis" class="form-control" required>
+                    <option value="">-- Pilih Jenis Hewan --</option>
+                    <?php foreach ($jenis_list as $j): ?>
+                        <?php $selected_jenis = $_POST['id_jenis'] ?? $data['id_jenis']; ?>
+                        <option value="<?= $j['id_jenis'] ?>" <?= ($selected_jenis == $j['id_jenis']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($j['nama_jenis']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
             <div class="form-group">
                 <label>Kapasitas (Ekor)</label>
                 <input type="number" name="kapasitas" value="<?= htmlspecialchars($_POST['kapasitas'] ?? $data['kapasitas']) ?>" class="form-control" required>

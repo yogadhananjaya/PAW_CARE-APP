@@ -1,10 +1,7 @@
-<?php include __DIR__ . '/../../layouts/header.php'; ?>
-<?php include __DIR__ . '/../../layouts/sidebar_admin.php'; ?>
+<?php include __DIR__ . '/../layouts/header.php'; ?>
 
 <style>
-    body {
-        overflow: hidden !important;
-    }
+    body { overflow: hidden !important; }
     .contract-wrapper {
         max-width: 900px;
         margin: 0 auto;
@@ -13,16 +10,9 @@
         overflow-x: hidden;
         padding-right: 10px;
     }
-    .contract-wrapper::-webkit-scrollbar {
-        width: 4px;
-    }
-    .contract-wrapper::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    .contract-wrapper::-webkit-scrollbar-thumb {
-        background: rgba(0,0,0,0.1);
-        border-radius: 10px;
-    }
+    .contract-wrapper::-webkit-scrollbar { width: 4px; }
+    .contract-wrapper::-webkit-scrollbar-track { background: transparent; }
+    .contract-wrapper::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
     .contract-header {
         display: flex;
         justify-content: space-between;
@@ -35,10 +25,7 @@
         color: var(--hitam);
         margin: 0;
     }
-    .contract-actions {
-        display: flex;
-        gap: 10px;
-    }
+    .contract-actions { display: flex; gap: 10px; }
     .contract-card {
         background: var(--putih);
         border-radius: 16px;
@@ -47,10 +34,7 @@
         padding: 40px;
         margin-bottom: 25px;
     }
-    .contract-title {
-        text-align: center;
-        margin-bottom: 8px;
-    }
+    .contract-title { text-align: center; margin-bottom: 8px; }
     .contract-title h3 {
         font-size: 18px;
         font-weight: 700;
@@ -76,9 +60,7 @@
         line-height: 1.7;
         margin-bottom: 20px;
     }
-    .contract-party {
-        margin-bottom: 18px;
-    }
+    .contract-party { margin-bottom: 18px; }
     .contract-party-title {
         font-weight: 700;
         font-size: 14px;
@@ -95,23 +77,15 @@
         font-weight: 600;
         color: var(--hitam);
     }
-    .contract-animal-info {
-        margin: 20px 0;
-        padding-left: 15px;
-    }
+    .contract-animal-info { margin: 20px 0; padding-left: 15px; }
     .contract-animal-info li {
         font-size: 13px;
         color: #444;
         line-height: 1.8;
         margin-bottom: 4px;
     }
-    .contract-animal-info li span {
-        font-weight: 600;
-        color: var(--hitam);
-    }
-    .contract-pasal {
-        margin-top: 25px;
-    }
+    .contract-animal-info li span { font-weight: 600; color: var(--hitam); }
+    .contract-pasal { margin-top: 25px; }
     .contract-pasal-title {
         font-weight: 700;
         font-size: 14px;
@@ -119,11 +93,7 @@
         margin-bottom: 8px;
         text-transform: uppercase;
     }
-    .contract-pasal-text {
-        font-size: 13px;
-        color: #444;
-        line-height: 1.7;
-    }
+    .contract-pasal-text { font-size: 13px; color: #444; line-height: 1.7; }
     .contract-signatures {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -132,9 +102,7 @@
         padding-top: 25px;
         border-top: 1px dashed #ccc;
     }
-    .signature-block {
-        text-align: center;
-    }
+    .signature-block { text-align: center; }
     .signature-title {
         font-weight: 700;
         font-size: 13px;
@@ -152,15 +120,8 @@
         margin: 0 30px;
         padding-top: 10px;
     }
-    .signature-name {
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--hitam);
-    }
-    .signature-role {
-        font-size: 12px;
-        color: var(--text-muted);
-    }
+    .signature-name { font-size: 13px; font-weight: 600; color: var(--hitam); }
+    .signature-role { font-size: 12px; color: var(--text-muted); }
     .status-badge {
         display: inline-block;
         padding: 6px 14px;
@@ -168,7 +129,7 @@
         font-size: 12px;
         font-weight: 700;
     }
-    .status-draft { background: #fff4e6; color: #d97706; }
+    .status-draft { background: #e0f2fe; color: #0369a1; }
     .status-signed { background: #e0f2fe; color: #0369a1; }
     .status-active { background: #dcfce7; color: #15803d; }
     .btn-contract {
@@ -184,52 +145,18 @@
         gap: 6px;
         border: none;
     }
-    .btn-back {
-        background: var(--krem-gelap);
-        color: var(--hitam);
-        border: 1px solid rgba(0,0,0,0.08);
-    }
+    .btn-back { background: var(--krem-gelap); color: var(--hitam); border: 1px solid rgba(0,0,0,0.08); }
     .btn-back:hover { background: #ebe6da; }
-    .btn-print {
-        background: var(--hitam);
-        color: var(--putih);
-    }
+    .btn-print { background: var(--hitam); color: var(--putih); }
     .btn-print:hover { background: #2a2a2a; }
-    .btn-activate {
-        background: #15803d;
-        color: var(--putih);
-    }
-    .btn-activate:hover { background: #166534; }
 
     @media print {
-        @page {
-            size: A4;
-            margin: 10mm;
-        }
-        html, body {
-            overflow: visible !important;
-            height: auto !important;
-        }
-        .sidebar, .contract-actions, .admin-header, .sidebar-user { display: none !important; }
-        .main-wrapper {
-            margin-left: 0 !important;
-            padding: 0 !important;
-            min-height: auto !important;
-        }
-        .contract-wrapper {
-            max-height: none !important;
-            overflow: visible !important;
-            padding: 0 !important;
-            transform: scale(0.92);
-            transform-origin: top center;
-        }
-        .contract-card {
-            box-shadow: none !important;
-            border: none !important;
-            padding: 15px 20px !important;
-            border-radius: 0 !important;
-            page-break-inside: avoid;
-        }
+        @page { size: A4; margin: 10mm; }
+        html, body { overflow: visible !important; height: auto !important; }
+        .sidebar, .contract-actions, .admin-header, .sidebar-user, .user-nav, .btn-contract { display: none !important; }
+        .main-wrapper { margin-left: 0 !important; padding: 0 !important; min-height: auto !important; }
+        .contract-wrapper { max-height: none !important; overflow: visible !important; padding: 0 !important; transform: scale(0.92); transform-origin: top center; }
+        .contract-card { box-shadow: none !important; border: none !important; padding: 15px 20px !important; border-radius: 0 !important; page-break-inside: avoid; }
         .contract-header { display: none !important; }
         .contract-title h3 { font-size: 16px !important; }
         .contract-preamble, .contract-pasal-text { font-size: 11px !important; line-height: 1.5 !important; }
@@ -256,15 +183,15 @@
                 $statusClass = 'status-draft';
                 $statusText = 'MENUNGGU ADOPTER';
                 if ($data['status_kontrak'] == 'Ditandatangani') {
-                    $statusClass = 'status-draft';
-                    $statusText = 'MENUNGGU KOORDINATOR';
+                    $statusClass = 'status-signed';
+                    $statusText = 'DITANDATANGANI';
                 } elseif ($data['status_kontrak'] == 'Aktif') {
                     $statusClass = 'status-active';
                     $statusText = 'AKTIF';
                 }
                 ?>
                 <span class="status-badge <?= $statusClass ?>"><?= $statusText ?></span>
-                <a href="index.php?page=transaksi_adopsi" class="btn-contract btn-back">
+                <a href="index.php?page=dashboard_user&tab=pengajuan" class="btn-contract btn-back">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
                     Kembali
                 </a>
@@ -272,36 +199,17 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
                     Cetak
                 </button>
-                <?php 
-                $jk_status = $data['status_jadwal'] ?? '';
-                $jadwal_done = ($jk_status === 'Selesai');
-                ?>
-                <?php if (empty($data['ttd_admin']) && ($_SESSION['role'] ?? '') === 'Koordinator' && (empty($data['id_pengguna']) || ($data['id_pengguna'] ?? '') == ($_SESSION['user_id'] ?? '')) && $jadwal_done): ?>
-                <button onclick="openSignatureModal()" class="btn-contract btn-activate" style="background:#4f46e5; border:none; cursor:pointer;">
+                <?php if (empty($data['ttd_adopter']) && $data['status_kontrak'] == 'Draft'): ?>
+                <button onclick="openSignatureModal()" class="btn-contract btn-print" style="background:#4f46e5; border:none; cursor:pointer; color:#fff;">
                     ✍ Tanda Tangani
                 </button>
                 <?php endif; ?>
             </div>
         </div>
 
-        <?php if (isset($_GET['signed_success'])): ?>
+        <?php if (isset($_GET['signed'])): ?>
             <div style="background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; border-radius:10px; padding:12px 18px; margin-bottom:20px; font-weight:600; font-size:14px;">
-                ✓ Tanda tangan Koordinator berhasil. Kontrak adopsi kini AKTIF.
-            </div>
-        <?php endif; ?>
-        <?php if (isset($_GET['error']) && $_GET['error'] == 'only_koordinator_can_sign'): ?>
-            <div style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; border-radius:10px; padding:12px 18px; margin-bottom:20px; font-weight:600; font-size:14px;">
-                ⚠️ Hanya Koordinator yang diperbolehkan menandatangani kontrak adopsi!
-            </div>
-        <?php endif; ?>
-        <?php if (isset($_GET['error']) && $_GET['error'] == 'not_assigned_koordinator'): ?>
-            <div style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; border-radius:10px; padding:12px 18px; margin-bottom:20px; font-weight:600; font-size:14px;">
-                ⚠️ Hanya Koordinator yang ditunjuk sebagai penanggung jawab transaksi ini yang dapat menandatangani!
-            </div>
-        <?php endif; ?>
-        <?php if (isset($_GET['error']) && $_GET['error'] == 'jadwal_belum_selesai'): ?>
-            <div style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; border-radius:10px; padding:12px 18px; margin-bottom:20px; font-weight:600; font-size:14px;">
-                ⚠️ Jadwal Kunjungan harus sudah Selesai sebelum Koordinator dapat menandatangani kontrak!
+                ✓ Tanda tangan Anda berhasil disimpan. Kontrak kini berstatus Ditandatangani — menunggu aktivasi oleh Koordinator.
             </div>
         <?php endif; ?>
 
@@ -396,10 +304,10 @@
     </div>
 </div>
 
-<!-- Modal Tanda Tangan Admin/Koordinator -->
+<!-- Modal Tanda Tangan Adopter -->
 <div id="sigModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
     <div style="background:#fff; padding:25px; border-radius:16px; width:450px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.15); border:1px solid #e2e8f0; font-family:'Inter', sans-serif;">
-        <h3 style="margin-bottom:10px; font-weight:700; color:#1e293b; font-size:18px;">Tanda Tangan Koordinator</h3>
+        <h3 style="margin-bottom:10px; font-weight:700; color:#1e293b; font-size:18px;">Tanda Tangan Adopter</h3>
         <p style="font-size:13px; color:#64748b; margin-bottom:20px;">Silakan bubuhkan tanda tangan Anda di bawah ini menggunakan mouse atau touch screen.</p>
         
         <canvas id="sigCanvas" width="400" height="200" style="border:2px dashed #cbd5e1; border-radius:8px; background:#f8fafc; cursor:crosshair; touch-action:none;"></canvas>
@@ -407,8 +315,8 @@
         <div style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
             <button class="btn" style="border:1px solid #cbd5e1; padding:8px 16px; border-radius:8px; cursor:pointer; background:#fff; font-weight:600; color:#475569;" onclick="clearCanvas()">Hapus</button>
             <button class="btn" style="border:1px solid #cbd5e1; padding:8px 16px; border-radius:8px; cursor:pointer; background:#64748b; color:#fff; font-weight:600;" onclick="closeSignatureModal()">Batal</button>
-            <form action="index.php?page=transaksi_adopsi_sign&id=<?= $data['id_adopsi'] ?>" method="POST" id="ttdForm">
-                <input type="hidden" name="ttd_admin" id="ttd_base64">
+            <form action="index.php?page=kontrak_adopsi&id=<?= $data['id_adopsi'] ?>" method="POST" id="ttdForm">
+                <input type="hidden" name="ttd_adopter" id="ttd_base64">
                 <button type="button" class="btn" style="background:#4f46e5; color:#fff; padding:8px 20px; border-radius:8px; border:none; cursor:pointer; font-weight:600;" onclick="saveSignature()">Simpan TTD</button>
             </form>
         </div>
@@ -421,7 +329,6 @@
     const ctx = canvas.getContext("2d");
     let isDrawing = false;
 
-    // Atur gaya pena
     ctx.strokeStyle = "#1e293b"; 
     ctx.lineWidth = 3.5; 
     ctx.lineJoin = "round"; 
@@ -465,13 +372,10 @@
         ctx.closePath();
     }
 
-    // Mouse events
     canvas.addEventListener("mousedown", startDrawing);
     canvas.addEventListener("mousemove", draw);
     canvas.addEventListener("mouseup", stopDrawing);
     canvas.addEventListener("mouseout", stopDrawing);
-
-    // Touch events
     canvas.addEventListener("touchstart", startDrawing, {passive: false});
     canvas.addEventListener("touchmove", draw, {passive: false});
     canvas.addEventListener("touchend", stopDrawing);
@@ -482,8 +386,6 @@
 
     function saveSignature() {
         const dataUrl = canvas.toDataURL("image/png");
-        
-        // Cek apakah canvas kosong
         const blank = document.createElement('canvas');
         blank.width = canvas.width;
         blank.height = canvas.height;
@@ -491,10 +393,9 @@
             alert("Silakan bubuhkan tanda tangan terlebih dahulu.");
             return;
         }
-        
         document.getElementById("ttd_base64").value = dataUrl;
         document.getElementById("ttdForm").submit();
     }
 </script>
 
-<?php include __DIR__ . '/../../layouts/footer.php'; ?>
+<?php include __DIR__ . '/../layouts/footer.php'; ?>
