@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS riwayat_kesehatan (
     id_pengguna INT NOT NULL,
     tipe ENUM('Perawatan','Vaksinasi') NOT NULL,
     id_vaksin INT NULL,
+    deleted_at DATETIME NULL,
     tanggal DATE NOT NULL,
     deskripsi TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -58,3 +59,6 @@ CREATE TABLE IF NOT EXISTS transaksi_adopsi (
     FOREIGN KEY (id_pengadopsi) REFERENCES pengadopsi(id_pengadopsi) ON DELETE CASCADE,
     FOREIGN KEY (id_pengguna) REFERENCES pengguna(id_pengguna) ON DELETE SET NULL
 );
+
+-- Ensure `deleted_at` exists for existing installations
+ALTER TABLE riwayat_kesehatan ADD COLUMN IF NOT EXISTS deleted_at DATETIME NULL;
