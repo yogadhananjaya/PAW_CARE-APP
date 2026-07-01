@@ -236,6 +236,10 @@ if ($adopter) {
                         <input type="text" name="no_hp" class="form-control" placeholder="Contoh: 081234567890" required>
                     </div>
                     <div style="margin-bottom: 15px; text-align: left;">
+                        <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Email *</label>
+                        <input type="email" name="email" class="form-control" placeholder="Contoh: nama@email.com" required>
+                    </div>
+                    <div style="margin-bottom: 15px; text-align: left;">
                         <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Alamat Domisili Lengkap *</label>
                         <textarea name="alamat" class="form-control" placeholder="Alamat Lengkap" rows="3" required></textarea>
                     </div>
@@ -267,6 +271,10 @@ if ($adopter) {
                             <div style="margin-bottom: 15px; text-align: left;">
                                 <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Nomor WhatsApp *</label>
                                 <input type="text" name="no_hp" class="form-control" placeholder="Contoh: 081234567890" required>
+                            </div>
+                            <div style="margin-bottom: 15px; text-align: left;">
+                                <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Email *</label>
+                                <input type="email" name="email" class="form-control" placeholder="Contoh: nama@email.com" required>
                             </div>
                             <div style="margin-bottom: 15px; text-align: left;">
                                 <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Alamat Domisili Lengkap *</label>
@@ -309,6 +317,10 @@ if ($adopter) {
                             <div style="margin-bottom: 15px; text-align: left;">
                                 <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Nomor WhatsApp *</label>
                                 <input type="text" name="no_hp" class="form-control" value="<?= htmlspecialchars($adopter['no_hp']) ?>" required>
+                            </div>
+                            <div style="margin-bottom: 15px; text-align: left;">
+                                <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Email *</label>
+                                <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($adopter['email']) ?>" placeholder="Contoh: nama@email.com" required>
                             </div>
                             <div style="margin-bottom: 15px; text-align: left;">
                                 <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Alamat Domisili Lengkap *</label>

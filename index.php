@@ -40,59 +40,33 @@ switch ($page) {
 
     case 'process_register':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            require_once __DIR__ . '/app/models/PenggunaModel.php';
             require_once __DIR__ . '/app/models/PengadopsiModel.php';
-            $userModel = new PenggunaModel();
             $adopterModel = new PengadopsiModel();
             
             $username = trim($_POST['username']);
             $password = $_POST['password'];
-            // Validasi format username (hanya huruf, angka, underscore, 4-20 karakter)
             if (!preg_match('/^[a-zA-Z0-9_]{4,20}$/', $username)) {
                 echo "<script>alert('Gagal: Username hanya boleh terdiri dari huruf, angka, underscore, dan panjang antara 4 sampai 20 karakter.'); window.history.back();</script>";
                 exit;
             }
 
-            // Cek apakah username sudah digunakan di tabel pengguna atau pengadopsi
-            if ($userModel->isDuplicate($username)) {
+            if ($adopterModel->isDuplicateUsername($username)) {
                 echo "<script>alert('Gagal: Username \"" . htmlspecialchars($username) . "\" sudah terdaftar! Silakan gunakan username lain.'); window.history.back();</script>";
                 exit;
             }
 
-            // 1. Simpan ke tabel pengguna dulu agar dapat id_pengguna
-            $userModel->insert([
-                'nama_lengkap' => $username,
-                'jabatan' => 'Koordinator', // default untuk user umum agar aman di backend jika terakses
-                'kontak' => '-',
-                'nama_pengguna' => $username,
-                'kata_sandi' => $password,
-                'role' => 'User',
-                'status' => 'Aktif'
-            ]);
-            
-            // Dapatkan id_pengguna yang baru saja dibuat
-            $new_user_id = $pdo->lastInsertId();
-
-            // 2. Simpan otomatis ke tabel pengadopsi
+            // Hanya simpan ke pengadopsi — pengguna dibuat otomatis saat login pertama
             $adopterModel->insert([
                 'nama_lengkap' => $username,
                 'nama_pengguna' => $username,
-                'alamat' => '-', // Default karena baru daftar
-                'no_hp' => '-', // Default karena baru daftar
-                'email' => $username . '@pawcare.com', // Email default/placeholder
+                'alamat' => '-',
+                'no_hp' => '-',
+                'email' => $username . '@pawcare.com',
                 'kata_sandi' => $password,
                 'status_verifikasi' => 'Belum',
                 'url_ktp' => null
             ]);
             
-            // Dapatkan id_pengadopsi yang baru saja dibuat untuk dihubungkan
-            $new_adopter_id = $pdo->lastInsertId();
-            
-            // Hubungkan id_pengguna di tabel pengadopsi
-            $stmt_update = $pdo->prepare("UPDATE pengadopsi SET id_pengguna = ? WHERE id_pengadopsi = ?");
-            $stmt_update->execute([$new_user_id, $new_adopter_id]);
-            
-            // Langsung otomatiskan login setelah berhasil daftar
             login($username, $password);
             header('Location: index.php?page=home');
             exit;
@@ -108,6 +82,7 @@ switch ($page) {
             $nik = trim($_POST['nik']);
             $no_hp = trim($_POST['no_hp']);
             $alamat = trim($_POST['alamat']);
+            $email = trim($_POST['email'] ?? '');
 
             // 1. Validasi Nama Lengkap (hanya huruf dan spasi, min 3 karakter)
             if (!preg_match("/^[a-zA-Z\s]{3,100}$/", $nama_lengkap)) {
@@ -169,12 +144,13 @@ switch ($page) {
             }
             
             // Lakukan update data diri lengkap pengadopsi yang sudah terbuat saat register (ubah ke status 'Menunggu')
-            $stmt = $pdo->prepare("UPDATE pengadopsi SET nama_lengkap = ?, nik = ?, alamat = ?, no_hp = ?, url_ktp = ?, status_verifikasi = 'Menunggu' WHERE id_pengguna = ?");
+            $stmt = $pdo->prepare("UPDATE pengadopsi SET nama_lengkap = ?, nik = ?, alamat = ?, no_hp = ?, email = ?, url_ktp = ?, status_verifikasi = 'Menunggu' WHERE id_pengguna = ?");
             $stmt->execute([
                 trim($_POST['nama_lengkap']), 
                 trim($_POST['nik']), 
                 trim($_POST['alamat']), 
                 trim($_POST['no_hp']),
+                $email,
                 $url_ktp,
                 $user_id
             ]);
