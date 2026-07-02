@@ -23,15 +23,23 @@ class PenggunaModel {
 
     // Simpan data pengguna baru (kolom sesuai DB baru)
     public function insert($data) { 
-        $kata_sandi = password_hash($data['kata_sandi'], PASSWORD_DEFAULT);
+        $nama_pengguna = $data['nama_pengguna'] ?? $data['username'] ?? '';
+        $kata_sandi_raw = $data['kata_sandi'] ?? $data['password'] ?? '';
+        $kata_sandi = password_hash($kata_sandi_raw, PASSWORD_DEFAULT);
+        
+        $role = $data['role'] ?? 'Pegawai';
+        $jabatan = $data['jabatan'] ?? ($role === 'User' ? 'User' : 'Perawat Hewan');
+        $nama_lengkap = $data['nama_lengkap'] ?? $nama_pengguna;
+        $kontak = $data['kontak'] ?? '';
+
         $stmt = $this->pdo->prepare("INSERT INTO pengguna (nama_lengkap, jabatan, kontak, nama_pengguna, kata_sandi, role, status) VALUES (?, ?, ?, ?, ?, ?, ?)"); 
         return $stmt->execute([
-            $data['nama_lengkap'], 
-            $data['jabatan'], 
-            $data['kontak'],
-            $data['nama_pengguna'], 
+            $nama_lengkap, 
+            $jabatan, 
+            $kontak,
+            $nama_pengguna, 
             $kata_sandi, 
-            $data['role'],
+            $role,
             $data['status'] ?? 'Aktif'
         ]); 
     }

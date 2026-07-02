@@ -28,7 +28,7 @@ if (isset($_GET['id'])) {
     <div class="card" style="background:#ffffff; border-radius:16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.03); padding: 30px; margin-bottom: 30px;">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 20px;">
             <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;">
-                🔎 Meninjau Adopter: <span style="color:#4f46e5;"><?= htmlspecialchars($active_adopter['nama']) ?></span>
+                🔎 Meninjau Adopter: <span style="color:#4f46e5;"><?= htmlspecialchars($active_adopter['nama'] ?? '') ?></span>
             </h3>
             <a href="index.php?page=pengadopsi" class="btn btn-secondary" style="background:#f1f5f9; color:#475569; border:none; padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; text-decoration:none;">Kembali ke Daftar</a>
         </div>
@@ -40,19 +40,19 @@ if (isset($_GET['id'])) {
                 <div style="display:grid; gap: 15px; margin-bottom:25px;">
                     <div>
                         <span style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Nama Lengkap:</span>
-                        <div style="font-size: 14px; font-weight: 500; color: #334155; margin-top: 2px;"><?= htmlspecialchars($active_adopter['nama']) ?></div>
+                        <div style="font-size: 14px; font-weight: 500; color: #334155; margin-top: 2px;"><?= htmlspecialchars($active_adopter['nama'] ?? '') ?></div>
                     </div>
                     <div>
                         <span style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Email:</span>
-                        <div style="font-size: 14px; font-weight: 500; color: #334155; margin-top: 2px;"><?= htmlspecialchars($active_adopter['email']) ?></div>
+                        <div style="font-size: 14px; font-weight: 500; color: #334155; margin-top: 2px;"><?= htmlspecialchars($active_adopter['email'] ?? '') ?></div>
                     </div>
                     <div>
                         <span style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Nomor HP/WA:</span>
-                        <div style="font-size: 14px; font-weight: 500; color: #334155; margin-top: 2px;"><?= htmlspecialchars($active_adopter['no_hp']) ?></div>
+                        <div style="font-size: 14px; font-weight: 500; color: #334155; margin-top: 2px;"><?= htmlspecialchars($active_adopter['no_hp'] ?? '') ?></div>
                     </div>
                     <div>
                         <span style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Alamat Rumah:</span>
-                        <div style="font-size: 14px; font-weight: 500; color: #334155; margin-top: 2px; line-height:1.5;"><?= htmlspecialchars($active_adopter['alamat']) ?></div>
+                        <div style="font-size: 14px; font-weight: 500; color: #334155; margin-top: 2px; line-height:1.5;"><?= htmlspecialchars($active_adopter['alamat'] ?? '') ?></div>
                     </div>
                 </div>
 
@@ -61,10 +61,10 @@ if (isset($_GET['id'])) {
                 <!-- Form Keputusan Verifikasi -->
                 <form action="index.php?page=pengadopsi_edit&id=<?= $active_adopter['id_pengadopsi'] ?>" method="POST">
                     <!-- Kita passing data lama agar model update tidak null -->
-                    <input type="hidden" name="nama" value="<?= htmlspecialchars($active_adopter['nama']) ?>">
-                    <input type="hidden" name="email" value="<?= htmlspecialchars($active_adopter['email']) ?>">
-                    <input type="hidden" name="no_hp" value="<?= htmlspecialchars($active_adopter['no_hp']) ?>">
-                    <input type="hidden" name="alamat" value="<?= htmlspecialchars($active_adopter['alamat']) ?>">
+                    <input type="hidden" name="nama" value="<?= htmlspecialchars($active_adopter['nama'] ?? '') ?>">
+                    <input type="hidden" name="email" value="<?= htmlspecialchars($active_adopter['email'] ?? '') ?>">
+                    <input type="hidden" name="no_hp" value="<?= htmlspecialchars($active_adopter['no_hp'] ?? '') ?>">
+                    <input type="hidden" name="alamat" value="<?= htmlspecialchars($active_adopter['alamat'] ?? '') ?>">
 
                     <div class="form-group">
                         <label style="font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 8px; display: block;">Keputusan Verifikasi</label>
@@ -137,11 +137,11 @@ if (isset($_GET['id'])) {
             <tbody>
                 <?php foreach($data as $row): ?>
                 <tr>
-                    <td><?= htmlspecialchars($row['id_pengadopsi']) ?></td>
-                    <td><strong><?= htmlspecialchars($row['nama']) ?></strong></td>
-                    <td><?= htmlspecialchars($row['email']) ?></td>
-                    <td><?= htmlspecialchars($row['no_hp']) ?></td>
-                    <td><?= htmlspecialchars(substr($row['alamat'], 0, 40)) ?>...</td>
+                    <td><?= htmlspecialchars($row['id_pengadopsi'] ?? '') ?></td>
+                    <td><strong><?= htmlspecialchars($row['nama'] ?? '') ?></strong></td>
+                    <td><?= htmlspecialchars($row['email'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($row['no_hp'] ?? '') ?></td>
+                    <td><?= htmlspecialchars(substr($row['alamat'] ?? '', 0, 40)) ?>...</td>
                     <td>
                         <span style="padding:4px 8px; border-radius:10px; font-size:12px; font-weight:bold; 
                             background-color: <?= $row['status_verifikasi'] == 'Terverifikasi' ? '#e2fbe8; color:#2ecc71;' : ($row['status_verifikasi'] == 'Ditolak' ? '#fce4e4; color:#e74c3c;' : ($row['status_verifikasi'] == 'Menunggu' ? '#e1f5fe; color:#3498db;' : '#fff3cd; color:#f1c40f;')) ?>">

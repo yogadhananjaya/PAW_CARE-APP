@@ -3,12 +3,12 @@ USE paw_care;
 
 CREATE TABLE IF NOT EXISTS pengguna (
     id_pengguna INT AUTO_INCREMENT PRIMARY KEY,
-    nama_lengkap VARCHAR(100) NOT NULL,
-    jabatan ENUM('SuperAdmin','Perawat Hewan','Koordinator') NOT NULL,
-    kontak VARCHAR(20) NOT NULL,
+    nama_lengkap VARCHAR(100) NOT NULL DEFAULT '',
+    jabatan ENUM('SuperAdmin','Perawat Hewan','Koordinator','User') NOT NULL,
+    kontak VARCHAR(20) NOT NULL DEFAULT '',
     nama_pengguna VARCHAR(50) UNIQUE NOT NULL,
     kata_sandi VARCHAR(255) NOT NULL,
-    role ENUM('SuperAdmin','Pegawai') NOT NULL,
+    role ENUM('SuperAdmin','Pegawai','User') NOT NULL,
     status ENUM('Aktif','Suspended','Resign') DEFAULT 'Aktif'
 );
 
