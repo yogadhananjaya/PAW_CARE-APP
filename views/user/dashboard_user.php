@@ -49,6 +49,7 @@ if ($adopter) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Adopter - PawCare</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css?v=<?= time(); ?>">
     <style>
         /* CSS Dashboard Standar Sesuai Gambar Referensi */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
@@ -253,103 +254,80 @@ if ($adopter) {
             </div>
 
         <?php else: ?>
-            
-            <?php if ($tab == 'beranda'): ?>
-                <?php if ($adopter['status_verifikasi'] === 'Belum'): ?>
-                    <div class="verify-card" style="margin: 0 0 20px 0;">
-                        <h2>Lengkapi Data Diri</h2>
-                        <p style="color:#95a5a6; font-size:14px; margin-bottom:25px;">Silakan isi data diri sesuai KTP dan unggah foto KTP Anda untuk mengajukan adopsi.</p>
-                        <form action="index.php?page=process_verifikasi" method="POST" enctype="multipart/form-data">
-                            <div style="margin-bottom: 15px; text-align: left;">
-                                <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Nama Lengkap (Sesuai KTP) *</label>
-                                <input type="text" name="nama_lengkap" class="form-control" placeholder="Nama Lengkap" required>
-                            </div>
-                            <div style="margin-bottom: 15px; text-align: left;">
-                                <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">NIK *</label>
-                                <input type="text" name="nik" class="form-control" placeholder="Nomor Induk Kependudukan (16 digit)" required pattern="[0-9]{16}" title="NIK harus berupa 16 digit angka">
-                            </div>
-                            <div style="margin-bottom: 15px; text-align: left;">
-                                <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Nomor WhatsApp *</label>
-                                <input type="text" name="no_hp" class="form-control" placeholder="Contoh: 081234567890" required>
-                            </div>
-                            <div style="margin-bottom: 15px; text-align: left;">
-                                <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Email *</label>
-                                <input type="email" name="email" class="form-control" placeholder="Contoh: nama@email.com" required>
-                            </div>
-                            <div style="margin-bottom: 15px; text-align: left;">
-                                <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Alamat Domisili Lengkap *</label>
-                                <textarea name="alamat" class="form-control" placeholder="Alamat Lengkap" rows="3" required></textarea>
-                            </div>
-                            <div style="margin-bottom: 15px; text-align: left;">
-                                <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Foto KTP *</label>
-                                <input type="file" name="foto_ktp" class="form-control" accept="image/*" required style="padding: 8px 12px;">
-                                <small style="color: #7f8c8d; font-size: 11px; display: block; margin-top: 2px;">Format: JPG, JPEG, PNG. Maksimal 2MB.</small>
-                            </div>
-                            <button type="submit" class="btn-adopt" style="margin-top:15px; width: 100%;">Simpan & Ajukan Verifikasi</button>
-                        </form>
+                 <?php if ($tab == 'beranda'): ?>
+                <!-- Hero Section -->
+                <section class="hero" style="padding: 40px 0; margin-bottom: 40px;">
+                    <div class="hero-content">
+                        <div class="tagline">🐾 Lebih dari sekadar Shelter</div>
+                        <h1>Adopt your<br><span>pet friend</span></h1>
+                        <p>Berikan rumah permanen yang penuh kasih. Temukan sahabat bulu Anda hari ini dan selamatkan nyawa mereka.</p>
+                        <a href="index.php?page=dashboard_user&tab=katalog" class="nav-btn btn-fill" style="padding: 15px 40px; font-size: 16px; text-decoration: none; display: inline-block;">Lihat Katalog</a>
                     </div>
-                <?php elseif ($adopter['status_verifikasi'] === 'Menunggu'): ?>
-                    <div class="welcome-card" style="border-left: 4px solid #d35400;">
-                        <h2>Dokumen Anda Sedang Ditinjau ⏳</h2>
-                        <p>Terima kasih telah melengkapi data diri. Saat ini berkas pendaftaran dan foto KTP Anda sedang dalam proses peninjauan oleh tim admin kami.</p>
-                        <p style="color:#7f8c8d; font-size:13px; margin-top:10px;">Fitur adopsi dan jadwal kunjungan akan aktif setelah akun Anda disetujui.</p>
+                    <div class="hero-image hidden-mobile" id="hero-img-container">
+                        <div class="bg-circle"></div>
+                        <img src="assets/img/logo.png" alt="PawCare" class="pet-img" id="hero-pet-image" style="max-width: 380px; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.05));">
                     </div>
-                <?php elseif ($adopter['status_verifikasi'] === 'Ditolak'): ?>
-                    <div class="welcome-card" style="border-left: 4px solid #c0392b; background-color: #fdedec;">
-                        <h2 style="color:#c0392b;">Verifikasi Akun Ditolak ❌</h2>
-                        <p>Mohon maaf, pengajuan verifikasi akun Anda ditolak oleh admin.</p>
-                        <?php if (!empty($adopter['catatan_verifikasi'])): ?>
-                            <div style="background:#FFF; padding:15px; border-radius:8px; border: 1px solid #c0392b; margin-top:15px;">
-                                <strong style="color:#c0392b;">Catatan Penolakan:</strong>
-                                <p style="margin:5px 0 0; color:#555;"><?= htmlspecialchars($adopter['catatan_verifikasi']) ?></p>
-                            </div>
-                        <?php endif; ?>
-                        <p style="margin-top:20px; font-weight:600; color:#2c3e50;">Silakan perbaiki data diri Anda dan kirim ulang:</p>
-                        <form action="index.php?page=process_verifikasi" method="POST" enctype="multipart/form-data" style="margin-top: 15px;">
-                            <div style="margin-bottom: 15px; text-align: left;">
-                                <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Nama Lengkap (Sesuai KTP) *</label>
-                                <input type="text" name="nama_lengkap" class="form-control" value="<?= htmlspecialchars($adopter['nama_lengkap']) ?>" required>
-                            </div>
-                            <div style="margin-bottom: 15px; text-align: left;">
-                                <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">NIK *</label>
-                                <input type="text" name="nik" class="form-control" value="<?= htmlspecialchars($adopter['nik']) ?>" required pattern="[0-9]{16}" title="NIK harus berupa 16 digit angka">
-                            </div>
-                            <div style="margin-bottom: 15px; text-align: left;">
-                                <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Nomor WhatsApp *</label>
-                                <input type="text" name="no_hp" class="form-control" value="<?= htmlspecialchars($adopter['no_hp']) ?>" required>
-                            </div>
-                            <div style="margin-bottom: 15px; text-align: left;">
-                                <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Email *</label>
-                                <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($adopter['email']) ?>" placeholder="Contoh: nama@email.com" required>
-                            </div>
-                            <div style="margin-bottom: 15px; text-align: left;">
-                                <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Alamat Domisili Lengkap *</label>
-                                <textarea name="alamat" class="form-control" rows="3" required><?= htmlspecialchars($adopter['alamat']) ?></textarea>
-                            </div>
-                            <div style="margin-bottom: 15px; text-align: left;">
-                                <label style="font-size: 13px; font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Foto KTP Baru *</label>
-                                <input type="file" name="foto_ktp" class="form-control" accept="image/*" required style="padding: 8px 12px;">
-                                <small style="color: #7f8c8d; font-size: 11px; display: block; margin-top: 2px;">Format: JPG, JPEG, PNG. Maksimal 2MB.</small>
-                            </div>
-                            <button type="submit" class="btn-adopt" style="margin-top:15px; width: 100%;">Kirim Ulang Data & KTP</button>
-                        </form>
-                    </div>
-                <?php else: ?>
-                    <div class="welcome-card">
-                        <h2>Selamat Datang Kembali, <?= htmlspecialchars($adopter['nama_lengkap']) ?>! ✨</h2>
-                        <p>Akun Anda berstatus terverifikasi aktif. Gunakan menu navigasi di atas untuk menjelajahi katalog hewan atau melacak pengajuan Anda.</p>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        <div class="welcome-card" style="margin: 0;">
-                            <h4 style="margin-bottom: 10px;">📋 Ringkasan Aktivitas</h4>
-                            <p style="color:#555;">Anda telah mendaftarkan profil pengadopsi dengan NIK: <strong><?= htmlspecialchars($adopter['nik'] ?? '') ?></strong>.</p>
+                </section>
+
+                <!-- Stats Section -->
+                <section class="stats-section" style="margin-bottom: 40px;">
+                    <h2 style="font-size: 32px; font-family: 'Outfit', sans-serif; color: #0f172a;">Dampak Nyata PawCare</h2>
+                    <p style="color: #94a3b8; margin-top: 10px;">Komitmen kami dalam menyelamatkan dan menyalurkan kasih sayang</p>
+                    <div class="stats-grid-landing">
+                        <div class="stat-card-landing">
+                            <div class="number">1,240+</div>
+                            <div class="label">Hewan Diselamatkan</div>
                         </div>
-                        <div class="welcome-card" style="margin: 0; border-left: 4px solid #e67e22;">
-                            <h4 style="margin-bottom: 10px;">💡 Tips Hari Ini</h4>
-                            <p style="color:#555;">Pastikan Anda telah membaca 'Petunjuk Adopsi' sebelum mengajukan kontrak agar proses serah terima berjalan lancar.</p>
+                        <div class="stat-card-landing">
+                            <div class="number">980+</div>
+                            <div class="label">Adopsi Sukses</div>
+                        </div>
+                        <div class="stat-card-landing">
+                            <div class="number">150M+</div>
+                            <div class="label">Donasi Tersalurkan</div>
                         </div>
                     </div>
-                <?php endif; ?>
+                </section>
+
+                <!-- Adoption Flow Section -->
+                <section class="flow-section" style="margin-bottom: 40px;">
+                    <div style="text-align:center;"><h2 class="interactive-title" style="font-size:36px; color:#0f172a; font-family:'Outfit', sans-serif; margin-bottom:10px;">Alur Adopsi Mudah</h2></div>
+                    <p style="text-align:center; color:#94a3b8; margin-top:10px;">Langkah sederhana untuk membawa sahabat baru Anda pulang</p>
+                    <div class="flow-grid">
+                        <div class="flow-card">
+                            <div class="flow-badge">1</div>
+                            <h4>Cari Sahabat</h4>
+                            <p>Telusuri katalog hewan online kami dan temukan yang cocok dengan kepribadian Anda.</p>
+                        </div>
+                        <div class="flow-card">
+                            <div class="flow-badge">2</div>
+                            <h4>Kunjungi Shelter</h4>
+                            <p>Temui langsung calon sahabat bulu Anda di shelter kami untuk interaksi tatap muka.</p>
+                        </div>
+                        <div class="flow-card">
+                            <div class="flow-badge">3</div>
+                            <h4>Formulir & Kontrak</h4>
+                            <p>Lengkapi data diri dan tandatangani kontrak adopsi secara digital yang aman.</p>
+                        </div>
+                        <div class="flow-card">
+                            <div class="flow-badge">4</div>
+                            <h4>Bawa Pulang</h4>
+                            <p>Sambut anggota keluarga baru Anda di rumah dengan penuh kebahagiaan.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Video Section -->
+                <section class="video-section" style="margin-bottom: 40px;">
+                    <div style="text-align:center;"><h2 class="interactive-title" style="font-size:36px; color:#0f172a; margin-bottom:20px; font-family:'Outfit', sans-serif;">Mengenal Shelter Kami</h2></div>
+                    <p style="text-align:center; color:#94a3b8; margin-bottom:40px;">Lihat bagaimana kami merawat mereka sebelum menemukan keluarga barunya.</p>
+                    <div style="max-width:800px; margin:0 auto; border-radius:20px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.1);">
+                        <video width="100%" controls poster="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=800&q=80">
+                            <source src="assets/video/profil_shelter.mp4" type="video/mp4">
+                            Maaf, browser Anda tidak mendukung pemutar video.
+                        </video>
+                    </div>
+                </section>
             <?php elseif ($tab == 'katalog'): ?>
                 <h2 class="section-title">Katalog Hewan Tersedia</h2>
                 <?php if (count($katalog_hewan) > 0): ?>
