@@ -3,29 +3,31 @@ USE paw_care;
 CREATE TABLE IF NOT EXISTS pengadopsi (
     id_pengadopsi INT AUTO_INCREMENT PRIMARY KEY,
     id_pengguna INT NULL,
-    nama VARCHAR(100) NOT NULL,
-    nama_lengkap VARCHAR(100) NULL,
-    nik VARCHAR(20) NULL,
+    kode_pengadopsi VARCHAR(10) UNIQUE,
+    nama_lengkap VARCHAR(100) NOT NULL,
+    nama_pengguna VARCHAR(50) NOT NULL,
     alamat TEXT NOT NULL,
     no_hp VARCHAR(20) NOT NULL,
-    email VARCHAR(100) UNIQUE NULL,
-    kata_sandi VARCHAR(255) NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    nik VARCHAR(30) NULL,
+    kata_sandi VARCHAR(255) NOT NULL,   
     url_ktp VARCHAR(255) NULL,
     status_verifikasi ENUM('Belum','Menunggu','Terverifikasi','Ditolak') DEFAULT 'Belum',
     tanggal_verifikasi DATE NULL,
     catatan_verifikasi TEXT NULL,
-    FOREIGN KEY (id_pengguna) REFERENCES pengguna(id_pengguna) ON DELETE CASCADE
+    FOREIGN KEY (id_pengguna) REFERENCES pengguna(id_pengguna) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS donasi (
     id_donasi INT AUTO_INCREMENT PRIMARY KEY,
+    kode_donasi VARCHAR(10) UNIQUE,
     nama_donatur VARCHAR(100) NOT NULL,
     id_pengadopsi INT NULL,
     nominal DECIMAL(15,2) NOT NULL,
     kategori ENUM('Pemasukan','Pengeluaran') NOT NULL,
     keterangan VARCHAR(200) NULL,
     tanggal DATE NOT NULL,
-    metode_pembayaran VARCHAR(50) NULL,
+    metode_pembayaran ENUM('Transfer Bank','Tunai','E-Wallet') NULL,
     url_bukti VARCHAR(255) NULL,
     status_konfirmasi ENUM('Menunggu','Dikonfirmasi','Ditolak') DEFAULT 'Menunggu',
     FOREIGN KEY (id_pengadopsi) REFERENCES pengadopsi(id_pengadopsi) ON DELETE SET NULL

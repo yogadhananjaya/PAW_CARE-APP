@@ -28,7 +28,7 @@ if (isset($_GET['id'])) {
     <div class="card" style="background:#ffffff; border-radius:16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.03); padding: 30px; margin-bottom: 30px;">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 20px;">
             <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;">
-                🔎 Meninjau Adopter: <span style="color:#4f46e5;"><?= htmlspecialchars($active_adopter['nama'] ?? '') ?></span>
+                🔎 Meninjau Adopter: <span style="color:#4f46e5;"><?= htmlspecialchars($active_adopter['nama_lengkap']) ?></span>
             </h3>
             <a href="index.php?page=pengadopsi" class="btn btn-secondary" style="background:#f1f5f9; color:#475569; border:none; padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; text-decoration:none;">Kembali ke Daftar</a>
         </div>
@@ -40,19 +40,23 @@ if (isset($_GET['id'])) {
                 <div style="display:grid; gap: 15px; margin-bottom:25px;">
                     <div>
                         <span style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Nama Lengkap:</span>
-                        <div style="font-size: 14px; font-weight: 500; color: #334155; margin-top: 2px;"><?= htmlspecialchars($active_adopter['nama'] ?? '') ?></div>
+                        <div style="font-size: 14px; font-weight: 500; color: #334155; margin-top: 2px;"><?= htmlspecialchars($active_adopter['nama_lengkap']) ?></div>
+                    </div>
+                    <div>
+                        <span style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Username:</span>
+                        <div style="font-size: 14px; font-weight: 500; color: #334155; margin-top: 2px;"><?= htmlspecialchars($active_adopter['nama_pengguna']) ?></div>
                     </div>
                     <div>
                         <span style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Email:</span>
-                        <div style="font-size: 14px; font-weight: 500; color: #334155; margin-top: 2px;"><?= htmlspecialchars($active_adopter['email'] ?? '') ?></div>
+                        <div style="font-size: 14px; font-weight: 500; color: #334155; margin-top: 2px;"><?= htmlspecialchars($active_adopter['email']) ?></div>
                     </div>
                     <div>
                         <span style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Nomor HP/WA:</span>
-                        <div style="font-size: 14px; font-weight: 500; color: #334155; margin-top: 2px;"><?= htmlspecialchars($active_adopter['no_hp'] ?? '') ?></div>
+                        <div style="font-size: 14px; font-weight: 500; color: #334155; margin-top: 2px;"><?= htmlspecialchars($active_adopter['no_hp']) ?></div>
                     </div>
                     <div>
                         <span style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Alamat Rumah:</span>
-                        <div style="font-size: 14px; font-weight: 500; color: #334155; margin-top: 2px; line-height:1.5;"><?= htmlspecialchars($active_adopter['alamat'] ?? '') ?></div>
+                        <div style="font-size: 14px; font-weight: 500; color: #334155; margin-top: 2px; line-height:1.5;"><?= htmlspecialchars($active_adopter['alamat']) ?></div>
                     </div>
                 </div>
 
@@ -61,10 +65,11 @@ if (isset($_GET['id'])) {
                 <!-- Form Keputusan Verifikasi -->
                 <form action="index.php?page=pengadopsi_edit&id=<?= $active_adopter['id_pengadopsi'] ?>" method="POST">
                     <!-- Kita passing data lama agar model update tidak null -->
-                    <input type="hidden" name="nama" value="<?= htmlspecialchars($active_adopter['nama'] ?? '') ?>">
-                    <input type="hidden" name="email" value="<?= htmlspecialchars($active_adopter['email'] ?? '') ?>">
-                    <input type="hidden" name="no_hp" value="<?= htmlspecialchars($active_adopter['no_hp'] ?? '') ?>">
-                    <input type="hidden" name="alamat" value="<?= htmlspecialchars($active_adopter['alamat'] ?? '') ?>">
+                    <input type="hidden" name="nama_lengkap" value="<?= htmlspecialchars($active_adopter['nama_lengkap']) ?>">
+                    <input type="hidden" name="nama_pengguna" value="<?= htmlspecialchars($active_adopter['nama_pengguna']) ?>">
+                    <input type="hidden" name="email" value="<?= htmlspecialchars($active_adopter['email']) ?>">
+                    <input type="hidden" name="no_hp" value="<?= htmlspecialchars($active_adopter['no_hp']) ?>">
+                    <input type="hidden" name="alamat" value="<?= htmlspecialchars($active_adopter['alamat']) ?>">
 
                     <div class="form-group">
                         <label style="font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 8px; display: block;">Keputusan Verifikasi</label>
@@ -97,7 +102,7 @@ if (isset($_GET['id'])) {
                 <?php 
                 $file_exists = false;
                 if (!empty($active_adopter['url_ktp'])) {
-                    $filepath = __DIR__ . '/../../../assets/img/ktp/' . $active_adopter['url_ktp'];
+                    $filepath = __DIR__ . '/../../../' . $active_adopter['url_ktp'];
                     if (file_exists($filepath)) {
                         $file_exists = true;
                     }
@@ -106,8 +111,8 @@ if (isset($_GET['id'])) {
 
                 <?php if ($file_exists): ?>
                     <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:10px; border-radius:12px; text-align:center;">
-                        <a href="assets/img/ktp/<?= htmlspecialchars($active_adopter['url_ktp']) ?>" target="_blank">
-                            <img src="assets/img/ktp/<?= htmlspecialchars($active_adopter['url_ktp']) ?>" style="max-width:100%; max-height:280px; border-radius:8px; border:1px solid #e2e8f0; box-shadow:0 4px 12px rgba(0,0,0,0.05);" alt="Foto KTP">
+                        <a href="<?= htmlspecialchars($active_adopter['url_ktp']) ?>" target="_blank">
+                            <img src="<?= htmlspecialchars($active_adopter['url_ktp']) ?>" style="max-width:100%; max-height:280px; border-radius:8px; border:1px solid #e2e8f0; box-shadow:0 4px 12px rgba(0,0,0,0.05);" alt="Foto KTP">
                         </a>
                         <p style="color:#64748b; font-size:12px; margin-top:8px;">Klik gambar untuk memperbesar di tab baru</p>
                     </div>
@@ -125,8 +130,10 @@ if (isset($_GET['id'])) {
         <table class="crud-table">
             <thead>
                 <tr>
-                    <th width="8%">ID</th>
-                    <th>Nama</th>
+                    <th width="5%">No</th>
+                    <th>Kode</th>
+                    <th>Nama Lengkap</th>
+                    <th>Username</th>
                     <th>Email</th>
                     <th>No. HP</th>
                     <th>Alamat</th>
@@ -135,21 +142,23 @@ if (isset($_GET['id'])) {
                 </tr>
             </thead>
             <tbody>
-                <?php foreach($data as $row): ?>
+                <?php $no = 1; foreach($data as $row): ?>
                 <tr>
-                    <td><?= htmlspecialchars($row['id_pengadopsi'] ?? '') ?></td>
-                    <td><strong><?= htmlspecialchars($row['nama'] ?? '') ?></strong></td>
-                    <td><?= htmlspecialchars($row['email'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($row['no_hp'] ?? '') ?></td>
-                    <td><?= htmlspecialchars(substr($row['alamat'] ?? '', 0, 40)) ?>...</td>
+                    <td><?= $no++ ?></td>
+                    <td><?= htmlspecialchars($row['kode_pengadopsi'] ?? '') ?></td>
+                    <td><strong><?= htmlspecialchars($row['nama_lengkap']) ?></strong></td>
+                    <td><?= htmlspecialchars($row['nama_pengguna']) ?></td>
+                    <td><?= htmlspecialchars($row['email']) ?></td>
+                    <td><?= htmlspecialchars($row['no_hp']) ?></td>
+                    <td><?= htmlspecialchars(substr($row['alamat'], 0, 40)) ?>...</td>
                     <td>
                         <span style="padding:4px 8px; border-radius:10px; font-size:12px; font-weight:bold; 
-                            background-color: <?= $row['status_verifikasi'] == 'Terverifikasi' ? '#e2fbe8; color:#2ecc71;' : ($row['status_verifikasi'] == 'Ditolak' ? '#fce4e4; color:#e74c3c;' : ($row['status_verifikasi'] == 'Menunggu' ? '#e1f5fe; color:#3498db;' : '#fff3cd; color:#f1c40f;')) ?>">
-                            <?= $row['status_verifikasi'] ?>
+                            background-color: <?= $row['status_verifikasi'] == 'Terverifikasi' ? '#e2fbe8; color:#166534;' : ($row['status_verifikasi'] == 'Ditolak' ? '#fce4e4; color:#991b1b;' : ($row['status_verifikasi'] == 'Menunggu' ? '#e1f5fe; color:#1e40af;' : '#fff3cd; color:#92400e;')) ?>">
+                            <?= in_array($row['status_verifikasi'], ['Terverifikasi', 'Ditolak', 'Menunggu']) ? htmlspecialchars($row['status_verifikasi']) : 'Belum' ?>
                         </span>
                     </td>
                     <td>
-                        <?php if ($row['status_verifikasi'] !== 'Terverifikasi'): ?>
+                        <?php if ($row['status_verifikasi'] !== 'Terverifikasi' && $row['status_verifikasi'] !== 'Ditolak'): ?>
                         <a href="index.php?page=pengadopsi&id=<?= $row['id_pengadopsi'] ?>" class="btn btn-sm" style="background:#4f46e5; color:#ffffff; width:auto; padding:0 12px; font-size:11px; font-weight:600; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; height:36px; margin-right:4px;" title="Periksa KTP">
                             Periksa KTP
                         </a>

@@ -18,8 +18,16 @@ class PengadopsiController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Cek keunikan email
             $db_check = $this->m->getByEmail($_POST['email']);
-            if ($db_check) {
+            // Cek keunikan username
+            $db_check_user = $this->m->isDuplicateUsername($_POST['nama_pengguna']);
+            
+            // ponytail: Validasi format username (huruf, angka, underscore, 4-20 karakter)
+            if (!preg_match('/^[a-zA-Z0-9_]{4,20}$/', trim($_POST['nama_pengguna']))) {
+                $error = "Username hanya boleh berupa huruf, angka, underscore, dan panjang antara 4 sampai 20 karakter!";
+            } elseif ($db_check) {
                 $error = "Email '" . htmlspecialchars($_POST['email']) . "' sudah terdaftar! Gunakan email lain.";
+            } elseif ($db_check_user) {
+                $error = "Username '" . htmlspecialchars($_POST['nama_pengguna']) . "' sudah terdaftar! Gunakan username lain.";
             } else {
                 // Upload foto KTP (Gaya pemula)
                 $foto_name = null;
@@ -52,8 +60,16 @@ class PengadopsiController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Cek keunikan email
             $db_check = $this->m->getByEmail($_POST['email']);
-            if ($db_check && $db_check['id_pengadopsi'] != $id) {
+            // Cek keunikan username
+            $db_check_user = $this->m->isDuplicateUsername($_POST['nama_pengguna'], $id);
+            
+            // ponytail: Validasi format username (huruf, angka, underscore, 4-20 karakter)
+            if (!preg_match('/^[a-zA-Z0-9_]{4,20}$/', trim($_POST['nama_pengguna']))) {
+                $error = "Username hanya boleh berupa huruf, angka, underscore, dan panjang antara 4 sampai 20 karakter!";
+            } elseif ($db_check && $db_check['id_pengadopsi'] != $id) {
                 $error = "Email '" . htmlspecialchars($_POST['email']) . "' sudah terdaftar pada pengadopsi lain! Gunakan email lain.";
+            } elseif ($db_check_user) {
+                $error = "Username '" . htmlspecialchars($_POST['nama_pengguna']) . "' sudah terdaftar pada pengadopsi lain! Gunakan username lain.";
             } else {
                 $foto_name = $pengadopsi['url_ktp'];
                 if (isset($_FILES['url_ktp']) && $_FILES['url_ktp']['error'] === UPLOAD_ERR_OK) {

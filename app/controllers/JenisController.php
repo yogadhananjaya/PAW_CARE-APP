@@ -14,25 +14,35 @@ class JenisController {
     }
 
     public function create() {
+        $error_duplikat = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nama_jenis = trim($_POST['nama_jenis']);
             if (!empty($nama_jenis)) {
-                $this->model->insert($nama_jenis);
+                if ($this->model->isDuplicate($nama_jenis)) {
+                    $error_duplikat = "Jenis hewan '{$nama_jenis}' sudah terdaftar!";
+                } else {
+                    $this->model->insert($nama_jenis);
+                    header('Location: index.php?page=jenis');
+                    exit;
+                }
             }
-            header('Location: index.php?page=jenis');
-            exit;
         }
         include __DIR__ . '/../../views/Master_Data/jenis/create.php';
     }
 
     public function edit($id) {
+        $error_duplikat = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nama_jenis = trim($_POST['nama_jenis']);
             if (!empty($nama_jenis)) {
-                $this->model->update($id, $nama_jenis);
+                if ($this->model->isDuplicate($nama_jenis, $id)) {
+                    $error_duplikat = "Jenis hewan '{$nama_jenis}' sudah terdaftar!";
+                } else {
+                    $this->model->update($id, $nama_jenis);
+                    header('Location: index.php?page=jenis');
+                    exit;
+                }
             }
-            header('Location: index.php?page=jenis');
-            exit;
         }
         $data = $this->model->getById($id);
         include __DIR__ . '/../../views/Master_Data/jenis/edit.php';

@@ -26,10 +26,25 @@ class HewanModel {
         return $stmt->fetch(); 
     }
 
+    // ponytail: Cek duplikat nama hewan dengan jenis & ras yang sama
+    public function isDuplicate($nama_hewan, $id_jenis, $id_ras, $exclude_id = null) {
+        $sql = "SELECT COUNT(*) FROM hewan WHERE LOWER(nama_hewan) = LOWER(?) AND id_jenis = ? AND id_ras = ?";
+        $params = [$nama_hewan, $id_jenis, $id_ras];
+        if ($exclude_id) {
+            $sql .= " AND id_hewan != ?";
+            $params[] = $exclude_id;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn() > 0;
+    }
+
     // Simpan hewan baru (kolom sesuai DB baru)
     public function insert($data) {
-        $sql = "INSERT INTO hewan (id_jenis, id_ras, nama_hewan, jenis_kelamin, estimasi_umur, tanggal_lahir, status_adopsi, sumber_intake, nama_donatur, kontak_donatur, tanggal_intake, keterangan_intake, url_foto_hewan, deskripsi) 
-                VALUES (:id_jenis, :id_ras, :nama_hewan, :jenis_kelamin, :estimasi_umur, :tanggal_lahir, :status_adopsi, :sumber_intake, :nama_donatur, :kontak_donatur, :tanggal_intake, :keterangan_intake, :url_foto_hewan, :deskripsi)";
+        $data['kode_hewan'] = buat_kode_otomatis('hewan', 'kode_hewan', 'HW');
+        $data['rekomendasi_adopsi'] = $data['rekomendasi_adopsi'] ?? 0;
+        $sql = "INSERT INTO hewan (kode_hewan, id_jenis, id_ras, nama_hewan, jenis_kelamin, estimasi_umur, tanggal_lahir, status_adopsi, rekomendasi_adopsi, sumber_intake, nama_donatur, kontak_donatur, tanggal_intake, keterangan_intake, url_foto_hewan, deskripsi) 
+                VALUES (:kode_hewan, :id_jenis, :id_ras, :nama_hewan, :jenis_kelamin, :estimasi_umur, :tanggal_lahir, :status_adopsi, :rekomendasi_adopsi, :sumber_intake, :nama_donatur, :kontak_donatur, :tanggal_intake, :keterangan_intake, :url_foto_hewan, :deskripsi)";
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute($data);
     }
@@ -55,6 +70,18 @@ class HewanModel {
         $data['id'] = $id;
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute($data);
+    }
+
+    // Rekomendasikan hewan untuk diadopsi (Aksi Perawat)
+    public function rekomendasikan($id) {
+        $stmt = $this->pdo->prepare("UPDATE hewan SET rekomendasi_adopsi = 1 WHERE id_hewan = ?");
+        return $stmt->execute([$id]);
+    }
+
+    // Setujui rilis hewan ke katalog (Aksi Koordinator)
+    public function setujuiRilis($id) {
+        $stmt = $this->pdo->prepare("UPDATE hewan SET status_adopsi = 'Tersedia' WHERE id_hewan = ?");
+        return $stmt->execute([$id]);
     }
 
     // Hapus hewan berdasarkan ID

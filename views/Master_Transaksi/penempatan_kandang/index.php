@@ -13,8 +13,10 @@
         <table class="crud-table">
             <thead>
                 <tr>
-                    <th width="8%">ID</th>
+                    <th width="5%">No</th>
+                    <th>Kode</th>
                     <th>Hewan</th>
+                    <th>Jenis Hewan</th>
                     <th>Nama Kandang</th>
                     <th>Tanggal Masuk</th>
                     <th>Tanggal Keluar</th>
@@ -22,10 +24,12 @@
                 </tr>
             </thead>
             <tbody>
-                <?php foreach($data as $row): ?>
+                <?php $no = 1; foreach($data as $row): ?>
                 <tr>
-                    <td><?= htmlspecialchars($row['id_penempatan']) ?></td>
+                    <td><?= $no++ ?></td>
+                    <td><?= htmlspecialchars($row['kode_penempatan_kandang'] ?? '') ?></td>
                     <td><strong><?= htmlspecialchars($row['nama_hewan']) ?></strong></td>
+                    <td><?= htmlspecialchars($row['nama_jenis'] ?? '—') ?></td>
                     <td><?= htmlspecialchars($row['kode_kandang']) ?> - <?= htmlspecialchars($row['nama_kandang']) ?></td>
                     <td><?= htmlspecialchars($row['tanggal_masuk']) ?></td>
                     <td><?= $row['tanggal_keluar'] ? htmlspecialchars($row['tanggal_keluar']) : '<span style="color:#2ecc71; font-weight:600; font-style:normal;">Active (Menempati)</span>' ?></td>

@@ -256,8 +256,8 @@
                 $statusClass = 'status-draft';
                 $statusText = 'MENUNGGU ADOPTER';
                 if ($data['status_kontrak'] == 'Ditandatangani') {
-                    $statusClass = 'status-signed';
-                    $statusText = 'DITANDATANGANI';
+                    $statusClass = 'status-draft';
+                    $statusText = 'MENUNGGU KOORDINATOR';
                 } elseif ($data['status_kontrak'] == 'Aktif') {
                     $statusClass = 'status-active';
                     $statusText = 'AKTIF';
@@ -272,13 +272,38 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
                     Cetak
                 </button>
-                <?php if ($data['status_kontrak'] == 'Ditandatangani'): ?>
-                <a href="index.php?page=transaksi_adopsi_activate&id=<?= $data['id_adopsi'] ?>" class="btn-contract btn-activate" onclick="return confirm('Aktifkan kontrak adopsi ini?')">
-                    ✓ Aktifkan Kontrak
-                </a>
+                <?php 
+                $jk_status = $data['status_jadwal'] ?? '';
+                $jadwal_done = ($jk_status === 'Selesai');
+                ?>
+                <?php if (empty($data['ttd_admin']) && ($_SESSION['role'] ?? '') === 'Koordinator' && (empty($data['id_pengguna']) || ($data['id_pengguna'] ?? '') == ($_SESSION['user_id'] ?? '')) && $jadwal_done): ?>
+                <button onclick="openSignatureModal()" class="btn-contract btn-activate" style="background:#4f46e5; border:none; cursor:pointer;">
+                    ✍ Tanda Tangani
+                </button>
                 <?php endif; ?>
             </div>
         </div>
+
+        <?php if (isset($_GET['signed_success'])): ?>
+            <div style="background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; border-radius:10px; padding:12px 18px; margin-bottom:20px; font-weight:600; font-size:14px;">
+                ✓ Tanda tangan Koordinator berhasil. Kontrak adopsi kini AKTIF.
+            </div>
+        <?php endif; ?>
+        <?php if (isset($_GET['error']) && $_GET['error'] == 'only_koordinator_can_sign'): ?>
+            <div style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; border-radius:10px; padding:12px 18px; margin-bottom:20px; font-weight:600; font-size:14px;">
+                ⚠️ Hanya Koordinator yang diperbolehkan menandatangani kontrak adopsi!
+            </div>
+        <?php endif; ?>
+        <?php if (isset($_GET['error']) && $_GET['error'] == 'not_assigned_koordinator'): ?>
+            <div style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; border-radius:10px; padding:12px 18px; margin-bottom:20px; font-weight:600; font-size:14px;">
+                ⚠️ Hanya Koordinator yang ditunjuk sebagai penanggung jawab transaksi ini yang dapat menandatangani!
+            </div>
+        <?php endif; ?>
+        <?php if (isset($_GET['error']) && $_GET['error'] == 'jadwal_belum_selesai'): ?>
+            <div style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; border-radius:10px; padding:12px 18px; margin-bottom:20px; font-weight:600; font-size:14px;">
+                ⚠️ Jadwal Kunjungan harus sudah Selesai sebelum Koordinator dapat menandatangani kontrak!
+            </div>
+        <?php endif; ?>
 
         <!-- Contract Document -->
         <div class="contract-card">
@@ -351,7 +376,7 @@
                         <div class="signature-status">(Menunggu TTD Koordinator)</div>
                     <?php endif; ?>
                     <div class="signature-line">
-                        <div class="signature-name"><?= htmlspecialchars($_SESSION['nama_lengkap'] ?? 'Koordinator Shelter') ?></div>
+                        <div class="signature-name"><?= htmlspecialchars($data['nama_staf'] ?? 'Koordinator Shelter') ?></div>
                         <div class="signature-role">Koordinator</div>
                     </div>
                 </div>
@@ -370,5 +395,106 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Tanda Tangan Admin/Koordinator -->
+<div id="sigModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; padding:25px; border-radius:16px; width:450px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.15); border:1px solid #e2e8f0; font-family:'Inter', sans-serif;">
+        <h3 style="margin-bottom:10px; font-weight:700; color:#1e293b; font-size:18px;">Tanda Tangan Koordinator</h3>
+        <p style="font-size:13px; color:#64748b; margin-bottom:20px;">Silakan bubuhkan tanda tangan Anda di bawah ini menggunakan mouse atau touch screen.</p>
+        
+        <canvas id="sigCanvas" width="400" height="200" style="border:2px dashed #cbd5e1; border-radius:8px; background:#f8fafc; cursor:crosshair; touch-action:none;"></canvas>
+        
+        <div style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
+            <button class="btn" style="border:1px solid #cbd5e1; padding:8px 16px; border-radius:8px; cursor:pointer; background:#fff; font-weight:600; color:#475569;" onclick="clearCanvas()">Hapus</button>
+            <button class="btn" style="border:1px solid #cbd5e1; padding:8px 16px; border-radius:8px; cursor:pointer; background:#64748b; color:#fff; font-weight:600;" onclick="closeSignatureModal()">Batal</button>
+            <form action="index.php?page=transaksi_adopsi_sign&id=<?= $data['id_adopsi'] ?>" method="POST" id="ttdForm">
+                <input type="hidden" name="ttd_admin" id="ttd_base64">
+                <button type="button" class="btn" style="background:#4f46e5; color:#fff; padding:8px 20px; border-radius:8px; border:none; cursor:pointer; font-weight:600;" onclick="saveSignature()">Simpan TTD</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById("sigModal");
+    const canvas = document.getElementById("sigCanvas");
+    const ctx = canvas.getContext("2d");
+    let isDrawing = false;
+
+    // Atur gaya pena
+    ctx.strokeStyle = "#1e293b"; 
+    ctx.lineWidth = 3.5; 
+    ctx.lineJoin = "round"; 
+    ctx.lineCap = "round";
+
+    function openSignatureModal() {
+        modal.style.display = "flex";
+        clearCanvas();
+    }
+
+    function closeSignatureModal() {
+        modal.style.display = "none";
+    }
+
+    function getCoordinates(event) {
+        const rect = canvas.getBoundingClientRect();
+        if (event.touches && event.touches.length > 0) {
+            return { x: event.touches[0].clientX - rect.left, y: event.touches[0].clientY - rect.top };
+        }
+        return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+    }
+
+    function startDrawing(e) {
+        isDrawing = true;
+        const pos = getCoordinates(e);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+        e.preventDefault();
+    }
+
+    function draw(e) {
+        if (!isDrawing) return;
+        const pos = getCoordinates(e);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        e.preventDefault();
+    }
+
+    function stopDrawing() {
+        isDrawing = false;
+        ctx.closePath();
+    }
+
+    // Mouse events
+    canvas.addEventListener("mousedown", startDrawing);
+    canvas.addEventListener("mousemove", draw);
+    canvas.addEventListener("mouseup", stopDrawing);
+    canvas.addEventListener("mouseout", stopDrawing);
+
+    // Touch events
+    canvas.addEventListener("touchstart", startDrawing, {passive: false});
+    canvas.addEventListener("touchmove", draw, {passive: false});
+    canvas.addEventListener("touchend", stopDrawing);
+
+    function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function saveSignature() {
+        const dataUrl = canvas.toDataURL("image/png");
+        
+        // Cek apakah canvas kosong
+        const blank = document.createElement('canvas');
+        blank.width = canvas.width;
+        blank.height = canvas.height;
+        if (canvas.toDataURL() === blank.toDataURL()) {
+            alert("Silakan bubuhkan tanda tangan terlebih dahulu.");
+            return;
+        }
+        
+        document.getElementById("ttd_base64").value = dataUrl;
+        document.getElementById("ttdForm").submit();
+    }
+</script>
 
 <?php include __DIR__ . '/../../layouts/footer.php'; ?>

@@ -14,20 +14,34 @@ class RasController {
     }
 
     public function create() {
+        $error_duplikat = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->m->insert($_POST['id_jenis'], $_POST['nama_ras']);
-            header('Location: index.php?page=ras');
-            exit;
+            $nama_ras = trim($_POST['nama_ras']);
+            $id_jenis = $_POST['id_jenis'];
+            if ($this->m->isDuplicate($nama_ras, $id_jenis)) {
+                $error_duplikat = "Ras '{$nama_ras}' sudah terdaftar dalam jenis hewan yang dipilih!";
+            } else {
+                $this->m->insert($id_jenis, $nama_ras);
+                header('Location: index.php?page=ras');
+                exit;
+            }
         }
         $jenis = $this->m->getOpsiJenis();
         include __DIR__ . '/../../views/Master_Data/ras/create.php';
     }
 
     public function edit($id) {
+        $error_duplikat = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->m->update($id, $_POST['id_jenis'], $_POST['nama_ras']);
-            header('Location: index.php?page=ras');
-            exit;
+            $nama_ras = trim($_POST['nama_ras']);
+            $id_jenis = $_POST['id_jenis'];
+            if ($this->m->isDuplicate($nama_ras, $id_jenis, $id)) {
+                $error_duplikat = "Ras '{$nama_ras}' sudah terdaftar dalam jenis hewan yang dipilih!";
+            } else {
+                $this->m->update($id, $id_jenis, $nama_ras);
+                header('Location: index.php?page=ras');
+                exit;
+            }
         }
         $data = $this->m->getById($id);
         $jenis = $this->m->getOpsiJenis();

@@ -69,6 +69,24 @@
     </a>
   </div>
 
+  <?php if (isset($_GET['confirmed'])): ?>
+    <div style="background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; border-radius:10px; padding:12px 18px; margin-bottom:20px; font-weight:600; font-size:14px;">
+      ✅ Jadwal kunjungan berhasil dikonfirmasi.
+    </div>
+  <?php endif; ?>
+
+  <?php if (isset($_GET['success_complete'])): ?>
+    <div style="background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; border-radius:10px; padding:12px 18px; margin-bottom:20px; font-weight:600; font-size:14px;">
+      ✅ Pertemuan kunjungan telah sukses dilaksanakan.
+    </div>
+  <?php endif; ?>
+
+  <?php if (isset($_GET['cancelled'])): ?>
+    <div style="background:#fef2f2; color:#991b1b; border:1px solid #fecaca; border-radius:10px; padding:12px 18px; margin-bottom:20px; font-weight:600; font-size:14px;">
+      ⚠️ Jadwal kunjungan berhasil dibatalkan.
+    </div>
+  <?php endif; ?>
+
   <!-- ========== SECTION 1: PENDING ========== -->
   <div class="jk-section">
     <div class="section-head">
@@ -86,6 +104,8 @@
         <table class="jk-table">
           <thead>
             <tr>
+              <th style="width: 5%;">No</th>
+              <th>Kode</th>
               <th>Adopter</th>
               <th>Hewan</th>
               <th>Metode / Tujuan</th>
@@ -94,8 +114,10 @@
             </tr>
           </thead>
           <tbody>
-            <?php foreach ($pending as $r): ?>
+            <?php $no = 1; foreach ($pending as $r): ?>
             <tr>
+              <td><?= $no++ ?></td>
+              <td><?= htmlspecialchars($r['kode_jadwal_kunjungan'] ?? '') ?></td>
               <td><strong><?= htmlspecialchars($r['nama_pengadopsi']) ?></strong></td>
               <td><?= htmlspecialchars($r['nama_hewan']) ?></td>
               <td>
@@ -107,11 +129,15 @@
               <td><?= date('d M Y, H:i', strtotime($r['tanggal_jadwal'])) ?></td>
               <td>
                 <div class="jk-actions">
-                  <a href="index.php?page=jadwal_kunjungan_edit&id=<?= $r['id_jadwal'] ?>" class="jk-btn-icon" title="Konfirmasi / Edit">
+                  <!-- Tombol Konfirmasi 1-klik (hanya muncul di baris Menunggu) -->
+                  <a href="index.php?page=jadwal_kunjungan_confirm&id=<?= $r['id_jadwal'] ?>" class="jk-btn-icon" style="background:#ecfdf5; color:#059669;" title="Konfirmasi Jadwal" onclick="return confirm('Konfirmasi jadwal kunjungan ini?')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </a>
+                  <a href="index.php?page=jadwal_kunjungan_edit&id=<?= $r['id_jadwal'] ?>" class="jk-btn-icon" title="Edit">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                   </a>
-                  <a href="index.php?page=jadwal_kunjungan_delete&id=<?= $r['id_jadwal'] ?>" class="jk-btn-icon danger" onclick="return confirm('Hapus jadwal ini?')" title="Hapus">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  <a href="index.php?page=jadwal_kunjungan_reject&id=<?= $r['id_jadwal'] ?>" class="jk-btn-icon danger" onclick="return confirm('Batalkan jadwal kunjungan ini?')" title="Batalkan Kunjungan">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   </a>
                 </div>
               </td>
@@ -140,6 +166,8 @@
         <table class="jk-table">
           <thead>
             <tr>
+              <th style="width: 5%;">No</th>
+              <th>Kode</th>
               <th>Adopter</th>
               <th>Hewan</th>
               <th>Metode / Tujuan</th>
@@ -148,8 +176,10 @@
             </tr>
           </thead>
           <tbody>
-            <?php foreach ($confirmed as $r): ?>
+            <?php $no = 1; foreach ($confirmed as $r): ?>
             <tr>
+              <td><?= $no++ ?></td>
+              <td><?= htmlspecialchars($r['kode_jadwal_kunjungan'] ?? '') ?></td>
               <td><strong><?= htmlspecialchars($r['nama_pengadopsi']) ?></strong></td>
               <td><?= htmlspecialchars($r['nama_hewan']) ?></td>
               <td>
@@ -161,11 +191,15 @@
               <td><?= date('d M Y, H:i', strtotime($r['tanggal_jadwal'])) ?></td>
               <td>
                 <div class="jk-actions">
+                  <!-- Tombol Selesai Kunjungan -->
+                  <a href="index.php?page=jadwal_kunjungan_complete&id=<?= $r['id_jadwal'] ?>" class="jk-btn-icon" style="background:#eff6ff; color:#2563eb;" title="Tandai Selesai" onclick="return confirm('Tandai pertemuan kunjungan ini sudah selesai dilaksanakan?')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  </a>
                   <a href="index.php?page=jadwal_kunjungan_edit&id=<?= $r['id_jadwal'] ?>" class="jk-btn-icon" title="Edit">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                   </a>
-                  <a href="index.php?page=jadwal_kunjungan_delete&id=<?= $r['id_jadwal'] ?>" class="jk-btn-icon danger" onclick="return confirm('Hapus jadwal ini?')" title="Hapus">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  <a href="index.php?page=jadwal_kunjungan_reject&id=<?= $r['id_jadwal'] ?>" class="jk-btn-icon danger" onclick="return confirm('Batalkan jadwal kunjungan ini?')" title="Batalkan Kunjungan">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   </a>
                 </div>
               </td>
@@ -194,6 +228,8 @@
         <table class="jk-table">
           <thead>
             <tr>
+              <th style="width: 5%;">No</th>
+              <th>Kode</th>
               <th>Waktu Jadwal</th>
               <th>Adopter</th>
               <th>Hewan</th>
@@ -203,8 +239,10 @@
             </tr>
           </thead>
           <tbody>
-            <?php foreach ($history as $r): ?>
+            <?php $no = 1; foreach ($history as $r): ?>
             <tr>
+              <td><?= $no++ ?></td>
+              <td><?= htmlspecialchars($r['kode_jadwal_kunjungan'] ?? '') ?></td>
               <td><?= date('d M Y, H:i', strtotime($r['tanggal_jadwal'])) ?></td>
               <td><strong><?= htmlspecialchars($r['nama_pengadopsi']) ?></strong></td>
               <td><?= htmlspecialchars($r['nama_hewan']) ?></td>

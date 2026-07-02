@@ -14,25 +14,63 @@ class PenggunaController {
     }
 
     public function create() {
+        $error_duplikat = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->m->insert($_POST);
-            header('Location: index.php?page=pengguna');
-            exit;
+            $username = $_POST['nama_pengguna'];
+            // Validasi SuperAdmin hanya boleh pawcare
+            if ($_POST['role'] === 'SuperAdmin' || $_POST['jabatan'] === 'SuperAdmin') {
+                $error_duplikat = "Tidak boleh membuat SuperAdmin baru selain pawcare!";
+            } elseif (!preg_match('/^[a-zA-Z0-9._]{4,20}$/', $username)) {
+                $error_duplikat = "Format username salah! Harus 4-20 karakter dan hanya boleh berisi huruf, angka, titik (.), atau garis bawah (_). Tanpa spasi.";
+            } elseif ($this->m->isDuplicate($username)) {
+                $error_duplikat = "Username '" . htmlspecialchars($username) . "' sudah digunakan!";
+            } elseif ($this->m->isDuplicateKontak($_POST['kontak'])) {
+                $error_duplikat = "Nomor kontak '" . htmlspecialchars($_POST['kontak']) . "' sudah terdaftar!";
+            } else {
+                $this->m->insert($_POST);
+                header('Location: index.php?page=pengguna');
+                exit;
+            }
         }
         include __DIR__ . '/../../views/Master_Data/pengguna/create.php';
     }
 
     public function edit($id) {
+        $error_duplikat = null;
+        $user = $this->m->getById($id);
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->m->update($id, $_POST);
-            header('Location: index.php?page=pengguna');
-            exit;
+            $username = $_POST['nama_pengguna'];
+            
+            // Pengguna selain pawcare tidak boleh diubah jadi SuperAdmin
+            if ($user['nama_pengguna'] !== 'pawcare' && ($_POST['role'] === 'SuperAdmin' || $_POST['jabatan'] === 'SuperAdmin')) {
+                $error_duplikat = "Hanya pawcare yang boleh menjadi SuperAdmin!";
+            } elseif (!preg_match('/^[a-zA-Z0-9._]{4,20}$/', $username)) {
+                $error_duplikat = "Format username salah! Harus 4-20 karakter dan hanya boleh berisi huruf, angka, titik (.), atau garis bawah (_). Tanpa spasi.";
+            } elseif ($this->m->isDuplicate($username, $id)) {
+                $error_duplikat = "Username '" . htmlspecialchars($username) . "' sudah digunakan oleh pengguna lain!";
+            } elseif ($this->m->isDuplicateKontak($_POST['kontak'], $id)) {
+                $error_duplikat = "Nomor kontak '" . htmlspecialchars($_POST['kontak']) . "' sudah terdaftar pada pengguna lain!";
+            } else {
+                // Jika pawcare diedit, paksa agar role & jabatan tetap SuperAdmin
+                if ($user['nama_pengguna'] === 'pawcare') {
+                    $_POST['role'] = 'SuperAdmin';
+                    $_POST['jabatan'] = 'SuperAdmin';
+                }
+                $this->m->update($id, $_POST);
+                header('Location: index.php?page=pengguna');
+                exit;
+            }
         }
         $data = $this->m->getById($id);
         include __DIR__ . '/../../views/Master_Data/pengguna/edit.php';
     }
 
     public function delete($id) {
+        $user = $this->m->getById($id);
+        if ($user && $user['nama_pengguna'] === 'pawcare') {
+            header('Location: index.php?page=pengguna');
+            exit;
+        }
         $this->m->delete($id);
         header('Location: index.php?page=pengguna');
         exit;

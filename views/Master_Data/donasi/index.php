@@ -145,9 +145,6 @@ foreach ($data as $row) {
                             <tr>
                                 <td>
                                     <strong><?= htmlspecialchars($row['nama_donatur']) ?></strong>
-                                    <?php if (!empty($row['nama_pengadopsi'])): ?>
-                                        <br><small style="color: #7f8c8d; font-size: 11px;">👤 Pengadopsi: <?= htmlspecialchars($row['nama_pengadopsi']) ?></small>
-                                    <?php endif; ?>
                                 </td>
                                 <td style="color: #2ecc71; font-weight: 700;">Rp <?= number_format($row['nominal'], 0, ',', '.') ?></td>
                                 <td><?= htmlspecialchars($row['metode_pembayaran'] ?? '-') ?></td>
@@ -183,7 +180,7 @@ foreach ($data as $row) {
                 <!-- Data Default untuk Pengeluaran (Gaya Pemula) -->
                 <input type="hidden" name="kategori" value="Pengeluaran">
                 <input type="hidden" name="nama_donatur" value="Operasional">
-                <input type="hidden" name="metode_pembayaran" value="Kas Kecil">
+                <input type="hidden" name="metode_pembayaran" value="Tunai">
                 <input type="hidden" name="status_konfirmasi" value="Dikonfirmasi">
                 
                 <div class="form-group">
@@ -219,6 +216,8 @@ foreach ($data as $row) {
         <table class="crud-table" style="width: 100%;">
             <thead>
                 <tr>
+                    <th width="5%">No</th>
+                    <th>Kode</th>
                     <th>Tanggal</th>
                     <th>Kategori</th>
                     <th>Keterangan / Transaksi</th>
@@ -231,13 +230,15 @@ foreach ($data as $row) {
             <tbody>
                 <?php if (empty($semua_transaksi)): ?>
                     <tr>
-                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px 0;">
+                        <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px 0;">
                             Belum ada data transaksi tercatat.
                         </td>
                     </tr>
                 <?php else: ?>
-                    <?php foreach ($semua_transaksi as $row): ?>
+                    <?php $no = 1; foreach ($semua_transaksi as $row): ?>
                         <tr>
+                            <td><?= $no++ ?></td>
+                            <td><?= htmlspecialchars($row['kode_donasi'] ?? '') ?></td>
                             <td><?= date('d M Y', strtotime($row['tanggal'])) ?></td>
                             <td>
                                 <span style="padding:4px 10px; border-radius:20px; font-size:11px; font-weight:bold; 

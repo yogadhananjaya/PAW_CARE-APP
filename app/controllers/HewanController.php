@@ -42,6 +42,15 @@ class HewanController {
                 'deskripsi'         => trim($_POST['deskripsi'] ?? '')
             ];
 
+            // ponytail: Tolak jika nama + jenis + ras sudah ada
+            if ($this->model->isDuplicate($payload['nama_hewan'], $payload['id_jenis'], $payload['id_ras'])) {
+                $jenis_list = $this->model->getOpsiJenis();
+                $ras_list = $this->model->getOpsiRas();
+                $error_duplikat = "Hewan dengan nama, jenis, dan ras yang sama sudah terdaftar!";
+                include __DIR__ . '/../../views/Master_Data/hewan/create.php';
+                exit;
+            }
+
             $this->model->insert($payload);
             header('Location: index.php?page=hewan');
             exit;
@@ -90,6 +99,13 @@ class HewanController {
                 'deskripsi'         => trim($_POST['deskripsi'] ?? '')
             ];
 
+            // ponytail: Tolak duplikat saat edit (kecuali record sendiri)
+            if ($this->model->isDuplicate($payload['nama_hewan'], $payload['id_jenis'], $payload['id_ras'], $id)) {
+                $error_duplikat = "Hewan dengan nama, jenis, dan ras yang sama sudah terdaftar!";
+                include __DIR__ . '/../../views/Master_Data/hewan/edit.php';
+                exit;
+            }
+
             $this->model->update($id, $payload);
             header('Location: index.php?page=hewan');
             exit;
@@ -105,6 +121,26 @@ class HewanController {
             unlink(__DIR__ . '/../../assets/img/hewan/' . $hewan['url_foto_hewan']);
         }
         $this->model->delete($id);
+        header('Location: index.php?page=hewan');
+        exit;
+    }
+
+    public function recommend($id) {
+        global $pdo;
+        // Prasyarat: hewan harus punya minimal 1 riwayat vaksinasi
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM riwayat_kesehatan WHERE id_hewan = ? AND tipe = 'Vaksinasi' AND deleted_at IS NULL");
+        $stmt->execute([$id]);
+        if ($stmt->fetchColumn() == 0) {
+            header('Location: index.php?page=hewan&error=belum_vaksinasi');
+            exit;
+        }
+        $this->model->rekomendasikan($id);
+        header('Location: index.php?page=hewan');
+        exit;
+    }
+
+    public function confirm($id) {
+        $this->model->setujuiRilis($id);
         header('Location: index.php?page=hewan');
         exit;
     }
@@ -136,6 +172,16 @@ class HewanController {
                 'url_foto_hewan'    => $foto_name,
                 'deskripsi'         => trim($_POST['deskripsi'] ?? '')
             ];
+
+            // ponytail: Tolak duplikat saat intake
+            if ($this->model->isDuplicate($payload['nama_hewan'], $payload['id_jenis'], $payload['id_ras'])) {
+                $jenis_list = $this->model->getOpsiJenis();
+                $ras_list = $this->model->getOpsiRas();
+                $recentHewan = $this->model->getAll();
+                $error_duplikat = "Hewan dengan nama, jenis, dan ras yang sama sudah terdaftar!";
+                include __DIR__ . '/../../views/Master_Transaksi/intake_hewan/index.php';
+                exit;
+            }
 
             $this->model->insert($payload);
             header('Location: index.php?page=intake_hewan&success=1');

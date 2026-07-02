@@ -26,7 +26,7 @@ if (isset($recentHewan) && is_array($recentHewan)) {
 }
 ?>
 <?php include __DIR__ . '/../../layouts/header.php'; ?>
-<?php include __DIR__ . '/../../layouts/sidebar_koordinator.php'; ?>
+<?php include __DIR__ . '/../../layouts/sidebar_admin.php'; ?>
 
 <style>
     /* Style khusus untuk halaman intake */
@@ -320,6 +320,8 @@ if (isset($recentHewan) && is_array($recentHewan)) {
             <table class="intake-list-table">
                 <thead>
                     <tr>
+                        <th style="width: 5%;">No</th>
+                        <th>Kode</th>
                         <th>Nama</th>
                         <th>Jenis / Ras</th>
                         <th>Umur (Estimasi)</th>
@@ -332,7 +334,8 @@ if (isset($recentHewan) && is_array($recentHewan)) {
                     // Ambil 10 hewan terbaru untuk ditampilkan
                     if (isset($recentHewan) && count($recentHewan) > 0) {
                         $hewan_ditampilkan = array_slice($recentHewan, 0, 10);
-
+                        
+                        $no = 1;
                         foreach ($hewan_ditampilkan as $hw) {
                             // Siapkan data dengan nilai default jika kosong
                             $nama_hewan_tabel  = htmlspecialchars($hw['nama_hewan']);
@@ -362,13 +365,12 @@ if (isset($recentHewan) && is_array($recentHewan)) {
                                 $badge_status_class = 'badge-karantina';
                             } elseif ($status_adopsi == 'Tersedia') {
                                 $badge_status_class = 'badge-tersedia';
-                            } elseif ($status_adopsi == 'Dalam Proses') {
-                                $badge_status_class = 'badge-proses';
-                                $status_label = 'Proses Adopsi';
                             }
 
                             // Tampilkan baris tabel
                             echo '<tr>';
+                            echo '<td>' . $no++ . '</td>';
+                            echo '<td>' . htmlspecialchars($hw['kode_hewan'] ?? '') . '</td>';
                             echo '<td>';
                             echo '<div class="intake-animal-name">' . $nama_hewan_tabel . '</div>';
                             echo '<div class="intake-animal-sub">' . $jk . '</div>';
@@ -389,7 +391,7 @@ if (isset($recentHewan) && is_array($recentHewan)) {
                         }
                     } else {
                         echo '<tr>';
-                        echo '<td colspan="5" style="padding: 30px; text-align: center; color: #94a3b8;">Belum ada data hewan di inventaris.</td>';
+                        echo '<td colspan="7" style="padding: 30px; text-align: center; color: #94a3b8;">Belum ada data hewan di inventaris.</td>';
                         echo '</tr>';
                     }
                     ?>

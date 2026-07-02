@@ -12,14 +12,29 @@ class TransaksiAdopsiController {
         $data = $this->m->getAll();
         $a = $this->m->getPengadopsi();
         $h = $this->m->getHewan();
+        $coordinators = $this->m->getCoordinators();
         include __DIR__ . '/../../views/Master_Transaksi/transaksi_adopsi/index.php';
     }
 
     public function create() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Set penanggung jawab otomatis ke admin yang sedang login jika tidak dikirim
+            // Set penanggung jawab otomatis ke Koordinator
             if (empty($_POST['id_pengguna'])) {
-                $_POST['id_pengguna'] = $_SESSION['user_id'] ?? null;
+                if (($_SESSION['jabatan'] ?? '') === 'Koordinator' || ($_SESSION['role'] ?? '') === 'Koordinator') {
+                    $_POST['id_pengguna'] = $_SESSION['user_id'];
+                } else {
+                    $_POST['id_pengguna'] = $this->m->getFirstKoordinatorId() ?: null;
+                }
+            }
+            //  Tolak duplikat adopter + hewan yang masih aktif
+            if ($this->m->isDuplicate($_POST['id_hewan'], $_POST['id_pengadopsi'])) {
+                $data = $this->m->getAll();
+                $a = $this->m->getPengadopsi();
+                $h = $this->m->getHewan();
+                $pg = $this->m->getPengguna();
+                $error_duplikat = "Adopter ini sudah memiliki transaksi adopsi aktif (Draft/Aktif) untuk hewan yang sama!";
+                include __DIR__ . '/../../views/Master_Transaksi/transaksi_adopsi/index.php';
+                exit;
             }
             $this->m->insert($_POST);
             header('Location: index.php?page=transaksi_adopsi');
@@ -33,6 +48,16 @@ class TransaksiAdopsiController {
 
     public function edit($id) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            //  Tolak duplikat saat edit (kecuali record sendiri)
+            if ($this->m->isDuplicate($_POST['id_hewan'], $_POST['id_pengadopsi'], $id)) {
+                $data = $this->m->getById($id);
+                $a = $this->m->getPengadopsi();
+                $h = $this->m->getHewan();
+                $pg = $this->m->getPengguna();
+                $error_duplikat = "Adopter ini sudah memiliki transaksi adopsi aktif untuk hewan yang sama!";
+                include __DIR__ . '/../../views/Master_Transaksi/transaksi_adopsi/edit.php';
+                exit;
+            }
             $this->m->update($id, $_POST);
             header('Location: index.php?page=transaksi_adopsi');
             exit;
@@ -45,7 +70,13 @@ class TransaksiAdopsiController {
     }
 
     public function delete($id) {
-        $this->m->delete($id);
+        header('Location: index.php?page=transaksi_adopsi');
+        exit;
+    }
+
+    //  Batalkan/Tolak kontrak adopsi langsung
+    public function reject($id) {
+        $this->m->setStatus($id, 'Batal');
         header('Location: index.php?page=transaksi_adopsi');
         exit;
     }
@@ -53,6 +84,42 @@ class TransaksiAdopsiController {
     public function activate($id) {
         $this->m->activate($id);
         header('Location: index.php?page=transaksi_adopsi_edit&id=' . $id);
+        exit;
+    }
+
+    //  Proses tanda tangan digital admin penanggung jawab (Hanya Koordinator yang ditunjuk)
+    public function sign($id) {
+        if (($_SESSION['role'] ?? '') !== 'Koordinator') {
+            header("Location: index.php?page=transaksi_adopsi_edit&id=$id&error=only_koordinator_can_sign");
+            exit;
+        }
+        $data = $this->m->getById($id);
+        // Jika sudah ada penanggung jawab, hanya dia yang boleh tanda tangan
+        if (!empty($data['id_pengguna']) && $data['id_pengguna'] != $_SESSION['user_id']) {
+            header("Location: index.php?page=transaksi_adopsi_edit&id=$id&error=not_assigned_koordinator");
+            exit;
+        }
+        // Jadwal kunjungan harus sudah Selesai dulu
+        $jk_status = $data['status_jadwal'] ?? '';
+        if ($jk_status !== 'Selesai') {
+            header("Location: index.php?page=transaksi_adopsi_edit&id=$id&error=jadwal_belum_selesai");
+            exit;
+        }
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $ttd_base64 = $_POST['ttd_admin'] ?? '';
+            if (!empty($ttd_base64)) {
+                // Auto-assign koordinator jika belum ada penanggung jawab
+                if (empty($data['id_pengguna'])) {
+                    $this->m->assignKoordinator($id, $_SESSION['user_id']);
+                }
+                $this->m->saveAdminSignature($id, $ttd_base64);
+                // Setelah Koordinator tanda tangan, kontrak langsung AKTIF
+                $this->m->activate($id);
+                header("Location: index.php?page=transaksi_adopsi_edit&id=$id&signed_success=1");
+                exit;
+            }
+        }
+        header("Location: index.php?page=transaksi_adopsi_edit&id=$id");
         exit;
     }
 }
