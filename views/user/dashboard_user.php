@@ -370,7 +370,7 @@ if ($adopter) {
                                     <span class="tag"><?= htmlspecialchars($hewan['jenis_kelamin']) ?></span>
                                     <span class="tag"><?= htmlspecialchars($hewan['estimasi_umur']) ?> bln</span>
                                 </div>
-                                <a href="index.php?page=proses_adopsi&id=<?= $hewan['id_hewan'] ?>" class="btn-adopt">Adopsi Sekarang</a>
+                                <a href="index.php?page=hewan_detail&id=<?= $hewan['id_hewan'] ?>" class="btn-adopt">Detail Hewan</a>
                             </div>
                         <?php endforeach; ?>
                     </div>

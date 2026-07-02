@@ -6,6 +6,25 @@ if (empty($_SESSION['user_id'])) {
     exit;
 }
 
+// 1. Ambil id_pengadopsi dari user yang login
+$stmt_adopter = $pdo->prepare("SELECT id_pengadopsi FROM pengadopsi WHERE id_pengguna = ?");
+$stmt_adopter->execute([$_SESSION['user_id']]);
+$adopter = $stmt_adopter->fetch();
+
+if ($adopter) {
+    // Cek apakah ada adopsi dalam 1 bulan terakhir
+    $stmt_last_adopsi = $pdo->prepare("SELECT tanggal_adopsi FROM transaksi_adopsi WHERE id_pengadopsi = ? AND status_kontrak IN ('Ditandatangani', 'Aktif') AND tanggal_adopsi >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) ORDER BY tanggal_adopsi DESC LIMIT 1");
+    $stmt_last_adopsi->execute([$adopter['id_pengadopsi']]);
+    $last_adopsi = $stmt_last_adopsi->fetch();
+    if ($last_adopsi) {
+        $tgl_bisa_adopsi = date('d F Y', strtotime($last_adopsi['tanggal_adopsi'] . ' + 1 month'));
+        include __DIR__ . '/../layouts/header.php';
+        echo "<div class='main-wrapper' style='max-width: 800px; margin: 40px auto; padding: 20px;'><div style='background:#fee2e2; border:1px solid #fecaca; color:#b91c1c; padding: 25px; border-radius:12px; font-weight:600; line-height:1.6; font-size:15px; text-align:center;'>⚠️ Maaf, Anda baru saja melakukan adopsi. Sesuai ketentuan, Anda harus menunggu 1 bulan sejak adopsi terakhir Anda sebelum mengajukan adopsi baru.<br><br>Anda baru diperbolehkan mengajukan adopsi lagi setelah tanggal: <strong style='font-size:18px; text-decoration:underline;'>{$tgl_bisa_adopsi}</strong>.</div><div style='text-align:center; margin-top:20px;'><a href='index.php?page=dashboard_user&tab=katalog' class='btn btn-secondary' style='background:#cbd5e1; color:#334155; text-decoration:none; padding:10px 20px; border-radius:8px; font-weight:700;'>Kembali ke Katalog</a></div></div>";
+        include __DIR__ . '/../layouts/footer.php';
+        exit;
+    }
+}
+
 $id_hewan = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 $stmt = $pdo->prepare("SELECT h.*, r.nama_ras, j.nama_jenis FROM hewan h JOIN ras r ON h.id_ras = r.id_ras JOIN jenis_hewan j ON h.id_jenis = j.id_jenis WHERE h.id_hewan = ? AND h.status_adopsi = 'Tersedia' AND h.rekomendasi_adopsi = 1");

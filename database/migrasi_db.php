@@ -33,5 +33,19 @@ foreach ($sql_files as $file) {
 }
 
 
+// 2. Tambah kolom hobi & funfact ke tabel hewan jika belum ada
+try {
+    $pdo->exec("ALTER TABLE hewan ADD COLUMN hobi VARCHAR(255) NULL");
+    echo "Kolom 'hobi' ditambahkan ke tabel hewan.\n";
+} catch (Exception $e) {
+    // Abaikan jika kolom sudah ada
+}
+try {
+    $pdo->exec("ALTER TABLE hewan ADD COLUMN funfact VARCHAR(255) NULL");
+    echo "Kolom 'funfact' ditambahkan ke tabel hewan.\n";
+} catch (Exception $e) {
+    // Abaikan jika kolom sudah ada
+}
+
 echo "\n=== MIGRASI DATABASE SELESAI DENGAN SUKSES ===\n";
 ?>

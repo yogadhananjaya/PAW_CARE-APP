@@ -218,9 +218,12 @@ function check_rbac($entity, $action) {
         if ($entity == 'penempatan_kandang') {
             return true;
         }
-        // Kelola Jadwal Kunjungan Adopter: CRUD
+        // Kelola Jadwal Kunjungan Adopter: R (Hanya Read)
         if ($entity == 'jadwal_kunjungan') {
-            return true;
+            if ($action == 'index') {
+                return true;
+            }
+            return false;
         }
         // Kelola Kontrak Adopsi: Sign Admin, Aktivasi & Inisiasi (Tidak boleh menghapus/delete)
         if ($entity == 'transaksi_adopsi') {

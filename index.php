@@ -189,6 +189,19 @@ switch ($page) {
         break;
 
     // --- WIZARD ADOPSI BARU (Langkah 1-4) ---
+    case 'hewan_detail':
+        if (!check_access(['User'])) { header('Location: index.php?page=login'); exit; }
+        $id_hewan = isset($_GET['id']) ? intval($_GET['id']) : 0;
+        $stmt_hewan = $pdo->prepare("SELECT h.*, r.nama_ras, j.nama_jenis FROM hewan h JOIN ras r ON h.id_ras = r.id_ras JOIN jenis_hewan j ON h.id_jenis = j.id_jenis WHERE h.id_hewan = ?");
+        $stmt_hewan->execute([$id_hewan]);
+        $hewan = $stmt_hewan->fetch();
+        if (!$hewan) {
+            echo "<script>alert('Hewan tidak ditemukan.'); window.history.back();</script>";
+            exit;
+        }
+        include __DIR__ . '/views/user/hewan_detail.php';
+        break;
+
     case 'proses_adopsi':
         if (!check_access(['User'])) { header('Location: index.php?page=login'); exit; }
         include __DIR__ . '/views/user/proses_adopsi.php';
@@ -208,10 +221,19 @@ switch ($page) {
             exit;
         }
 
+        $id_pengadopsi  = $adopter_data['id_pengadopsi'];
+
+        // Cek jeda 1 bulan
+        $stmt_last_adopsi = $pdo->prepare("SELECT tanggal_adopsi FROM transaksi_adopsi WHERE id_pengadopsi = ? AND status_kontrak IN ('Ditandatangani', 'Aktif') AND tanggal_adopsi >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) ORDER BY tanggal_adopsi DESC LIMIT 1");
+        $stmt_last_adopsi->execute([$id_pengadopsi]);
+        if ($stmt_last_adopsi->fetch()) {
+            echo "<script>alert('Gagal: Anda harus menunggu 1 bulan sejak adopsi terakhir sebelum dapat mengajukan adopsi baru.'); window.location.href='index.php?page=dashboard_user&tab=katalog';</script>";
+            exit;
+        }
+
         $id_hewan       = intval($_POST['id_hewan'] ?? 0);
         $ttd_base64     = $_POST['tanda_tangan_png'] ?? '';
         $metode_bayar   = htmlspecialchars($_POST['metode_pembayaran'] ?? 'Transfer Bank');
-        $id_pengadopsi  = $adopter_data['id_pengadopsi'];
         $metode_kunjungan = htmlspecialchars($_POST['metode'] ?? 'Kunjungan ke Shelter');
         $tanggal_jadwal   = $_POST['tanggal_jadwal'] ?? date('Y-m-d H:i:s');
         $alamat_tujuan    = ($metode_kunjungan === 'Jemput ke Rumah') ? htmlspecialchars($_POST['alamat_tujuan'] ?? '') : null;

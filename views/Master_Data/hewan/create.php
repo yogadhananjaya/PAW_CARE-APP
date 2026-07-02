@@ -122,6 +122,18 @@
                 <textarea name="deskripsi" class="form-control" rows="3" placeholder="Deskripsikan karakter dan kondisi medis hewan..."></textarea>
             </div>
 
+            <!-- Hobi -->
+            <div class="form-group">
+                <label>Hobi Hewan</label>
+                <input type="text" name="hobi" class="form-control" placeholder="Contoh: Mengejar bola kecil, tidur siang...">
+            </div>
+
+            <!-- Fun Fact -->
+            <div class="form-group">
+                <label>Fun Fact Hewan</label>
+                <input type="text" name="funfact" class="form-control" placeholder="Contoh: Hanya makan jika ditemani, takut dengan suara air...">
+            </div>
+
             <button type="submit" class="btn btn-primary" style="margin-top:10px;">Simpan Record</button>
         </form>
     </div>

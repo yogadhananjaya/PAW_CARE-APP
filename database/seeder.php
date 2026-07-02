@@ -151,7 +151,9 @@ try {
             'tgl_intake' => '2026-06-01', 
             'keterangan' => 'Kondisi sehat walafiat, manja.',
             'url_foto' => null,
-            'deskripsi' => 'Kucing persia putih bermata biru yang manis.'
+            'deskripsi' => 'Kucing persia putih bermata biru yang manis.',
+            'hobi' => 'Bermain dengan bola benang wol merah',
+            'funfact' => 'Suka tidur siang telentang dan mendengkur pelan ketika diusap lehernya.'
         ],
         [
             'kode' => 'HW0002', 
@@ -169,7 +171,9 @@ try {
             'tgl_intake' => '2026-06-15', 
             'keterangan' => 'Sangat aktif dan ramah dengan anak-anak.',
             'url_foto' => null,
-            'deskripsi' => 'Anjing Golden Retriever jantan bertubuh tegap.'
+            'deskripsi' => 'Anjing Golden Retriever jantan bertubuh tegap.',
+            'hobi' => 'Menangkap piring terbang (frisbee)',
+            'funfact' => 'Bisa tersenyum menampakkan giginya ketika merasa senang atau diajak bermain.'
         ]
     ];
 
@@ -177,15 +181,15 @@ try {
         kode_hewan, id_ras, id_jenis, nama_hewan, estimasi_umur, jenis_kelamin, 
         tanggal_lahir, status_adopsi, rekomendasi_adopsi, sumber_intake, 
         nama_donatur, kontak_donatur, tanggal_intake, keterangan_intake, 
-        url_foto_hewan, deskripsi
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        url_foto_hewan, deskripsi, hobi, funfact
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
     foreach ($hewan as $h) {
         $stmt->execute([
             $h['kode'], $h['id_ras'], $h['id_jenis'], $h['nama'], $h['umur'], $h['gender'],
             $h['tgl_lahir'], $h['status'], $h['rekomendasi'], $h['sumber'],
             $h['donatur'], $h['kontak'], $h['tgl_intake'], $h['keterangan'],
-            $h['url_foto'], $h['deskripsi']
+            $h['url_foto'], $h['deskripsi'], $h['hobi'], $h['funfact']
         ]);
     }
     echo "Sukses memasukkan data dummy Hewan.\n";

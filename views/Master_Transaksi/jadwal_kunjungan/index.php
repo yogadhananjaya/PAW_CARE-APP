@@ -63,10 +63,12 @@
       <div class="page-title">Kelola Jadwal Pertemuan Adopter</div>
       <div class="page-sub">Konfirmasi pengajuan kunjungan dari calon adopter atau jemput hewan.</div>
     </div>
+    <?php if ($_SESSION['role'] === 'SuperAdmin'): ?>
     <a href="index.php?page=jadwal_kunjungan_create" class="btn-add">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Tambah Jadwal
     </a>
+    <?php endif; ?>
   </div>
 
   <?php if (isset($_GET['confirmed'])): ?>
@@ -110,7 +112,9 @@
               <th>Hewan</th>
               <th>Metode / Tujuan</th>
               <th>Tanggal &amp; Waktu</th>
+              <?php if ($_SESSION['role'] === 'SuperAdmin'): ?>
               <th style="width:100px;">Aksi</th>
+              <?php endif; ?>
             </tr>
           </thead>
           <tbody>
@@ -127,6 +131,7 @@
                 <?php endif; ?>
               </td>
               <td><?= date('d M Y, H:i', strtotime($r['tanggal_jadwal'])) ?></td>
+              <?php if ($_SESSION['role'] === 'SuperAdmin'): ?>
               <td>
                 <div class="jk-actions">
                   <!-- Tombol Konfirmasi 1-klik (hanya muncul di baris Menunggu) -->
@@ -141,6 +146,7 @@
                   </a>
                 </div>
               </td>
+              <?php endif; ?>
             </tr>
             <?php endforeach; ?>
           </tbody>
@@ -172,7 +178,9 @@
               <th>Hewan</th>
               <th>Metode / Tujuan</th>
               <th>Tanggal &amp; Waktu</th>
+              <?php if ($_SESSION['role'] === 'SuperAdmin'): ?>
               <th style="width:100px;">Aksi</th>
+              <?php endif; ?>
             </tr>
           </thead>
           <tbody>
@@ -189,6 +197,7 @@
                 <?php endif; ?>
               </td>
               <td><?= date('d M Y, H:i', strtotime($r['tanggal_jadwal'])) ?></td>
+              <?php if ($_SESSION['role'] === 'SuperAdmin'): ?>
               <td>
                 <div class="jk-actions">
                   <!-- Tombol Selesai Kunjungan -->
@@ -203,6 +212,7 @@
                   </a>
                 </div>
               </td>
+              <?php endif; ?>
             </tr>
             <?php endforeach; ?>
           </tbody>

@@ -74,6 +74,18 @@
                 <textarea name="deskripsi" class="form-control" rows="4"><?= htmlspecialchars($hewan['deskripsi']) ?></textarea>
             </div>
 
+            <!-- Hobi -->
+            <div class="form-group">
+                <label>Hobi Hewan</label>
+                <input type="text" name="hobi" class="form-control" placeholder="Contoh: Mengejar bola kecil, tidur siang..." value="<?= htmlspecialchars($hewan['hobi'] ?? '') ?>">
+            </div>
+
+            <!-- Fun Fact -->
+            <div class="form-group">
+                <label>Fun Fact Hewan</label>
+                <input type="text" name="funfact" class="form-control" placeholder="Contoh: Hanya makan jika ditemani, takut dengan suara air..." value="<?= htmlspecialchars($hewan['funfact'] ?? '') ?>">
+            </div>
+
             <button type="submit" class="btn btn-warning" style="margin-top:10px;">Update Record</button>
         </form>
     </div>

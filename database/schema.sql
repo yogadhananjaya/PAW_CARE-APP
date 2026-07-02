@@ -71,6 +71,8 @@ CREATE TABLE IF NOT EXISTS hewan (
     keterangan_intake TEXT NULL,
     url_foto_hewan VARCHAR(255) NULL,
     deskripsi TEXT NULL,
+    hobi VARCHAR(255) NULL,
+    funfact VARCHAR(255) NULL,
     FOREIGN KEY (id_ras) REFERENCES ras(id_ras) ON DELETE CASCADE,
     FOREIGN KEY (id_jenis) REFERENCES jenis_hewan(id_jenis) ON DELETE CASCADE
 );

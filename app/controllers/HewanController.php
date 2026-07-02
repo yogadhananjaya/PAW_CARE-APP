@@ -39,7 +39,9 @@ class HewanController {
                 'tanggal_intake'    => $_POST['tanggal_intake'],
                 'keterangan_intake' => trim($_POST['keterangan_intake'] ?? ''),
                 'url_foto_hewan'    => $foto_name,
-                'deskripsi'         => trim($_POST['deskripsi'] ?? '')
+                'deskripsi'         => trim($_POST['deskripsi'] ?? ''),
+                'hobi'              => trim($_POST['hobi'] ?? ''),
+                'funfact'           => trim($_POST['funfact'] ?? '')
             ];
 
             // ponytail: Tolak jika nama + jenis + ras sudah ada
@@ -96,7 +98,9 @@ class HewanController {
                 'tanggal_intake'    => $_POST['tanggal_intake'],
                 'keterangan_intake' => trim($_POST['keterangan_intake'] ?? ''),
                 'url_foto_hewan'    => $foto_name,
-                'deskripsi'         => trim($_POST['deskripsi'] ?? '')
+                'deskripsi'         => trim($_POST['deskripsi'] ?? ''),
+                'hobi'              => trim($_POST['hobi'] ?? ''),
+                'funfact'           => trim($_POST['funfact'] ?? '')
             ];
 
             // ponytail: Tolak duplikat saat edit (kecuali record sendiri)
@@ -170,7 +174,9 @@ class HewanController {
                 'tanggal_intake'    => $_POST['tanggal_intake'],
                 'keterangan_intake' => trim($_POST['keterangan_intake'] ?? ''),
                 'url_foto_hewan'    => $foto_name,
-                'deskripsi'         => trim($_POST['deskripsi'] ?? '')
+                'deskripsi'         => trim($_POST['deskripsi'] ?? ''),
+                'hobi'              => trim($_POST['hobi'] ?? ''),
+                'funfact'           => trim($_POST['funfact'] ?? '')
             ];
 
             // ponytail: Tolak duplikat saat intake
