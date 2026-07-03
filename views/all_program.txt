@@ -3971,7 +3971,65 @@ switch ($page) {
             $api_key = get_env_var('GEMINI_API_KEY', 'GANTI_DENGAN_API_KEY_GEMINI_ANDA');
             
             if ($api_key === 'GANTI_DENGAN_API_KEY_GEMINI_ANDA' || empty($api_key)) {
-                echo json_encode(['reply' => 'Integrasi AI Chatbot belum dikonfigurasi. Harap atur GEMINI_API_KEY di file .env Anda.']);
+                // FALLBACK MODE: Deteksi kata kunci cerdas dari database lokal
+                $matched_pets = [];
+                $msg_lower = strtolower($user_message);
+                
+                foreach ($pets as $p) {
+                    $match = false;
+                    
+                    // Cek pencocokan kata kunci
+                    if (strpos($msg_lower, 'kucing') !== false && strtolower($p['nama_jenis']) === 'kucing') $match = true;
+                    if (strpos($msg_lower, 'anjing') !== false && strtolower($p['nama_jenis']) === 'anjing') $match = true;
+                    if (strpos($msg_lower, 'kelinci') !== false && strtolower($p['nama_jenis']) === 'kelinci') $match = true;
+                    if (strpos($msg_lower, 'jantan') !== false && strtolower($p['jenis_kelamin']) === 'jantan') $match = true;
+                    if (strpos($msg_lower, 'betina') !== false && strtolower($p['jenis_kelamin']) === 'betina') $match = true;
+                    if (strpos($msg_lower, 'persia') !== false && strpos(strtolower($p['nama_ras']), 'persia') !== false) $match = true;
+                    if (strpos($msg_lower, 'golden') !== false && strpos(strtolower($p['nama_ras']), 'golden') !== false) $match = true;
+                    if (strpos($msg_lower, 'bulldog') !== false && strpos(strtolower($p['nama_ras']), 'bulldog') !== false) $match = true;
+                    if (strpos($msg_lower, 'manja') !== false && (strpos(strtolower($p['deskripsi']), 'manja') !== false || strpos(strtolower($p['hobi']), 'manja') !== false)) $match = true;
+                    if (strpos($msg_lower, 'aktif') !== false && (strpos(strtolower($p['deskripsi']), 'aktif') !== false || strpos(strtolower($p['hobi']), 'aktif') !== false)) $match = true;
+                    if (strpos($msg_lower, strtolower($p['nama_hewan'])) !== false) $match = true;
+                    
+                    if ($match) {
+                        $matched_pets[] = $p;
+                    }
+                }
+                
+                $reply = "📢 **[Offline Fallback Mode - Harap atur GEMINI_API_KEY di file .env Anda untuk mengaktifkan AI asli]**\n\n";
+                if (!empty($matched_pets)) {
+                    $reply .= "Berikut rekomendasi hewan peliharaan di shelter kami yang cocok dengan pencarian Anda:\n\n";
+                    foreach ($matched_pets as $idx => $mp) {
+                        $num = $idx + 1;
+                        $reply .= "**{$num}. {$mp['nama_hewan']}** ({$mp['nama_jenis']} - {$mp['nama_ras']})\n";
+                        $reply .= "• Gender: {$mp['jenis_kelamin']}\n";
+                        $reply .= "• Umur: {$mp['estimasi_umur']} bulan\n";
+                        $reply .= "• Deskripsi: {$mp['deskripsi']}\n";
+                        $reply .= "• Hobi: *{$mp['hobi']}*\n";
+                        $reply .= "• Fun Fact: *{$mp['funfact']}*\n\n";
+                    }
+                    $reply .= "Apakah Anda tertarik untuk mengajukan adopsi atau menjadwalkan kunjungan?";
+                } else {
+                    $reply .= "Halo! Saya PawBot. Saat ini kami memiliki beberapa jenis hewan peliharaan di shelter seperti:\n";
+                    $cats = array_filter($pets, function($x) { return strtolower($x['nama_jenis']) === 'kucing'; });
+                    $dogs = array_filter($pets, function($x) { return strtolower($x['nama_jenis']) === 'anjing'; });
+                    $rabbits = array_filter($pets, function($x) { return strtolower($x['nama_jenis']) === 'kelinci'; });
+                    
+                    if (!empty($cats)) {
+                        $names = array_map(function($x) { return $x['nama_hewan']; }, array_slice($cats, 0, 3));
+                        $reply .= "• **Kucing**: " . implode(', ', $names) . "...\n";
+                    }
+                    if (!empty($dogs)) {
+                        $names = array_map(function($x) { return $x['nama_hewan']; }, array_slice($dogs, 0, 3));
+                        $reply .= "• **Anjing**: " . implode(', ', $names) . "...\n";
+                    }
+                    if (!empty($rabbits)) {
+                        $names = array_map(function($x) { return $x['nama_hewan']; }, array_slice($rabbits, 0, 3));
+                        $reply .= "• **Kelinci**: " . implode(', ', $names) . "...\n";
+                    }
+                    $reply .= "\nCoba tanyakan dengan kata kunci seperti *'kucing'*, *'anjing'*, *'jantan'*, *'aktif'*, atau nama ras seperti *'Persia'* untuk mendapatkan rekomendasi spesifik!";
+                }
+                echo json_encode(['reply' => $reply]);
                 exit;
             }
             
