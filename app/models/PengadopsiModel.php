@@ -26,6 +26,14 @@ class PengadopsiModel {
         return $stmt->fetch(); 
     }
 
+    // Cek apakah pengadopsi boleh mengajukan adopsi lagi (belum melakukan adopsi dalam 1 bulan)
+    public function canAdoptAgain($id_pengadopsi) {
+        $stmt = $this->pdo->prepare("SELECT tanggal_adopsi FROM transaksi_adopsi WHERE id_pengadopsi = ? AND status_kontrak IN ('Ditandatangani', 'Aktif') AND tanggal_adopsi >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) ORDER BY tanggal_adopsi DESC LIMIT 1");
+        $stmt->execute([$id_pengadopsi]);
+        $row = $stmt->fetch();
+        return $row ? false : true; // false = harus menunggu
+    }
+
     // Ambil data pengadopsi berdasarkan email
     public function getByEmail($email) { 
         $stmt = $this->pdo->prepare("SELECT * FROM pengadopsi WHERE email = ?"); 
@@ -33,12 +41,47 @@ class PengadopsiModel {
         return $stmt->fetch(); 
     }
 
+    private function createLinkedPengguna($pengadopsi_id) {
+        $stmt = $this->pdo->prepare("SELECT * FROM pengadopsi WHERE id_pengadopsi = ?");
+        $stmt->execute([$pengadopsi_id]);
+        $adopter = $stmt->fetch();
+
+        if (!$adopter || $adopter['status_verifikasi'] !== 'Terverifikasi' || !empty($adopter['id_pengguna'])) {
+            return false;
+        }
+
+        $stmtCheck = $this->pdo->prepare("SELECT COUNT(*) FROM pengguna WHERE LOWER(nama_pengguna) = LOWER(?)");
+        $stmtCheck->execute([$adopter['nama_pengguna']]);
+        if ($stmtCheck->fetchColumn() > 0) {
+            return false;
+        }
+
+        $kode = buat_kode_otomatis('pengguna', 'kode_pengguna', 'PG');
+        $stmtInsert = $this->pdo->prepare("INSERT INTO pengguna (kode_pengguna, nama_lengkap, jabatan, kontak, nama_pengguna, kata_sandi, role, status) VALUES (?, ?, 'Pengadopsi', ?, ?, ?, 'User', 'Aktif')");
+        $success = $stmtInsert->execute([
+            $kode,
+            $adopter['nama_lengkap'],
+            $adopter['no_hp'],
+            $adopter['nama_pengguna'],
+            $adopter['kata_sandi']
+        ]);
+
+        if ($success) {
+            $new_id_pengguna = $this->pdo->lastInsertId();
+            $stmtUpdate = $this->pdo->prepare("UPDATE pengadopsi SET id_pengguna = ? WHERE id_pengadopsi = ?");
+            $stmtUpdate->execute([$new_id_pengguna, $pengadopsi_id]);
+            return true;
+        }
+
+        return false;
+    }
+
     // Simpan data pengadopsi baru (kolom sesuai DB baru)
     public function insert($d) { 
         $kode = buat_kode_otomatis('pengadopsi', 'kode_pengadopsi', 'AD');
         $kata_sandi = password_hash($d['kata_sandi'], PASSWORD_DEFAULT);
         $stmt = $this->pdo->prepare("INSERT INTO pengadopsi (kode_pengadopsi, nama_lengkap, nama_pengguna, alamat, no_hp, email, kata_sandi, status_verifikasi, url_ktp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"); 
-        return $stmt->execute([
+        $success = $stmt->execute([
             $kode,
             $d['nama_lengkap'], 
             $d['nama_pengguna'], 
@@ -48,7 +91,16 @@ class PengadopsiModel {
             $kata_sandi,
             $d['status_verifikasi'] ?? 'Belum',
             $d['url_ktp'] ?? null
-        ]); 
+        ]);
+
+        if ($success) {
+            $lastId = $this->pdo->lastInsertId();
+            if (($d['status_verifikasi'] ?? 'Belum') === 'Terverifikasi') {
+                $this->createLinkedPengguna($lastId);
+            }
+        }
+
+        return $success;
     }
 
     // Update data pengadopsi
@@ -60,7 +112,7 @@ class PengadopsiModel {
             $kata_sandi = $existing['kata_sandi'];
         }
         $stmt = $this->pdo->prepare("UPDATE pengadopsi SET nama_lengkap=?, nama_pengguna=?, alamat=?, no_hp=?, email=?, kata_sandi=?, status_verifikasi=?, tanggal_verifikasi=?, catatan_verifikasi=?, url_ktp=? WHERE id_pengadopsi=?"); 
-        return $stmt->execute([
+        $success = $stmt->execute([
             $d['nama_lengkap'], 
             $d['nama_pengguna'], 
             $d['alamat'], 
@@ -72,7 +124,13 @@ class PengadopsiModel {
             $d['catatan_verifikasi'] ?? null,
             $d['url_ktp'] ?? null,
             $id
-        ]); 
+        ]);
+
+        if ($success && $d['status_verifikasi'] === 'Terverifikasi') {
+            $this->createLinkedPengguna($id);
+        }
+
+        return $success;
     }
 
     // Hapus pengadopsi berdasarkan ID
@@ -97,9 +155,23 @@ class PengadopsiModel {
         }
 
         // Cek di tabel pengguna
-        $stmt2 = $this->pdo->prepare("SELECT COUNT(*) FROM pengguna WHERE LOWER(nama_pengguna) = LOWER(?)");
+        $stmt2 = $this->pdo->prepare("SELECT id_pengguna FROM pengguna WHERE LOWER(nama_pengguna) = LOWER(?)");
         $stmt2->execute([$nama_pengguna]);
-        return $stmt2->fetchColumn() > 0;
+        $existing_pengguna_id = $stmt2->fetchColumn();
+        if (!$existing_pengguna_id) {
+            return false;
+        }
+
+        if ($exclude_id) {
+            $stmt3 = $this->pdo->prepare("SELECT id_pengguna FROM pengadopsi WHERE id_pengadopsi = ?");
+            $stmt3->execute([$exclude_id]);
+            $linked_pengguna_id = $stmt3->fetchColumn();
+            if ($linked_pengguna_id && $linked_pengguna_id == $existing_pengguna_id) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 ?>

@@ -280,6 +280,10 @@
                 <button onclick="openSignatureModal()" class="btn-contract btn-activate" style="background:#4f46e5; border:none; cursor:pointer;">
                     ✍ Tanda Tangani
                 </button>
+                <?php elseif (empty($data['ttd_admin']) && ($_SESSION['role'] ?? '') === 'Koordinator' && (empty($data['id_pengguna']) || ($data['id_pengguna'] ?? '') == ($_SESSION['user_id'] ?? ''))): ?>
+                <span style="font-size: 13px; color: #334155; background: #f8fafc; padding: 10px 14px; border-radius: 10px; border:1px solid #cbd5e1; display:inline-block;">
+                    Kontrak sudah ditandatangani adopter, tetapi jadwal belum selesai. Koordinator dapat menandatangani setelah status jadwal menjadi <strong>Selesai</strong>.
+                </span>
                 <?php endif; ?>
             </div>
         </div>

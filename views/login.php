@@ -133,6 +133,9 @@
                 <h1>Sign in</h1>
                 <p style="margin-bottom:15px; margin-top:5px; color:#b2bec3;">Login to manage your adoptions</p>
                 
+                <?php if (isset($_GET['registered'])): ?>
+                    <div class="alert-error" style="background:#38a169;">Akun berhasil dibuat. Silakan login dan lengkapi verifikasi data Anda.</div>
+                <?php endif; ?>
                 <?php if (isset($_GET['error'])): ?>
                     <div class="alert-error">Username atau password salah!</div>
                 <?php endif; ?>

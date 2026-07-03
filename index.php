@@ -5,6 +5,8 @@ session_start();
 require_once __DIR__ . '/config/connect.php';
 require_once __DIR__ . '/config/auth.php';
 
+sync_pengadopsi_session();
+
 $page = isset($_GET['page']) ? $_GET['page'] : 'home';
 
 switch ($page) {
@@ -67,8 +69,7 @@ switch ($page) {
                 'url_ktp' => null
             ]);
             
-            login($username, $password);
-            header('Location: index.php?page=home');
+            header('Location: index.php?page=login&registered=1');
             exit;
         }
         break;
@@ -77,6 +78,19 @@ switch ($page) {
         if (!check_access(['User'])) { header('Location: index.php?page=login'); exit; }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user_id = $_SESSION['user_id'];
+            $adopter_id = null;
+            if (isset($_SESSION['pending_adopter_id'])) {
+                $adopter_id = $_SESSION['pending_adopter_id'];
+            } else {
+                $stmt_adopter = $pdo->prepare("SELECT id_pengadopsi FROM pengadopsi WHERE id_pengguna = ?");
+                $stmt_adopter->execute([$user_id]);
+                $adopter_id = $stmt_adopter->fetchColumn();
+            }
+            
+            if (!$adopter_id) {
+                echo "<script>alert('Profil pengadopsi tidak ditemukan. Silakan logout dan coba kembali.'); window.location.href='index.php?page=dashboard_user';</script>";
+                exit;
+            }
             
             $nama_lengkap = trim($_POST['nama_lengkap']);
             $nik = trim($_POST['nik']);
@@ -144,7 +158,7 @@ switch ($page) {
             }
             
             // Lakukan update data diri lengkap pengadopsi yang sudah terbuat saat register (ubah ke status 'Menunggu')
-            $stmt = $pdo->prepare("UPDATE pengadopsi SET nama_lengkap = ?, nik = ?, alamat = ?, no_hp = ?, email = ?, url_ktp = ?, status_verifikasi = 'Menunggu' WHERE id_pengguna = ?");
+            $stmt = $pdo->prepare("UPDATE pengadopsi SET nama_lengkap = ?, nik = ?, alamat = ?, no_hp = ?, email = ?, url_ktp = ?, status_verifikasi = 'Menunggu' WHERE id_pengadopsi = ?");
             $stmt->execute([
                 trim($_POST['nama_lengkap']), 
                 trim($_POST['nik']), 
@@ -152,13 +166,14 @@ switch ($page) {
                 trim($_POST['no_hp']),
                 $email,
                 $url_ktp,
-                $user_id
+                $adopter_id
             ]);
             
             // Langsung kembalikan ke dashboard user agar melihat status sukses
             header('Location: index.php?page=dashboard_user');
             exit;
         }
+        break;
     case 'chatbot_api':
         // Syarat 1: Hanya bisa diakses jika sudah login
         if (!isset($_SESSION['user_id'])) { 
@@ -324,6 +339,33 @@ switch ($page) {
         include __DIR__ . '/views/user/dashboard_user.php';
         break;
 
+    case 'pembayaran':
+        if (!check_access(['User','Koordinator','SuperAdmin','Perawat','Perawat Hewan'])) { header('Location: index.php?page=login'); exit; }
+        require_once __DIR__ . '/app/controllers/PembayaranController.php';
+        $pembayaranCtrl = new PembayaranController();
+        $pembayaranCtrl->index();
+        break;
+
+    case 'pembayaran_create':
+        if (!check_access(['User'])) { header('Location: index.php?page=login'); exit; }
+        require_once __DIR__ . '/app/controllers/PembayaranController.php';
+        $pembayaranCtrl = new PembayaranController();
+        $pembayaranCtrl->create();
+        break;
+
+    case 'pembayaran_result':
+        if (!check_access(['User'])) { header('Location: index.php?page=login'); exit; }
+        require_once __DIR__ . '/app/controllers/PembayaranController.php';
+        $pembayaranCtrl = new PembayaranController();
+        $pembayaranCtrl->result();
+        break;
+
+    case 'pembayaran_callback':
+        require_once __DIR__ . '/app/controllers/PembayaranController.php';
+        $pembayaranCtrl = new PembayaranController();
+        $pembayaranCtrl->callback();
+        break;
+
     // --- WIZARD ADOPSI BARU (Langkah 1-4) ---
     case 'hewan_detail':
         if (!check_access(['User'])) { header('Location: index.php?page=login'); exit; }
@@ -347,22 +389,22 @@ switch ($page) {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: index.php?page=dashboard_user'); exit; }
         if (!isset($_SESSION['user_id'])) { header('Location: index.php?page=login'); exit; }
 
-        // Ambil id_pengadopsi dari user yang login
+        // Ambil id_pengadopsi dan validasi cooldown 1 bulan via model helper
+        require_once __DIR__ . '/app/models/PengadopsiModel.php';
+        $pm = new PengadopsiModel();
         $stmt_adopter = $pdo->prepare("SELECT id_pengadopsi FROM pengadopsi WHERE id_pengguna = ?");
         $stmt_adopter->execute([$_SESSION['user_id']]);
         $adopter_data = $stmt_adopter->fetch();
 
         if (!$adopter_data) {
+            // jika belum punya profil pengadopsi, minta lengkapi
             echo "<script>alert('Profil pengadopsi belum lengkap. Harap isi data diri terlebih dahulu.'); window.location.href='index.php?page=dashboard_user';</script>";
             exit;
         }
 
         $id_pengadopsi  = $adopter_data['id_pengadopsi'];
-
-        // Cek jeda 1 bulan
-        $stmt_last_adopsi = $pdo->prepare("SELECT tanggal_adopsi FROM transaksi_adopsi WHERE id_pengadopsi = ? AND status_kontrak IN ('Ditandatangani', 'Aktif') AND tanggal_adopsi >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) ORDER BY tanggal_adopsi DESC LIMIT 1");
-        $stmt_last_adopsi->execute([$id_pengadopsi]);
-        if ($stmt_last_adopsi->fetch()) {
+        // Jika tidak boleh mengajukan (masih dalam masa 1 bulan), stop dan tunjukkan pesan
+        if (!$pm->canAdoptAgain($id_pengadopsi)) {
             echo "<script>alert('Gagal: Anda harus menunggu 1 bulan sejak adopsi terakhir sebelum dapat mengajukan adopsi baru.'); window.location.href='index.php?page=dashboard_user&tab=katalog';</script>";
             exit;
         }
@@ -384,15 +426,14 @@ switch ($page) {
 
         // Buat kode transaksi otomatis
         $kode_transaksi = buat_kode_otomatis('transaksi_adopsi', 'kode_transaksi_adopsi', 'TA');
-
-        // Simpan transaksi adopsi baru
+        // Simpan transaksi adopsi baru (status 'Ditandatangani' karena tanda tangan digital sudah di-submit)
         $stmt_insert = $pdo->prepare("INSERT INTO transaksi_adopsi (kode_transaksi_adopsi, id_hewan, id_pengadopsi, tanggal_adopsi, status_kontrak, ttd_adopter) VALUES (?, ?, ?, CURDATE(), 'Ditandatangani', ?)");
         $stmt_insert->execute([$kode_transaksi, $id_hewan, $id_pengadopsi, $ttd_base64]);
 
-        // Ubah status hewan menjadi 'Dalam Proses'
+        // Ubah status hewan menjadi 'Dalam Proses' untuk mencegah user lain mengajukan adopsi pada hewan yang sama
         $pdo->prepare("UPDATE hewan SET status_adopsi = 'Dalam Proses' WHERE id_hewan = ?")->execute([$id_hewan]);
 
-        // Simpan jadwal kunjungan
+        // Simpan jadwal kunjungan (dipakai oleh tim untuk konfirmasi kunjungan/adopsi)
         $kode_jadwal = buat_kode_otomatis('jadwal_kunjungan', 'kode_jadwal_kunjungan', 'JK');
         $stmt_jadwal = $pdo->prepare("INSERT INTO jadwal_kunjungan (kode_jadwal_kunjungan, id_pengadopsi, id_hewan, metode, tanggal_jadwal, alamat_tujuan, status_jadwal) VALUES (?, ?, ?, ?, ?, ?, 'Menunggu')");
         $stmt_jadwal->execute([$kode_jadwal, $id_pengadopsi, $id_hewan, $metode_kunjungan, $tanggal_jadwal, $alamat_tujuan]);
@@ -456,6 +497,13 @@ switch ($page) {
         }
         $data = $m->getById($id);
         include __DIR__ . '/views/user/kontrak_adopsi.php';
+        break;
+
+    case 'transaksi_adopsi_sign':
+        require_once __DIR__ . '/app/controllers/TransaksiAdopsiController.php';
+        $ctrl = new TransaksiAdopsiController();
+        $id = intval($_GET['id'] ?? 0);
+        $ctrl->sign($id);
         break;
 
     // --- BATALKAN PENGAJUAN ADOPSI (oleh Adopter) ---

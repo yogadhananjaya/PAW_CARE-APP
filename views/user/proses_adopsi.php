@@ -1,25 +1,36 @@
 <?php
 global $pdo;
-
 if (empty($_SESSION['user_id'])) {
     header("Location: index.php?page=login");
     exit;
 }
 
-// 1. Ambil id_pengadopsi dari user yang login
+// Ambil id_pengadopsi menggunakan model terpusat dan cek cooldown 1 bulan
+require_once __DIR__ . '/../../app/models/PengadopsiModel.php';
+$pm = new PengadopsiModel();
 $stmt_adopter = $pdo->prepare("SELECT id_pengadopsi FROM pengadopsi WHERE id_pengguna = ?");
 $stmt_adopter->execute([$_SESSION['user_id']]);
 $adopter = $stmt_adopter->fetch();
-
 if ($adopter) {
-    // Cek apakah ada adopsi dalam 1 bulan terakhir
-    $stmt_last_adopsi = $pdo->prepare("SELECT tanggal_adopsi FROM transaksi_adopsi WHERE id_pengadopsi = ? AND status_kontrak IN ('Ditandatangani', 'Aktif') AND tanggal_adopsi >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) ORDER BY tanggal_adopsi DESC LIMIT 1");
-    $stmt_last_adopsi->execute([$adopter['id_pengadopsi']]);
-    $last_adopsi = $stmt_last_adopsi->fetch();
-    if ($last_adopsi) {
-        $tgl_bisa_adopsi = date('d F Y', strtotime($last_adopsi['tanggal_adopsi'] . ' + 1 month'));
+    // Gunakan helper untuk memeriksa apakah boleh mengajukan adopsi lagi
+    if (!$pm->canAdoptAgain($adopter['id_pengadopsi'])) {
+        // Tampilkan pesan informatif dan hentikan alur
+        $stmt_last_adopsi = $pdo->prepare("SELECT tanggal_adopsi FROM transaksi_adopsi WHERE id_pengadopsi = ? ORDER BY tanggal_adopsi DESC LIMIT 1");
+        $stmt_last_adopsi->execute([$adopter['id_pengadopsi']]);
+        $last = $stmt_last_adopsi->fetch();
+        $tgl_bisa_adopsi = $last ? date('d F Y', strtotime($last['tanggal_adopsi'] . ' + 1 month')) : '';
         include __DIR__ . '/../layouts/header.php';
-        echo "<div class='main-wrapper' style='max-width: 800px; margin: 40px auto; padding: 20px;'><div style='background:#fee2e2; border:1px solid #fecaca; color:#b91c1c; padding: 25px; border-radius:12px; font-weight:600; line-height:1.6; font-size:15px; text-align:center;'>⚠️ Maaf, Anda baru saja melakukan adopsi. Sesuai ketentuan, Anda harus menunggu 1 bulan sejak adopsi terakhir Anda sebelum mengajukan adopsi baru.<br><br>Anda baru diperbolehkan mengajukan adopsi lagi setelah tanggal: <strong style='font-size:18px; text-decoration:underline;'>{$tgl_bisa_adopsi}</strong>.</div><div style='text-align:center; margin-top:20px;'><a href='index.php?page=dashboard_user&tab=katalog' class='btn btn-secondary' style='background:#cbd5e1; color:#334155; text-decoration:none; padding:10px 20px; border-radius:8px; font-weight:700;'>Kembali ke Katalog</a></div></div>";
+                echo <<<HTML
+<div class='main-wrapper' style='max-width: 800px; margin: 40px auto; padding: 20px;'>
+    <div style='background:#fee2e2; border:1px solid #fecaca; color:#b91c1c; padding: 25px; border-radius:12px; font-weight:600; line-height:1.6; font-size:15px; text-align:center;'>
+        ⚠️ Maaf, Anda baru saja melakukan adopsi. Anda harus menunggu 1 bulan sejak adopsi terakhir sebelum mengajukan adopsi baru.<br><br>
+        Anda dapat mengajukan kembali setelah: <strong style="font-size:18px; text-decoration:underline;">{$tgl_bisa_adopsi}</strong>.
+    </div>
+    <div style="text-align:center; margin-top:20px;">
+        <a href="index.php?page=dashboard_user&tab=katalog" class="btn btn-secondary" style="background:#cbd5e1; color:#334155; text-decoration:none; padding:10px 20px; border-radius:8px; font-weight:700;">Kembali ke Katalog</a>
+    </div>
+</div>
+HTML;
         include __DIR__ . '/../layouts/footer.php';
         exit;
     }
@@ -307,8 +318,8 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
                 </div>
 
                 <div style="display: flex; justify-content: space-between; margin-top: 30px;">
-                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep(1)">Kembali</button>
-                    <button type="button" class="btn-wizard btn-next" id="btn-next-2" disabled onclick="nextStep(3)">Lanjutkan ke Tanda Tangan</button>
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep(4)">Kembali</button>
+                    <button type="button" class="btn-wizard btn-next" id="btn-next-4" onclick="validateAndNext4()">Lanjutkan ke Pembayaran</button>
                 </div>
             </div>
 
@@ -404,7 +415,10 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
 
                 <div style="display: flex; justify-content: space-between; margin-top: 30px;">
                     <button type="button" class="btn-wizard btn-prev" onclick="prevStep(4)">Kembali</button>
-                    <button type="submit" class="btn-wizard btn-next" style="background:#10b981; color:#fff;">Bayar & Selesaikan Adopsi</button>
+                    <div>
+                        <button type="button" class="btn-wizard" style="background:#4f46e5; color:#fff; margin-right:10px;" onclick="goToPayment(160000, 'VA')">Bayar via Bank (VA)</button>
+                        <button type="button" class="btn-wizard" style="background:#10b981; color:#fff;" onclick="goToPayment(160000, 'QRIS')">Bayar via QRIS</button>
+                    </div>
                 </div>
             </div>
 
@@ -526,6 +540,11 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
         const dataURL = canvas.toDataURL('image/png');
         document.getElementById('tanda_tangan_png').value = dataURL;
         nextStep(4);
+    }
+    function goToPayment(amount, metode) {
+        // Redirect ke pembayaran demo dengan parameter amount & metode
+        const url = 'index.php?page=pembayaran_create&amount=' + encodeURIComponent(amount) + '&metode=' + encodeURIComponent(metode);
+        window.location.href = url;
     }
 </script>
 

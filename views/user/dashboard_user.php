@@ -10,19 +10,66 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // 1. Ambil data profil pengadopsi
-$stmt = $pdo->prepare("SELECT * FROM pengadopsi WHERE id_pengguna = ?");
-$stmt->execute([$user_id]);
+$stmt = $pdo->prepare("SELECT * FROM pengadopsi WHERE id_pengguna = ? OR id_pengadopsi = ?");
+$stmt->execute([$user_id, $user_id]);
 $adopter = $stmt->fetch();
 
 // Menentukan tab aktif (default: beranda)
 $tab = isset($_GET['tab']) ? $_GET['tab'] : 'beranda';
 
-// 2. Ambil data katalog hewan jika akun terverifikasi
-$katalog_hewan = [];
+// 2. Tentukan status verifikasi pengadopsi
+$is_unverified = true;
+$show_verification_form = true;
+$status_txt = 'Belum Verifikasi';
+$status_color = '#7f8c8d';
+$status_bg = '#f1f5f9';
+
 if ($adopter) {
+    $is_unverified = in_array($adopter['status_verifikasi'], ['Belum', 'Menunggu', 'Ditolak']);
+} else {
+    $is_unverified = true;
+}
+
+if ($is_unverified && $tab !== 'beranda') {
+    $tab = 'beranda';
+}
+
+if ($adopter) {
+    if ($adopter['status_verifikasi'] === 'Terverifikasi') {
+        $is_unverified = false;
+        $show_verification_form = false;
+        $status_txt = 'Terverifikasi';
+        $status_color = '#27ae60';
+        $status_bg = '#eafaf1';
+    } elseif ($adopter['status_verifikasi'] === 'Menunggu') {
+        $status_txt = 'Menunggu Verifikasi';
+        $status_color = '#d35400';
+        $status_bg = '#FFF4EC';
+        $show_verification_form = false;
+    } elseif ($adopter['status_verifikasi'] === 'Ditolak') {
+        $status_txt = 'Ditolak';
+        $status_color = '#c0392b';
+        $status_bg = '#fdedec';
+        $show_verification_form = true;
+    } else {
+        $status_txt = 'Belum Verifikasi';
+        $status_color = '#7f8c8d';
+        $status_bg = '#f1f5f9';
+        $show_verification_form = true;
+    }
+}
+
+// 3. Ambil data katalog hewan jika akun sudah terverifikasi
+$katalog_hewan = [];
+if ($adopter && !$is_unverified) {
     $stmt_hewan = $pdo->query("SELECT h.*, j.nama_jenis, r.nama_ras FROM hewan h JOIN jenis_hewan j ON h.id_jenis = j.id_jenis JOIN ras r ON h.id_ras = r.id_ras WHERE h.status_adopsi = 'Tersedia' AND h.rekomendasi_adopsi = 1 ORDER BY h.id_hewan DESC");
     $katalog_hewan = $stmt_hewan->fetchAll();
 }
+
+// Ambil data gallery hewan yang tersedia untuk ditampilkan pada beranda
+$gallery_pets = [];
+$stmt_gallery = $pdo->query("SELECT h.*, j.nama_jenis, r.nama_ras FROM hewan h JOIN jenis_hewan j ON h.id_jenis = j.id_jenis JOIN ras r ON h.id_ras = r.id_ras WHERE h.status_adopsi = 'Tersedia' ORDER BY h.id_hewan DESC LIMIT 6");
+$gallery_pets = $stmt_gallery->fetchAll();
 
 // 3. Ambil data pengajuan adopsi milik user ini (untuk tab Pengajuan Saya)
 $my_submissions = [];
@@ -53,13 +100,13 @@ if ($adopter) {
     <style>
         /* CSS Dashboard Standar Sesuai Gambar Referensi */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
-        body { background-color: #F8F9FA; color: #2c3e50; }
+        body { background-color: #fff; color: #2c3e50; min-height: 100vh; overflow-x: hidden; }
 
         /* Top Navbar Styling */
         .top-navbar {
             display: flex; justify-content: space-between; align-items: center;
-            background: #FFFFFF; padding: 15px 5%; border-bottom: 1px solid #EAEAEA;
-            position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            background: #FFFFFF; padding: 20px 5%; border-bottom: 1px solid rgba(255,156,55,0.16);
+            position: sticky; top: 0; z-index: 100; box-shadow: 0 18px 60px rgba(255,156,55,0.12);
         }
         
         .nav-left { display: flex; align-items: center; gap: 40px; }
@@ -92,7 +139,41 @@ if ($adopter) {
         .logout-btn:hover { color: #c0392b; }
 
         /* Main Content Grid */
-        .main-content { max-width: 1200px; margin: 0 auto; padding: 40px 5%; }
+        .main-content { width: 100%; margin: 0; padding: 30px 4%; }
+
+        /* Hero Section */
+        .hero-section { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 28px; align-items: center; min-height: calc(100vh - 110px); background: linear-gradient(135deg, #fff9ec 0%, #ffe8bd 38%, #ffd186 70%, #fff9f0 100%); color: #2b2b2b; padding: 50px 4%; border-radius: 0 0 40px 40px; margin-bottom: 30px; overflow: hidden; position: relative; }
+        .hero-section::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(255,255,255,0.85), transparent 22%); pointer-events: none; }
+        .hero-content { position: relative; z-index: 1; }
+        .hero-badge { display: inline-flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.9); padding: 12px 18px; border-radius: 999px; font-size: 13px; letter-spacing: 0.4px; margin-bottom: 20px; color: #c16104; box-shadow: 0 18px 60px rgba(255,184,79,0.12); }
+        .hero-badge strong { color: #d97706; }
+        .hero-title { font-size: clamp(3rem, 5vw, 5rem); line-height: 0.98; font-weight: 900; margin-bottom: 20px; max-width: 580px; color: #1d1d1d; }
+        .hero-title span { color: #f97316; }
+        .hero-subtitle { max-width: 640px; color: #5b4b33; font-size: 1.05rem; margin-bottom: 28px; line-height: 1.75; }
+        .hero-buttons { display: flex; flex-wrap: wrap; gap: 16px; }
+        .hero-buttons a { padding: 16px 34px; border-radius: 999px; font-weight: 700; font-size: 0.95rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; transition: transform 0.25s ease, box-shadow 0.25s ease; }
+        .hero-buttons a.btn-primary { background: linear-gradient(135deg, #ffb703 0%, #fb8500 100%); color: #1c1c1c; box-shadow: 0 24px 50px rgba(251,133,0,0.25); }
+        .hero-buttons a.btn-secondary { background: rgba(255,255,255,0.96); color: #1d1d1d; }
+        .hero-buttons a:hover { transform: translateY(-2px); box-shadow: 0 22px 48px rgba(0,0,0,0.12); }
+        .hero-image { position: relative; display: flex; justify-content: center; align-items: center; transform-style: preserve-3d; }
+        .hero-image .hero-photo { width: 100%; max-width: 540px; border-radius: 36px; box-shadow: 0 45px 100px rgba(255,156,55,0.2); border: 8px solid rgba(255,255,255,0.85); background: #fff; transition: transform 0.6s ease; animation: floatImage 8s ease-in-out infinite; }
+        .hero-image:hover .hero-photo { transform: translateY(-10px) scale(1.03); }
+        .hero-image::after { content: ''; position: absolute; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,183,62,0.16); filter: blur(20px); top: -30px; right: -50px; pointer-events: none; }
+        .scroll-indicator { display: flex; flex-direction: column; align-items: center; gap: 8px; color: #d97706; margin: 0 auto 30px; text-align: center; }
+        .scroll-indicator span { font-size: 0.78rem; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.9; }
+        .scroll-indicator .arrow { width: 18px; height: 18px; border-left: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); animation: scrollBounce 1.6s infinite; }
+        @keyframes floatImage { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        @keyframes scrollBounce { 0%, 20% { transform: translate(-50%, 0) rotate(-45deg); opacity: 0.8; } 50% { transform: translate(-50%, 6px) rotate(-45deg); opacity: 1; } 100% { transform: translate(-50%, 0) rotate(-45deg); opacity: 0.8; } }
+        .hero-image .hero-card { position: absolute; right: 18px; bottom: 18px; width: 240px; background: rgba(255,255,255,0.96); border-radius: 28px; padding: 20px 22px; color: #1f2937; box-shadow: 0 22px 45px rgba(15,23,42,0.14); border: 1px solid rgba(255,156,55,0.16); }
+        .hero-image .hero-card h4 { margin-bottom: 8px; font-size: 1rem; font-weight: 800; }
+        .hero-image .hero-card p { margin: 0; color: #475569; font-size: 0.95rem; line-height: 1.65; }
+
+        .hero-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 28px; }
+        .hero-stat { background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.72)); border: 1px solid rgba(255,255,255,0.55); border-radius: 20px; padding: 18px 20px; }
+        .hero-stat strong { display: block; font-size: 1.55rem; font-weight: 800; color: #d97706; margin-bottom: 8px; }
+        .hero-stat span { font-size: 0.85rem; color: #7a5a25; }
+
+        .section-title { font-size: 22px; font-weight: 700; color: #1A1A1A; margin-bottom: 25px; }
 
         /* Welcome Card */
         .welcome-card { background: #FFF; padding: 30px; border-radius: 20px; border: 1px solid #EAEAEA; margin-bottom: 30px; }
@@ -153,9 +234,29 @@ if ($adopter) {
         .guide-card { background: #FFF; padding: 25px; border-radius: 16px; border: 1px solid #EAEAEA; text-align: center; }
         .guide-number { width: 40px; height: 40px; background: #e67e22; color: #FFF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 15px; }
 
+        .gallery-section { margin-top: 30px; }
+        .gallery-section h2 { color: #1f2937; margin-bottom: 18px; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+        .gallery-card { position: relative; border-radius: 26px; overflow: hidden; min-height: 260px; box-shadow: 0 25px 70px rgba(0,0,0,0.08); }
+        .gallery-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .gallery-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 35%, rgba(20,20,20,0.65) 100%); opacity: 0; transition: opacity .3s ease; }
+        .gallery-card:hover .gallery-overlay { opacity: 1; }
+        .gallery-label { position: absolute; left: 20px; bottom: 20px; color: #fff; z-index: 2; }
+        .gallery-label h4 { margin: 0 0 6px; font-size: 18px; line-height: 1.2; }
+        .gallery-label span { font-size: 13px; color: #f9e6c2; }
+
+        @media (max-width: 1024px) {
+            .hero-section { grid-template-columns: 1fr; padding: 36px 5%; min-height: auto; }
+            .hero-image { margin-top: 20px; }
+        }
+
         @media (max-width: 768px) {
             .nav-links { display: none; }
-            .main-content { padding: 20px; }
+            .main-content { padding: 20px 3%; }
+            .hero-title { font-size: 2.8rem; }
+            .hero-section { padding: 30px 3%; border-radius: 20px; }
+            .hero-buttons { flex-direction: column; width: 100%; }
+            .hero-buttons a { width: 100%; }
         }
     </style>
 </head>
@@ -165,9 +266,6 @@ if ($adopter) {
         <div class="nav-left">
             <a href="index.php?page=dashboard_user" class="navbar-brand">🐾 PawCare</a>
             <div class="nav-links">
-                <?php 
-                $is_unverified = (!$adopter || in_array($adopter['status_verifikasi'], ['Belum', 'Menunggu', 'Ditolak']));
-                ?>
                 <a href="index.php?page=dashboard_user&tab=beranda" class="nav-item <?= $tab == 'beranda' ? 'active' : '' ?>">Beranda</a>
                 
                 <?php if ($is_unverified): ?>
@@ -219,7 +317,7 @@ if ($adopter) {
 
     <div class="main-content">
         
-        <?php if (!$adopter): ?>
+        <?php if ($show_verification_form): ?>
             <div class="verify-card">
                 <h2>Lengkapi Data Diri</h2>
                 <p style="color:#95a5a6; font-size:14px; margin-bottom:25px;">Silakan isi data diri sesuai KTP dan unggah foto KTP Anda untuk mengaktifkan seluruh fitur dashboard.</p>
@@ -255,77 +353,56 @@ if ($adopter) {
 
         <?php else: ?>
                  <?php if ($tab == 'beranda'): ?>
-                <!-- Hero Section -->
-                <section class="hero" style="padding: 40px 0; margin-bottom: 40px;">
+                <section class="hero-section">
                     <div class="hero-content">
-                        <div class="tagline">🐾 Lebih dari sekadar Shelter</div>
-                        <h1>Adopt your<br><span>pet friend</span></h1>
-                        <p>Berikan rumah permanen yang penuh kasih. Temukan sahabat bulu Anda hari ini dan selamatkan nyawa mereka.</p>
-                        <a href="index.php?page=dashboard_user&tab=katalog" class="nav-btn btn-fill" style="padding: 15px 40px; font-size: 16px; text-decoration: none; display: inline-block;">Lihat Katalog</a>
-                    </div>
-                    <div class="hero-image hidden-mobile" id="hero-img-container">
-                        <div class="bg-circle"></div>
-                        <img src="assets/img/logo.png" alt="PawCare" class="pet-img" id="hero-pet-image" style="max-width: 380px; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.05));">
-                    </div>
-                </section>
-
-                <!-- Stats Section -->
-                <section class="stats-section" style="margin-bottom: 40px;">
-                    <h2 style="font-size: 32px; font-family: 'Outfit', sans-serif; color: #0f172a;">Dampak Nyata PawCare</h2>
-                    <p style="color: #94a3b8; margin-top: 10px;">Komitmen kami dalam menyelamatkan dan menyalurkan kasih sayang</p>
-                    <div class="stats-grid-landing">
-                        <div class="stat-card-landing">
-                            <div class="number">1,240+</div>
-                            <div class="label">Hewan Diselamatkan</div>
+                        <div class="hero-badge"><strong>PawCare</strong> Shelter & Adopsi</div>
+                        <h1 class="hero-title">Live Your<br><span>Pet Adoption Adventure</span></h1>
+                        <p class="hero-subtitle">Temukan hewan peliharaan yang tepat, pelihara dengan cinta, dan jadikan momen adopsi Anda penuh arti bersama PawCare.</p>
+                        <div class="hero-buttons">
+                            <a href="index.php?page=dashboard_user&tab=katalog" class="btn-primary">Lihat Katalog</a>
+                            <a href="index.php?page=dashboard_user&tab=pengajuan" class="btn-secondary">Riwayat Pengajuan</a>
                         </div>
-                        <div class="stat-card-landing">
-                            <div class="number">980+</div>
-                            <div class="label">Adopsi Sukses</div>
+                        <div class="hero-stats">
+                            <div class="hero-stat"><strong>1.200+</strong><span>Hewan Diselamatkan</span></div>
+                            <div class="hero-stat"><strong>840+</strong><span>Adopsi Sukses</span></div>
+                            <div class="hero-stat"><strong>4.9/5</strong><span>Rating Kepuasan</span></div>
                         </div>
-                        <div class="stat-card-landing">
-                            <div class="number">150M+</div>
-                            <div class="label">Donasi Tersalurkan</div>
+                    </div>
+                    <div class="hero-image">
+                        <img src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?auto=format&fit=crop&w=900&q=80" alt="Hewan Peliharaan" class="hero-photo">
+                        <div class="hero-card">
+                            <h4>PawCare Shelter</h4>
+                            <p>Kami merawat setiap hewan dengan kasih sayang, kesehatan, dan keamanan sebelum mereka menemukan keluarga baru.</p>
                         </div>
                     </div>
                 </section>
 
-                <!-- Adoption Flow Section -->
-                <section class="flow-section" style="margin-bottom: 40px;">
-                    <div style="text-align:center;"><h2 class="interactive-title" style="font-size:36px; color:#0f172a; font-family:'Outfit', sans-serif; margin-bottom:10px;">Alur Adopsi Mudah</h2></div>
-                    <p style="text-align:center; color:#94a3b8; margin-top:10px;">Langkah sederhana untuk membawa sahabat baru Anda pulang</p>
-                    <div class="flow-grid">
-                        <div class="flow-card">
-                            <div class="flow-badge">1</div>
-                            <h4>Cari Sahabat</h4>
-                            <p>Telusuri katalog hewan online kami dan temukan yang cocok dengan kepribadian Anda.</p>
-                        </div>
-                        <div class="flow-card">
-                            <div class="flow-badge">2</div>
-                            <h4>Kunjungi Shelter</h4>
-                            <p>Temui langsung calon sahabat bulu Anda di shelter kami untuk interaksi tatap muka.</p>
-                        </div>
-                        <div class="flow-card">
-                            <div class="flow-badge">3</div>
-                            <h4>Formulir & Kontrak</h4>
-                            <p>Lengkapi data diri dan tandatangani kontrak adopsi secara digital yang aman.</p>
-                        </div>
-                        <div class="flow-card">
-                            <div class="flow-badge">4</div>
-                            <h4>Bawa Pulang</h4>
-                            <p>Sambut anggota keluarga baru Anda di rumah dengan penuh kebahagiaan.</p>
-                        </div>
-                    </div>
-                </section>
+                <div class="scroll-indicator">
+                    <span>Scroll untuk melihat hewan</span>
+                    <div class="arrow"></div>
+                </div>
 
-                <!-- Video Section -->
-                <section class="video-section" style="margin-bottom: 40px;">
-                    <div style="text-align:center;"><h2 class="interactive-title" style="font-size:36px; color:#0f172a; margin-bottom:20px; font-family:'Outfit', sans-serif;">Mengenal Shelter Kami</h2></div>
-                    <p style="text-align:center; color:#94a3b8; margin-bottom:40px;">Lihat bagaimana kami merawat mereka sebelum menemukan keluarga barunya.</p>
-                    <div style="max-width:800px; margin:0 auto; border-radius:20px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.1);">
-                        <video width="100%" controls poster="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=800&q=80">
-                            <source src="assets/video/profil_shelter.mp4" type="video/mp4">
-                            Maaf, browser Anda tidak mendukung pemutar video.
-                        </video>
+                <section class="gallery-section">
+                    <div class="section-heading" style="margin-bottom: 18px;">
+                        <h2>Galeri Pilihan</h2>
+                        <p style="color:#64748b; font-size:14px; max-width: 720px;">Lihat beberapa hewan yang siap adopsi dan temukan sahabat baru dengan mudah.</p>
+                    </div>
+                    <div class="gallery-grid">
+                        <?php foreach ($gallery_pets as $pet): ?>
+                            <?php
+                                $imagePath = !empty($pet['url_foto_hewan']) ? "uploads/hewan/{$pet['url_foto_hewan']}" : "assets/img/logo.png";
+                                $petName = htmlspecialchars($pet['nama_hewan']);
+                                $petType = htmlspecialchars($pet['nama_jenis']);
+                            ?>
+                            <article class="gallery-card">
+                                <img src="<?= htmlspecialchars($imagePath) ?>" alt="Foto <?= $petName ?>">
+                                <div class="gallery-overlay"></div>
+                                <div class="gallery-label">
+                                    <h4><?= $petName ?></h4>
+                                    <span><?= $petType ?></span>
+                                </div>
+                            </article>
+                        <?php endforeach; ?>
                     </div>
                 </section>
             <?php elseif ($tab == 'katalog'): ?>

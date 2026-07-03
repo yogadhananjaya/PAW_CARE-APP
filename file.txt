@@ -1,0 +1,32 @@
+Project change log — recent updates
+
+1) Payment subsystem (simulator)
+- Added model: app/models/PembayaranModel.php
+- Added controller: app/controllers/PembayaranController.php
+- Added views: views/pembayaran/create.php, views/pembayaran/result.php, views/pembayaran/index.php
+- Added migration: database/migrasi_pembayaran.sql
+- Behavior: local simulator for VA, QRIS, GOPAY, OVO, Credit Card.
+- Stores provider response in JSON `metadata`; uses `reference` to link webhooks.
+- Note: This is a demo implementation. Replace with real gateway APIs and webhook signature checks for production.
+
+2) Adoption flow and validations
+- views/user/proses_adopsi.php: integrated payment buttons, uses model helper to check 1-month cooldown, preserved signature canvas and flow.
+- index.php: submission route now calls `PengadopsiModel::canAdoptAgain()` server-side; added comments clarifying steps (availability check, transaction insert, status update, schedule save).
+
+3) Pengadopsi model and session sync
+- app/models/PengadopsiModel.php: added `createLinkedPengguna()` (defer creating `pengguna` until admin verifies) and `canAdoptAgain()` (centralized 1-month business rule).
+- config/auth.php: added `sync_pengadopsi_session()` to reconcile pending-adopter sessions after approval.
+
+4) Code quality and fixes
+- Replaced fragile inline HTML echo with heredoc where needed to fix parse errors.
+- Removed redundancy by centralizing rules in model helper methods.
+- Added concise comments in key files (`index.php`, `app/controllers/PembayaranController.php`, `app/models/PembayaranModel.php`).
+- Ran `php -l` across the project and fixed reported syntax issues.
+
+5) What remains / recommended next steps
+- Run the DB migration: import `database/migrasi_pembayaran.sql` to create the `pembayaran` table.
+- Manually test: visit the adoption wizard and trigger the payment demo (or call `index.php?page=pembayaran_create&amount=...&metode=...`).
+- Integrate a real payment provider (Midtrans/Xendit) for production flows; implement webhook signature verification and secure storage of API keys (use `.env`).
+- Add notifications (email/SMS) for payment and approval events as needed.
+
+If you want, I can import the migration now and run a quick end-to-end test (create demo payment + simulate webhook).
