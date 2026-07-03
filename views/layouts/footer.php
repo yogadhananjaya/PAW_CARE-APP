@@ -21,5 +21,6 @@
         }
     }
 </script>
+<?php include __DIR__ . '/../user/chatbot_widget.php'; ?>
 </body>
 </html>

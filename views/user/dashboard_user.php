@@ -489,5 +489,6 @@ if ($adopter) {
 
         <?php endif; ?>
     </div>
+    <?php include __DIR__ . '/chatbot_widget.php'; ?>
 </body>
 </html>

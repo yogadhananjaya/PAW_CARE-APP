@@ -159,8 +159,86 @@ switch ($page) {
             header('Location: index.php?page=dashboard_user');
             exit;
         }
+    case 'chatbot_api':
+        // Syarat 1: Hanya bisa diakses jika sudah login
+        if (!isset($_SESSION['user_id'])) { 
+            echo json_encode(['reply' => 'Sesi berakhir. Silakan login kembali untuk berinteraksi dengan PawBot.']); 
+            exit; 
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $user_message = trim($_POST['message'] ?? '');
+            if (empty($user_message)) {
+                echo json_encode(['reply' => 'Pesan tidak boleh kosong.']);
+                exit;
+            }
+            
+            // Syarat 2: Tarik HANYA data hewan dari database yang tersedia (status_adopsi = 'Tersedia')
+            $stmt = $pdo->query("SELECT h.nama_hewan, j.nama_jenis, r.nama_ras, h.jenis_kelamin, h.estimasi_umur, h.deskripsi, h.hobi, h.funfact FROM hewan h JOIN jenis_hewan j ON h.id_jenis = j.id_jenis JOIN ras r ON h.id_ras = r.id_ras WHERE h.status_adopsi = 'Tersedia'");
+            $pets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $db_context = "Data hewan di shelter saat ini:\n";
+            if (count($pets) > 0) {
+                foreach($pets as $p) {
+                    $db_context .= "- Nama: {$p['nama_hewan']} | Spesies: {$p['nama_jenis']} ({$p['nama_ras']}) | Gender: {$p['jenis_kelamin']} | Umur: {$p['estimasi_umur']} bulan | Hobi: {$p['hobi']} | Fun Fact: {$p['funfact']} | Deskripsi: {$p['deskripsi']}\n";
+                }
+            } else {
+                $db_context .= "Saat ini tidak ada hewan yang tersedia.\n";
+            }
+
+            // System Prompt: Mengunci AI agar tidak berhalusinasi keluar dari konteks dan memberikan rekomendasi
+            $system_prompt = "Kamu adalah PawBot, asisten AI pemberi rekomendasi adopsi hewan dari PawCare. TUGAS UTAMA: Berikan rekomendasi hewan yang cocok berdasarkan preferensi atau pertanyaan user. ATURAN KETAT:\n1. Kamu HANYA BOLEH merekomendasikan hewan dari daftar 'Data hewan di shelter saat ini' yang diberikan.\n2. Jangan pernah menyebutkan atau merekomendasikan hewan yang tidak ada di daftar database tersebut.\n3. Jika user mencari spesifikasi atau kriteria hewan yang tidak tersedia, katakan dengan jujur bahwa kriteria tersebut sedang tidak tersedia di database, lalu tawarkan opsi hewan lain yang paling mendekati dari data yang ada.\n4. Jawablah dengan ramah, komunikatif, dan menggunakan bahasa Indonesia yang santun namun ringkas.";
+
+            // Ambil API KEY dari env
+            $api_key = get_env_var('GEMINI_API_KEY', 'GANTI_DENGAN_API_KEY_GEMINI_ANDA');
+            
+            if ($api_key === 'GANTI_DENGAN_API_KEY_GEMINI_ANDA' || empty($api_key)) {
+                echo json_encode(['reply' => 'Integrasi AI Chatbot belum dikonfigurasi. Harap atur GEMINI_API_KEY di file .env Anda.']);
+                exit;
+            }
+            
+            // Format Payload untuk Gemini API (gemini-1.5-flash)
+            $data = [
+                "contents" => [
+                    ["role" => "user", "parts" => [["text" => $system_prompt . "\n\n" . $db_context . "\n\nPertanyaan User: " . $user_message]]]
+                ],
+                "generationConfig" => [
+                    "temperature" => 0.2
+                ]
+            ];
+
+            // Proses cURL ke Google Gemini API
+            $ch = curl_init("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $api_key);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            
+            // Optional: skip SSL verification for local environments (if needed)
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            
+            $response = curl_exec($ch);
+            if (curl_errno($ch)) {
+                $error_msg = curl_error($ch);
+                echo json_encode(['reply' => 'Maaf, terjadi kesalahan koneksi AI: ' . $error_msg]);
+                exit;
+            }
+            curl_close($ch);
+            
+            $result = json_decode($response, true);
+            
+            // Ekstrak jawaban AI
+            if (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
+                $ai_reply = $result['candidates'][0]['content']['parts'][0]['text'];
+            } else {
+                $ai_reply = "Maaf, sistem AI sedang sibuk atau mengalami masalah respons. Silakan coba kembali nanti.";
+            }
+
+            echo json_encode(['reply' => $ai_reply]);
+            exit;
+        }
         break;
-        
+
     case 'logout':
         logout();
         header('Location: index.php');
