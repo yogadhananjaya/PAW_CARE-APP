@@ -17,15 +17,27 @@ class JadwalKunjunganController {
     }
 
     public function create() {
+        $error_validation = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            //  tolak jika adopter + hewan sudah punya jadwal aktif
-            if ($this->m->isDuplicate($_POST['id_pengadopsi'], $_POST['id_hewan'])) {
-                header('Location: index.php?page=jadwal_kunjungan_create&error=duplicate');
+            $id_pengadopsi = $_POST['id_pengadopsi'] ?? '';
+            $id_hewan = $_POST['id_hewan'] ?? '';
+            $tanggal_jadwal = $_POST['tanggal_jadwal'] ?? '';
+
+            if (empty($id_pengadopsi)) {
+                $error_validation = "Wajib memilih pengadopsi!";
+            } elseif (empty($id_hewan)) {
+                $error_validation = "Wajib memilih hewan!";
+            } elseif (empty($tanggal_jadwal)) {
+                $error_validation = "Wajib menentukan tanggal dan jam kunjungan!";
+            } elseif (date('Y-m-d', strtotime($tanggal_jadwal)) < date('Y-m-d')) {
+                $error_validation = "Tanggal kunjungan tidak boleh di masa lampau!";
+            } elseif ($this->m->isDuplicate($id_pengadopsi, $id_hewan)) {
+                $error_validation = "Pengadopsi ini sudah memiliki jadwal kunjungan aktif untuk hewan tersebut!";
+            } else {
+                $this->m->insert($_POST);
+                header('Location: index.php?page=jadwal_kunjungan');
                 exit;
             }
-            $this->m->insert($_POST);
-            header('Location: index.php?page=jadwal_kunjungan');
-            exit;
         }
         $a = $this->m->getPengadopsi();
         $h = $this->m->getHewan();
@@ -34,15 +46,27 @@ class JadwalKunjunganController {
     }
 
     public function edit($id) {
+        $error_validation = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            //  tolak jika adopter + hewan sudah punya jadwal aktif di record LAIN
-            if ($this->m->isDuplicate($_POST['id_pengadopsi'], $_POST['id_hewan'], $id)) {
-                header('Location: index.php?page=jadwal_kunjungan_edit&id=' . $id . '&error=duplicate');
+            $id_pengadopsi = $_POST['id_pengadopsi'] ?? '';
+            $id_hewan = $_POST['id_hewan'] ?? '';
+            $tanggal_jadwal = $_POST['tanggal_jadwal'] ?? '';
+
+            if (empty($id_pengadopsi)) {
+                $error_validation = "Wajib memilih pengadopsi!";
+            } elseif (empty($id_hewan)) {
+                $error_validation = "Wajib memilih hewan!";
+            } elseif (empty($tanggal_jadwal)) {
+                $error_validation = "Wajib menentukan tanggal dan jam kunjungan!";
+            } elseif (date('Y-m-d', strtotime($tanggal_jadwal)) < date('Y-m-d')) {
+                $error_validation = "Tanggal kunjungan tidak boleh di masa lampau!";
+            } elseif ($this->m->isDuplicate($id_pengadopsi, $id_hewan, $id)) {
+                $error_validation = "Pengadopsi ini sudah memiliki jadwal kunjungan aktif untuk hewan tersebut!";
+            } else {
+                $this->m->update($id, $_POST);
+                header('Location: index.php?page=jadwal_kunjungan');
                 exit;
             }
-            $this->m->update($id, $_POST);
-            header('Location: index.php?page=jadwal_kunjungan');
-            exit;
         }
         $data = $this->m->getById($id);
         $a = $this->m->getPengadopsi();

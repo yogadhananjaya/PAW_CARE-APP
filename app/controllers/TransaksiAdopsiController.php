@@ -17,28 +17,43 @@ class TransaksiAdopsiController {
     }
 
     public function create() {
+        $error_duplikat = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Set penanggung jawab otomatis ke Koordinator
-            if (empty($_POST['id_pengguna'])) {
-                if (($_SESSION['jabatan'] ?? '') === 'Koordinator' || ($_SESSION['role'] ?? '') === 'Koordinator') {
-                    $_POST['id_pengguna'] = $_SESSION['user_id'];
-                } else {
-                    $_POST['id_pengguna'] = $this->m->getFirstKoordinatorId() ?: null;
+            $id_pengadopsi = $_POST['id_pengadopsi'] ?? '';
+            $id_hewan = $_POST['id_hewan'] ?? '';
+            $tanggal_adopsi = $_POST['tanggal_adopsi'] ?? '';
+
+            if (empty($id_pengadopsi)) {
+                $error_duplikat = "Wajib memilih pengadopsi!";
+            } elseif (empty($id_hewan)) {
+                $error_duplikat = "Wajib memilih hewan!";
+            } elseif (empty($tanggal_adopsi)) {
+                $error_duplikat = "Wajib menentukan tanggal adopsi!";
+            } elseif ($tanggal_adopsi > date('Y-m-d')) {
+                $error_duplikat = "Tanggal adopsi tidak boleh melebihi hari ini!";
+            } else {
+                // Set penanggung jawab otomatis ke Koordinator jika belum diset
+                if (empty($_POST['id_pengguna'])) {
+                    if (($_SESSION['jabatan'] ?? '') === 'Koordinator' || ($_SESSION['role'] ?? '') === 'Koordinator') {
+                        $_POST['id_pengguna'] = $_SESSION['user_id'];
+                    } else {
+                        $_POST['id_pengguna'] = $this->m->getFirstKoordinatorId() ?: null;
+                    }
                 }
-            }
-            //  Tolak duplikat adopter + hewan yang masih aktif
-            if ($this->m->isDuplicate($_POST['id_hewan'], $_POST['id_pengadopsi'])) {
-                $data = $this->m->getAll();
-                $a = $this->m->getPengadopsi();
-                $h = $this->m->getHewan();
-                $pg = $this->m->getPengguna();
-                $error_duplikat = "Adopter ini sudah memiliki transaksi adopsi aktif (Draft/Aktif) untuk hewan yang sama!";
-                include __DIR__ . '/../../views/Master_Transaksi/transaksi_adopsi/index.php';
+                //  Tolak duplikat adopter + hewan yang masih aktif
+                if ($this->m->isDuplicate($id_hewan, $id_pengadopsi)) {
+                    $data = $this->m->getAll();
+                    $a = $this->m->getPengadopsi();
+                    $h = $this->m->getHewan();
+                    $pg = $this->m->getPengguna();
+                    $error_duplikat = "Adopter ini sudah memiliki transaksi adopsi aktif (Draft/Aktif) untuk hewan yang sama!";
+                    include __DIR__ . '/../../views/Master_Transaksi/transaksi_adopsi/index.php';
+                    exit;
+                }
+                $this->m->insert($_POST);
+                header('Location: index.php?page=transaksi_adopsi');
                 exit;
             }
-            $this->m->insert($_POST);
-            header('Location: index.php?page=transaksi_adopsi');
-            exit;
         }
         $a = $this->m->getPengadopsi();
         $h = $this->m->getHewan();
@@ -47,20 +62,35 @@ class TransaksiAdopsiController {
     }
 
     public function edit($id) {
+        $error_duplikat = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            //  Tolak duplikat saat edit (kecuali record sendiri)
-            if ($this->m->isDuplicate($_POST['id_hewan'], $_POST['id_pengadopsi'], $id)) {
-                $data = $this->m->getById($id);
-                $a = $this->m->getPengadopsi();
-                $h = $this->m->getHewan();
-                $pg = $this->m->getPengguna();
-                $error_duplikat = "Adopter ini sudah memiliki transaksi adopsi aktif untuk hewan yang sama!";
-                include __DIR__ . '/../../views/Master_Transaksi/transaksi_adopsi/edit.php';
+            $id_pengadopsi = $_POST['id_pengadopsi'] ?? '';
+            $id_hewan = $_POST['id_hewan'] ?? '';
+            $tanggal_adopsi = $_POST['tanggal_adopsi'] ?? '';
+
+            if (empty($id_pengadopsi)) {
+                $error_duplikat = "Wajib memilih pengadopsi!";
+            } elseif (empty($id_hewan)) {
+                $error_duplikat = "Wajib memilih hewan!";
+            } elseif (empty($tanggal_adopsi)) {
+                $error_duplikat = "Wajib menentukan tanggal adopsi!";
+            } elseif ($tanggal_adopsi > date('Y-m-d')) {
+                $error_duplikat = "Tanggal adopsi tidak boleh melebihi hari ini!";
+            } else {
+                //  Tolak duplikat saat edit (kecuali record sendiri)
+                if ($this->m->isDuplicate($id_hewan, $id_pengadopsi, $id)) {
+                    $data = $this->m->getById($id);
+                    $a = $this->m->getPengadopsi();
+                    $h = $this->m->getHewan();
+                    $pg = $this->m->getPengguna();
+                    $error_duplikat = "Adopter ini sudah memiliki transaksi adopsi aktif untuk hewan yang sama!";
+                    include __DIR__ . '/../../views/Master_Transaksi/transaksi_adopsi/edit.php';
+                    exit;
+                }
+                $this->m->update($id, $_POST);
+                header('Location: index.php?page=transaksi_adopsi');
                 exit;
             }
-            $this->m->update($id, $_POST);
-            header('Location: index.php?page=transaksi_adopsi');
-            exit;
         }
         $data = $this->m->getById($id);
         $a = $this->m->getPengadopsi();

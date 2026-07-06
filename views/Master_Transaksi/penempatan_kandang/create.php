@@ -6,6 +6,11 @@
         <a href="index.php?page=penempatan_kandang" class="btn btn-secondary">&larr; Batal</a>
     </header>
     <div class="card" style="max-width: 600px;">
+        <?php if (!empty($error_validation)): ?>
+            <div style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-weight:600;font-size:14px;">
+                ⚠️ <?= htmlspecialchars($error_validation) ?>
+            </div>
+        <?php endif; ?>
         <form action="index.php?page=penempatan_kandang_create" method="POST">
             <div class="form-group">
                 <label>Pilih Hewan</label>

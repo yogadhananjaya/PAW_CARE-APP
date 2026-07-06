@@ -6,6 +6,11 @@
         <a href="index.php?page=jadwal_kunjungan" class="btn btn-secondary">&larr; Batal</a>
     </header>
     <div class="card" style="max-width: 650px;">
+        <?php if (!empty($error_validation)): ?>
+            <div style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-weight:600;font-size:14px;">
+                ⚠️ <?= htmlspecialchars($error_validation) ?>
+            </div>
+        <?php endif; ?>
         <?php if (isset($_GET['error']) && $_GET['error'] === 'duplicate'): ?>
             <div style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-weight:600;font-size:14px;">
                 ⚠️ Adopter ini sudah memiliki jadwal aktif untuk hewan yang sama. Selesaikan atau batalkan jadwal sebelumnya terlebih dahulu.
