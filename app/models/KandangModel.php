@@ -19,7 +19,7 @@ class KandangModel {
         return $stmt->fetch(); 
     }
 
-    // ponytail: kode_kandang dan nama_kandang harus unik
+    //   kode_kandang dan nama_kandang harus unik
     public function isDuplicate($kode_kandang, $nama_kandang, $exclude_id = null) {
         $sql = "SELECT COUNT(*) FROM kandang WHERE (LOWER(kode_kandang) = LOWER(?) OR LOWER(nama_kandang) = LOWER(?))";
         $params = [$kode_kandang, $nama_kandang];

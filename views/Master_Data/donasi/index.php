@@ -1,7 +1,7 @@
 <?php include __DIR__ . '/../../layouts/header.php'; ?>
 <?php include __DIR__ . '/../../layouts/sidebar_admin.php'; ?>
 
-<!-- CSS Tambahan untuk Penyesuaian Tampilan Premium (Gaya Pemula) -->
+<!-- CSS Tambahan untuk Penyesuaian Tampilan Premium -->
 <style>
     .stat-pemasukan::before { background-color: #2ecc71 !important; }
     .stat-pengeluaran::before { background-color: #e74c3c !important; }
@@ -9,7 +9,7 @@
 </style>
 
 <?php
-// === HITUNG TOTAL PEMASUKAN & PENGELUARAN (GAYA PEMULA) ===
+// === HITUNG TOTAL PEMASUKAN & PENGELUARAN ===
 // Kita membuat variabel awal bernilai 0
 $total_pemasukan = 0;
 $total_pengeluaran = 0;
@@ -31,7 +31,7 @@ foreach ($data as $row) {
 // Saldo kas bersih adalah total pemasukan dikurangi pengeluaran
 $saldo_bersih = $total_pemasukan - $total_pengeluaran;
 
-// === PISAHKAN DATA TRANSAKSI (GAYA PEMULA) ===
+// === PISAHKAN DATA TRANSAKSI ===
 // Kita siapkan wadah kosong untuk menampung data
 $donasi_pending = array();
 $semua_transaksi = $data; // Semua data dimasukkan ke jurnal agar transparan
@@ -177,7 +177,7 @@ foreach ($data as $row) {
             </div>
             
             <form action="index.php?page=donasi_create" method="POST">
-                <!-- Data Default untuk Pengeluaran (Gaya Pemula) -->
+                <!-- Data Default untuk Pengeluaran -->
                 <input type="hidden" name="kategori" value="Pengeluaran">
                 <input type="hidden" name="nama_donatur" value="Operasional">
                 <input type="hidden" name="metode_pembayaran" value="Tunai">

@@ -18,7 +18,7 @@ class JadwalKunjunganController {
 
     public function create() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // ponytail: tolak jika adopter + hewan sudah punya jadwal aktif
+            //  tolak jika adopter + hewan sudah punya jadwal aktif
             if ($this->m->isDuplicate($_POST['id_pengadopsi'], $_POST['id_hewan'])) {
                 header('Location: index.php?page=jadwal_kunjungan_create&error=duplicate');
                 exit;
@@ -35,7 +35,7 @@ class JadwalKunjunganController {
 
     public function edit($id) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // ponytail: tolak jika adopter + hewan sudah punya jadwal aktif di record LAIN
+            //  tolak jika adopter + hewan sudah punya jadwal aktif di record LAIN
             if ($this->m->isDuplicate($_POST['id_pengadopsi'], $_POST['id_hewan'], $id)) {
                 header('Location: index.php?page=jadwal_kunjungan_edit&id=' . $id . '&error=duplicate');
                 exit;
@@ -57,20 +57,20 @@ class JadwalKunjunganController {
         exit;
     }
 
-    // ponytail: Konfirmasi jadwal langsung tanpa buka form edit
+    //  Konfirmasi jadwal langsung tanpa buka form edit
     public function confirm($id) {
         $this->m->setStatus($id, 'Dikonfirmasi');
         header('Location: index.php?page=jadwal_kunjungan&confirmed=1');
         exit;
     }
 
-    // ponytail: Selesaikan jadwal pertemuan langsung tanpa buka form edit
+    //  Selesaikan jadwal pertemuan langsung tanpa buka form edit
     public function complete($id) {
         $this->m->setStatus($id, 'Selesai');
         header('Location: index.php?page=jadwal_kunjungan&success_complete=1');
         exit;
     }
-    // ponytail: Batalkan/Tolak jadwal kunjungan langsung
+    //  Batalkan/Tolak jadwal kunjungan langsung
     public function reject($id) {
         $this->m->setStatus($id, 'Batal');
         header('Location: index.php?page=jadwal_kunjungan&cancelled=1');

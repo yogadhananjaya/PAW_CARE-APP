@@ -109,7 +109,7 @@
     <div class="sidebar-section-title">Transaksi</div>
     <ul class="sidebar-links">
         <?php if (($_SESSION['role'] ?? '') === 'Koordinator'): ?>
-            <!-- ponytail: Khusus Koordinator tampil langsung tanpa dropdown -->
+            <!-- Khusus Koordinator tampil langsung tanpa dropdown -->
             <li>
                 <a href="index.php?page=riwayat_kesehatan" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'riwayat_kesehatan') echo 'active'; ?>">
                     🩺 Riwayat Kesehatan
@@ -131,7 +131,7 @@
                 </a>
             </li>
         <?php elseif (in_array($_SESSION['role'] ?? '', ['Perawat', 'Perawat Hewan'])): ?>
-            <!-- ponytail: Khusus Perawat/Staff tampil langsung tanpa dropdown, hanya modul relevan harian -->
+            <!-- Khusus Perawat/Staff tampil langsung tanpa dropdown, hanya modul relevan harian -->
             <li>
                 <a href="index.php?page=riwayat_kesehatan" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'riwayat_kesehatan') echo 'active'; ?>">
                     🩺 Riwayat Kesehatan

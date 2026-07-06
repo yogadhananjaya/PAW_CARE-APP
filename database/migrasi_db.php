@@ -8,7 +8,8 @@ echo "=== MEMULAI MIGRASI DATABASE PAW CARE (CREATE OR ALTER MODE) ===\n";
 $sql_files = [
     __DIR__ . '/schema.sql',
     __DIR__ . '/schema_master_sisa.sql',
-    __DIR__ . '/schema_transaksi.sql'
+    __DIR__ . '/schema_transaksi.sql',
+    __DIR__ . '/migrasi_pembayaran.sql'
 ];
 
 foreach ($sql_files as $file) {

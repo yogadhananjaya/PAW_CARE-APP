@@ -14,7 +14,7 @@ class PengadopsiModel {
         return $this->pdo->query("SELECT * FROM pengadopsi ORDER BY id_pengadopsi DESC")->fetchAll(); 
     }
 
-    // ponytail: Ambil pengadopsi yang sudah terverifikasi saja
+    //   Ambil pengadopsi yang sudah terverifikasi saja
     public function getVerifiedAdopters() {
         return $this->pdo->query("SELECT * FROM pengadopsi WHERE status_verifikasi = 'Terverifikasi' ORDER BY nama_lengkap ASC")->fetchAll();
     }
@@ -139,7 +139,7 @@ class PengadopsiModel {
         return $stmt->execute([$id]); 
     }
 
-    // ponytail: nama_pengguna (username) harus unik lintas pengadopsi dan pengguna
+    //   nama_pengguna (username) harus unik lintas pengadopsi dan pengguna
     public function isDuplicateUsername($nama_pengguna, $exclude_id = null) {
         // Cek di tabel pengadopsi
         $sql1 = "SELECT COUNT(*) FROM pengadopsi WHERE LOWER(nama_pengguna) = LOWER(?)";

@@ -65,14 +65,14 @@ class DonasiController {
         exit;
     }
 
-    // Aksi untuk menyetujui donasi (Gaya pemula)
+    // Aksi untuk menyetujui donasi  
     public function confirm($id) {
         $this->m->updateStatus($id, 'Dikonfirmasi');
         header('Location: index.php?page=donasi');
         exit;
     }
 
-    // Aksi untuk menolak donasi (Gaya pemula)
+    // Aksi untuk menolak donasi  
     public function reject($id) {
         $this->m->updateStatus($id, 'Ditolak');
         header('Location: index.php?page=donasi');

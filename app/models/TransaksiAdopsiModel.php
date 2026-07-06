@@ -41,7 +41,7 @@ class TransaksiAdopsiModel {
     public function insert($d) { 
         $kode = buat_kode_otomatis('transaksi_adopsi', 'kode_transaksi_adopsi', 'TA');
         
-        // ponytail: validasi agar id_pengguna yang dimasukkan benar-benar ada di db
+        //   validasi agar id_pengguna yang dimasukkan benar-benar ada di db
         $id_pengguna = null;
         if (!empty($d['id_pengguna'])) {
             $check = $this->pdo->prepare("SELECT COUNT(*) FROM pengguna WHERE id_pengguna = ?");
@@ -62,7 +62,7 @@ class TransaksiAdopsiModel {
         ]); 
     }
 
-    // ponytail: Cek duplikat - adopter + hewan sama dengan kontrak masih aktif
+    //   Cek duplikat - adopter + hewan sama dengan kontrak masih aktif
     public function isDuplicate($id_hewan, $id_pengadopsi, $exclude_id = null) {
         $sql = "SELECT COUNT(*) FROM transaksi_adopsi WHERE id_hewan = ? AND id_pengadopsi = ? AND status_kontrak IN ('Draft','Aktif')";
         $params = [$id_hewan, $id_pengadopsi];
@@ -77,7 +77,7 @@ class TransaksiAdopsiModel {
 
     // Update transaksi adopsi
     public function update($id, $d) { 
-        // ponytail: validasi agar id_pengguna yang dimasukkan benar-benar ada di db
+        //   validasi agar id_pengguna yang dimasukkan benar-benar ada di db
         $id_pengguna = null;
         if (!empty($d['id_pengguna'])) {
             $check = $this->pdo->prepare("SELECT COUNT(*) FROM pengguna WHERE id_pengguna = ?");
@@ -139,7 +139,7 @@ class TransaksiAdopsiModel {
         return $this->pdo->query("SELECT id_pengguna, nama_lengkap, nama_pengguna FROM pengguna WHERE jabatan = 'Koordinator' AND id_pengguna NOT IN (SELECT id_pengguna FROM transaksi_adopsi WHERE status_kontrak IN ('Draft', 'Aktif') AND id_pengguna IS NOT NULL) ORDER BY nama_lengkap ASC")->fetchAll();
     }
 
-    // ponytail: Mengubah status kontrak adopsi secara langsung
+    //   Mengubah status kontrak adopsi secara langsung
     public function setStatus($id, $status) {
         $stmt = $this->pdo->prepare("UPDATE transaksi_adopsi SET status_kontrak = ? WHERE id_adopsi = ?");
         $success = $stmt->execute([$status, $id]);
@@ -158,13 +158,13 @@ class TransaksiAdopsiModel {
         return $success;
     }
 
-    // ponytail: Menyimpan tanda tangan digital Admin/Koordinator
+    //   Menyimpan tanda tangan digital Admin/Koordinator
     public function saveAdminSignature($id, $ttd_base64) {
         $stmt = $this->pdo->prepare("UPDATE transaksi_adopsi SET ttd_admin = ? WHERE id_adopsi = ?");
         return $stmt->execute([$ttd_base64, $id]);
     }
 
-    // ponytail: Assign koordinator ke transaksi (first-come-first-serve)
+    //   Assign koordinator ke transaksi (first-come-first-serve)
     public function assignKoordinator($id, $id_pengguna) {
         $stmt = $this->pdo->prepare("UPDATE transaksi_adopsi SET id_pengguna = ? WHERE id_adopsi = ? AND id_pengguna IS NULL");
         return $stmt->execute([$id_pengguna, $id]);

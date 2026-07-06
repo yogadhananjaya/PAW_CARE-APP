@@ -37,7 +37,7 @@ class JadwalKunjunganModel {
         ]); 
     }
 
-    // ponytail: Cek duplikat - adopter + hewan sama dengan status masih aktif
+    //  Cek duplikat - adopter + hewan sama dengan status masih aktif
     public function isDuplicate($id_pengadopsi, $id_hewan, $exclude_id = null) {
         $sql = "SELECT COUNT(*) FROM jadwal_kunjungan WHERE id_pengadopsi = ? AND id_hewan = ? AND status_jadwal IN ('Menunggu','Dikonfirmasi')";
         $params = [$id_pengadopsi, $id_hewan];
@@ -71,7 +71,7 @@ class JadwalKunjunganModel {
         return $stmt->execute([$id]); 
     }
 
-    // ponytail: Ubah status jadwal (Dikonfirmasi / Selesai / Batal)
+    //  Ubah status jadwal (Dikonfirmasi / Selesai / Batal)
     public function setStatus($id, $status) {
         $stmt = $this->pdo->prepare("UPDATE jadwal_kunjungan SET status_jadwal = ? WHERE id_jadwal = ?");
         return $stmt->execute([$status, $id]);

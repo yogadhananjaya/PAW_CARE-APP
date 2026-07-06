@@ -21,7 +21,7 @@ class PengadopsiController {
             // Cek keunikan username
             $db_check_user = $this->m->isDuplicateUsername($_POST['nama_pengguna']);
             
-            // ponytail: Validasi format username (huruf, angka, underscore, 4-20 karakter)
+            //   Validasi format username (huruf, angka, underscore, 4-20 karakter)
             if (!preg_match('/^[a-zA-Z0-9_]{4,20}$/', trim($_POST['nama_pengguna']))) {
                 $error = "Username hanya boleh berupa huruf, angka, underscore, dan panjang antara 4 sampai 20 karakter!";
             } elseif ($db_check) {
@@ -29,7 +29,7 @@ class PengadopsiController {
             } elseif ($db_check_user) {
                 $error = "Username '" . htmlspecialchars($_POST['nama_pengguna']) . "' sudah terdaftar! Gunakan username lain.";
             } else {
-                // Upload foto KTP (Gaya pemula)
+                // Upload foto KTP
                 $foto_name = null;
                 if (isset($_FILES['url_ktp']) && $_FILES['url_ktp']['error'] === UPLOAD_ERR_OK) {
                     $folder = __DIR__ . '/../../assets/img/ktp/';
@@ -63,7 +63,7 @@ class PengadopsiController {
             // Cek keunikan username
             $db_check_user = $this->m->isDuplicateUsername($_POST['nama_pengguna'], $id);
             
-            // ponytail: Validasi format username (huruf, angka, underscore, 4-20 karakter)
+            //   Validasi format username (huruf, angka, underscore, 4-20 karakter)
             if (!preg_match('/^[a-zA-Z0-9_]{4,20}$/', trim($_POST['nama_pengguna']))) {
                 $error = "Username hanya boleh berupa huruf, angka, underscore, dan panjang antara 4 sampai 20 karakter!";
             } elseif ($db_check && $db_check['id_pengadopsi'] != $id) {

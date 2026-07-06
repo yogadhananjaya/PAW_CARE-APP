@@ -24,7 +24,7 @@ try {
     die("Koneksi database gagal: " . $e->getMessage());
 }
 
-// Fungsi Helper untuk membuat Kode Alfanumerik Otomatis (Gaya Pemula & Universal)
+// Fungsi Helper untuk membuat Kode Alfanumerik Otomatis
 function buat_kode_otomatis($nama_tabel, $nama_kolom, $prefix) {
     global $pdo;
     

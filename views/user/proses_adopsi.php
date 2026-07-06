@@ -318,8 +318,8 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
                 </div>
 
                 <div style="display: flex; justify-content: space-between; margin-top: 30px;">
-                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep(4)">Kembali</button>
-                    <button type="button" class="btn-wizard btn-next" id="btn-next-4" onclick="validateAndNext4()">Lanjutkan ke Pembayaran</button>
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep(1)">Kembali</button>
+                    <button type="button" class="btn-wizard btn-next" id="btn-next-2" disabled onclick="nextStep(3)">Lanjutkan ke Tanda Tangan</button>
                 </div>
             </div>
 
@@ -352,23 +352,15 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
 
             <!-- LANGKAH 4: JADWAL KUNJUNGAN -->
             <div class="wizard-panel" id="panel-4">
-                <h3 style="margin-bottom: 10px; color: #1e293b;">4. Tentukan Jadwal Kunjungan atau Penjemputan</h3>
-                <p style="color: #64748b; font-size: 13px; margin-bottom: 25px;">Pilih metode dan waktu kunjungan untuk proses adopsi.</p>
+                <h3 style="margin-bottom: 10px; color: #1e293b;">4. Tentukan Jadwal Kunjungan ke Shelter</h3>
+                <p style="color: #64748b; font-size: 13px; margin-bottom: 25px;">Tentukan waktu kedatangan Anda ke shelter untuk bertemu langsung dengan calon peliharaan baru Anda.</p>
 
                 <div class="visit-card">
-                    <label style="font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 5px; display: block;">Metode</label>
-                    <select name="metode" id="metode_kunjungan" class="pk-input" onchange="toggleAlamatField()" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; margin-bottom: 15px;">
-                        <option value="Kunjungan ke Shelter">Kunjungan ke Shelter</option>
-                        <option value="Jemput ke Rumah">Jemput ke Rumah</option>
-                    </select>
+                    <input type="hidden" name="metode" id="metode_kunjungan" value="Kunjungan ke Shelter">
+                    <input type="hidden" name="alamat_tujuan" value="">
 
-                    <label style="font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 5px; display: block;">Tanggal & Waktu</label>
+                    <label style="font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 5px; display: block;">Tanggal & Waktu Kunjungan</label>
                     <input type="datetime-local" name="tanggal_jadwal" class="pk-input" required min="<?= date('Y-m-d\TH:i') ?>" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; margin-bottom: 15px;">
-
-                    <div id="alamat_tujuan_wrapper" style="display: none;">
-                        <label style="font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 5px; display: block;">Alamat Pengantaran / Penjemputan</label>
-                        <textarea name="alamat_tujuan" class="pk-input" placeholder="Tuliskan alamat lengkap pengantaran hewan" rows="3" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; margin-bottom: 15px;"></textarea>
-                    </div>
                 </div>
 
                 <div style="display: flex; justify-content: space-between; margin-top: 30px;">
@@ -445,22 +437,9 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
         document.getElementById('btn-next-2').disabled = !chk.checked;
     }
 
-    function toggleAlamatField() {
-        var metode = document.getElementById('metode_kunjungan').value;
-        var wrapper = document.getElementById('alamat_tujuan_wrapper');
-        if (metode === 'Jemput ke Rumah') {
-            wrapper.style.display = 'block';
-        } else {
-            wrapper.style.display = 'none';
-        }
-    }
-
     function validateAndNext4() {
-        var metode = document.getElementById('metode_kunjungan').value;
         var tanggal = document.querySelector('input[name="tanggal_jadwal"]').value;
-        var alamat = document.querySelector('textarea[name="alamat_tujuan"]').value;
         if (!tanggal) { alert('Silakan pilih tanggal dan waktu kunjungan.'); return; }
-        if (metode === 'Jemput ke Rumah' && !alamat.trim()) { alert('Silakan isi alamat pengantaran untuk metode Jemput ke Rumah.'); return; }
         nextStep(5);
     }
 

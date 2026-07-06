@@ -32,17 +32,10 @@
                     <?php foreach($p as $pg): ?><option value="<?= $pg['id_pengguna'] ?>" <?= $data['id_pengguna']==$pg['id_pengguna']?'selected':'' ?>><?= $pg['nama_pengguna'] ?></option><?php endforeach; ?>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Metode Kunjungan</label>
-                <select name="metode" class="form-control" required>
-                    <option value="Kunjungan ke Shelter" <?= $data['metode']=='Kunjungan ke Shelter'?'selected':'' ?>>Kunjungan ke Shelter</option>
-                    <option value="Jemput ke Rumah" <?= $data['metode']=='Jemput ke Rumah'?'selected':'' ?>>Jemput ke Rumah Adopter</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Alamat Tujuan</label>
-                <textarea name="alamat_tujuan" class="form-control" rows="2" placeholder="Alamat lengkap..."><?= htmlspecialchars($data['alamat_tujuan'] ?? '') ?></textarea>
-            </div>
+            <!-- Metode Kunjungan (Statis ke Shelter) -->
+            <input type="hidden" name="metode" value="Kunjungan ke Shelter">
+            <input type="hidden" name="alamat_tujuan" value="">
+
             <div class="form-group">
                 <label>Tanggal & Jam Jadwal</label>
                 <input type="datetime-local" name="tanggal_jadwal" value="<?= date('Y-m-d\TH:i', strtotime($data['tanggal_jadwal'])) ?>" class="form-control" required>

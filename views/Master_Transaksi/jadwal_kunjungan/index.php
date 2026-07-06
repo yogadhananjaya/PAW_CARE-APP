@@ -61,7 +61,7 @@
   <div class="header-row">
     <div>
       <div class="page-title">Kelola Jadwal Pertemuan Adopter</div>
-      <div class="page-sub">Konfirmasi pengajuan kunjungan dari calon adopter atau jemput hewan.</div>
+      <div class="page-sub">Konfirmasi pengajuan kunjungan dari calon adopter ke shelter.</div>
     </div>
     <?php if ($_SESSION['role'] === 'SuperAdmin'): ?>
     <a href="index.php?page=jadwal_kunjungan_create" class="btn-add">

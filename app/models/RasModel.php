@@ -23,7 +23,7 @@ class RasModel
         return $stmt->fetch();
     }
 
-    // ponytail: nama_ras + id_jenis harus unik (case-insensitive)
+    //   nama_ras + id_jenis harus unik (case-insensitive)
     public function isDuplicate($nama_ras, $id_jenis, $exclude_id = null)
     {
         $sql = "SELECT COUNT(*) FROM ras WHERE LOWER(nama_ras) = LOWER(?) AND id_jenis = ?";

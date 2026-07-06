@@ -44,7 +44,7 @@ class HewanController {
                 'funfact'           => trim($_POST['funfact'] ?? '')
             ];
 
-            // ponytail: Tolak jika nama + jenis + ras sudah ada
+            //  Tolak jika nama + jenis + ras sudah ada
             if ($this->model->isDuplicate($payload['nama_hewan'], $payload['id_jenis'], $payload['id_ras'])) {
                 $jenis_list = $this->model->getOpsiJenis();
                 $ras_list = $this->model->getOpsiRas();
@@ -103,7 +103,7 @@ class HewanController {
                 'funfact'           => trim($_POST['funfact'] ?? '')
             ];
 
-            // ponytail: Tolak duplikat saat edit (kecuali record sendiri)
+            //  Tolak duplikat saat edit (kecuali record sendiri)
             if ($this->model->isDuplicate($payload['nama_hewan'], $payload['id_jenis'], $payload['id_ras'], $id)) {
                 $error_duplikat = "Hewan dengan nama, jenis, dan ras yang sama sudah terdaftar!";
                 include __DIR__ . '/../../views/Master_Data/hewan/edit.php';
@@ -179,7 +179,7 @@ class HewanController {
                 'funfact'           => trim($_POST['funfact'] ?? '')
             ];
 
-            // ponytail: Tolak duplikat saat intake
+            //   Tolak duplikat saat intake
             if ($this->model->isDuplicate($payload['nama_hewan'], $payload['id_jenis'], $payload['id_ras'])) {
                 $jenis_list = $this->model->getOpsiJenis();
                 $ras_list = $this->model->getOpsiRas();

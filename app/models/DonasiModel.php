@@ -58,7 +58,7 @@ class DonasiModel {
         return $stmt->execute([$id]); 
     }
 
-    // Perbarui status konfirmasi donasi (Gaya pemula)
+    // Perbarui status konfirmasi donasi  
     public function updateStatus($id, $status) {
         $stmt = $this->pdo->prepare("UPDATE donasi SET status_konfirmasi = ? WHERE id_donasi = ?");
         $hasil = $stmt->execute([$status, $id]);

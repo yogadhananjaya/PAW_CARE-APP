@@ -21,7 +21,7 @@ class PenggunaModel {
         return $stmt->fetch(); 
     }
 
-    // ponytail: nama_pengguna (username) harus unik lintas pengguna dan pengadopsi
+    //   nama_pengguna (username) harus unik lintas pengguna dan pengadopsi
     public function isDuplicate($nama_pengguna, $exclude_id = null) {
         // Cek di tabel pengguna
         $sql1 = "SELECT COUNT(*) FROM pengguna WHERE LOWER(nama_pengguna) = LOWER(?)";
@@ -42,7 +42,7 @@ class PenggunaModel {
         return $stmt2->fetchColumn() > 0;
     }
 
-    // ponytail: nomor kontak (HP) harus unik
+    //   nomor kontak (HP) harus unik
     public function isDuplicateKontak($kontak, $exclude_id = null) {
         $sql = "SELECT COUNT(*) FROM pengguna WHERE kontak = ?";
         $params = [$kontak];

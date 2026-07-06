@@ -127,7 +127,7 @@ class RiwayatKesehatanModel {
         return $this->pdo->query("SELECT id_pengguna, nama_pengguna FROM pengguna WHERE jabatan = 'Perawat Hewan'")->fetchAll(); 
     }
 
-    // ponytail: after Karantina Selesai, set rekomendasi untuk approval Koordinator
+    //   after Karantina Selesai, set rekomendasi untuk approval Koordinator
     public function rilisKarantina($id_hewan) {
         $stmt = $this->pdo->prepare("UPDATE hewan SET rekomendasi_adopsi = 1 WHERE id_hewan = ?");
         return $stmt->execute([$id_hewan]);

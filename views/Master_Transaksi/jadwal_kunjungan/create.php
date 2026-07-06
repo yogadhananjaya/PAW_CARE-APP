@@ -39,20 +39,9 @@
                 </select>
             </div>
 
-            <!-- Metode Kunjungan -->
-            <div class="form-group">
-                <label>Metode Kunjungan</label>
-                <select name="metode" class="form-control" required id="metode_select" onchange="toggleAlamat()">
-                    <option value="Kunjungan ke Shelter">Kunjungan ke Shelter</option>
-                    <option value="Jemput ke Rumah">Jemput ke Rumah Adopter</option>
-                </select>
-            </div>
-
-            <!-- Alamat Tujuan (muncul jika Jemput ke Rumah) -->
-            <div class="form-group" id="alamat_section" style="display:none;">
-                <label>Alamat Tujuan Jemput</label>
-                <textarea name="alamat_tujuan" class="form-control" rows="2" placeholder="Alamat lengkap rumah adopter..."></textarea>
-            </div>
+            <!-- Metode Kunjungan (Statis ke Shelter) -->
+            <input type="hidden" name="metode" value="Kunjungan ke Shelter">
+            <input type="hidden" name="alamat_tujuan" value="">
 
             <!-- Tanggal & Jam Jadwal -->
             <div class="form-group">
@@ -75,12 +64,5 @@
         </form>
     </div>
 </div>
-
-<script>
-function toggleAlamat() {
-    var metode = document.getElementById('metode_select').value;
-    document.getElementById('alamat_section').style.display = (metode === 'Jemput ke Rumah') ? 'block' : 'none';
-}
-</script>
 
 <?php include __DIR__ . '/../../layouts/footer.php'; ?>

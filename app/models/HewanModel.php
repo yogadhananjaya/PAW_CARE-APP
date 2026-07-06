@@ -26,7 +26,7 @@ class HewanModel {
         return $stmt->fetch(); 
     }
 
-    // ponytail: Cek duplikat nama hewan dengan jenis & ras yang sama
+    //   Cek duplikat nama hewan dengan jenis & ras yang sama
     public function isDuplicate($nama_hewan, $id_jenis, $id_ras, $exclude_id = null) {
         $sql = "SELECT COUNT(*) FROM hewan WHERE LOWER(nama_hewan) = LOWER(?) AND id_jenis = ? AND id_ras = ?";
         $params = [$nama_hewan, $id_jenis, $id_ras];

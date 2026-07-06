@@ -26,7 +26,7 @@ class VaksinModel {
         return $stmt->fetch(); 
     }
 
-    // ponytail: nama_vaksin harus unik (case-insensitive)
+    //   nama_vaksin harus unik (case-insensitive)
     public function isDuplicate($nama_vaksin, $exclude_id = null) {
         $sql = "SELECT COUNT(*) FROM vaksin WHERE LOWER(nama_vaksin) = LOWER(?)";
         $params = [$nama_vaksin];
