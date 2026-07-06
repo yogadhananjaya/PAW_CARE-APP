@@ -11,6 +11,11 @@
             <a href="index.php?page=ras_create" class="btn btn-primary">+ Tambah Ras</a>
         <?php endif; ?>
     </header>
+    <?php if (isset($_GET['error_delete'])): ?>
+        <div style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-weight:600;font-size:14px;">
+            ⚠️ Gagal menghapus: Ras ini masih digunakan oleh data hewan!
+        </div>
+    <?php endif; ?>
     <div class="card">
         <table class="crud-table">
             <thead>

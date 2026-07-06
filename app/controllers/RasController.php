@@ -18,7 +18,11 @@ class RasController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nama_ras = trim($_POST['nama_ras']);
             $id_jenis = $_POST['id_jenis'];
-            if ($this->m->isDuplicate($nama_ras, $id_jenis)) {
+            if ($nama_ras === '') {
+                $error_duplikat = "Nama ras tidak boleh kosong!";
+            } elseif (strlen($nama_ras) > 100) {
+                $error_duplikat = "Nama ras tidak boleh lebih dari 100 karakter!";
+            } elseif ($this->m->isDuplicate($nama_ras, $id_jenis)) {
                 $error_duplikat = "Ras '{$nama_ras}' sudah terdaftar dalam jenis hewan yang dipilih!";
             } else {
                 $this->m->insert($id_jenis, $nama_ras);
@@ -35,7 +39,11 @@ class RasController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nama_ras = trim($_POST['nama_ras']);
             $id_jenis = $_POST['id_jenis'];
-            if ($this->m->isDuplicate($nama_ras, $id_jenis, $id)) {
+            if ($nama_ras === '') {
+                $error_duplikat = "Nama ras tidak boleh kosong!";
+            } elseif (strlen($nama_ras) > 100) {
+                $error_duplikat = "Nama ras tidak boleh lebih dari 100 karakter!";
+            } elseif ($this->m->isDuplicate($nama_ras, $id_jenis, $id)) {
                 $error_duplikat = "Ras '{$nama_ras}' sudah terdaftar dalam jenis hewan yang dipilih!";
             } else {
                 $this->m->update($id, $id_jenis, $nama_ras);
@@ -49,6 +57,10 @@ class RasController {
     }
 
     public function delete($id) {
+        if ($this->m->isUsedInHewan($id)) {
+            header('Location: index.php?page=ras&error_delete=1');
+            exit;
+        }
         $this->m->delete($id);
         header('Location: index.php?page=ras');
         exit;

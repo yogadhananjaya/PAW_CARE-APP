@@ -86,6 +86,18 @@ class HewanModel {
         return $stmt->execute([$id]);
     }
 
+    public function isUsed($id) {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM transaksi_adopsi WHERE id_hewan = ? AND status_kontrak != 'Batal'");
+        $stmt->execute([$id]);
+        if ($stmt->fetchColumn() > 0) return true;
+
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM jadwal_kunjungan WHERE id_hewan = ? AND status_jadwal != 'Batal'");
+        $stmt->execute([$id]);
+        if ($stmt->fetchColumn() > 0) return true;
+
+        return false;
+    }
+
     // Hapus hewan berdasarkan ID
     public function delete($id) { 
         $stmt = $this->pdo->prepare("DELETE FROM hewan WHERE id_hewan = ?"); 

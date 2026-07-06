@@ -133,6 +133,18 @@ class PengadopsiModel {
         return $success;
     }
 
+    public function isUsed($id) {
+        $stmt1 = $this->pdo->prepare("SELECT COUNT(*) FROM transaksi_adopsi WHERE id_pengadopsi = ? AND status_kontrak != 'Batal'");
+        $stmt1->execute([$id]);
+        if ($stmt1->fetchColumn() > 0) return true;
+
+        $stmt2 = $this->pdo->prepare("SELECT COUNT(*) FROM jadwal_kunjungan WHERE id_pengadopsi = ? AND status_jadwal != 'Batal'");
+        $stmt2->execute([$id]);
+        if ($stmt2->fetchColumn() > 0) return true;
+
+        return false;
+    }
+
     // Hapus pengadopsi berdasarkan ID
     public function delete($id) { 
         $stmt = $this->pdo->prepare("DELETE FROM pengadopsi WHERE id_pengadopsi = ?"); 

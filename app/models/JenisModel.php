@@ -43,6 +43,22 @@ class JenisModel {
         return $stmt->execute([$nama_jenis, $id]); 
     }
 
+    public function isUsed($id) {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM ras WHERE id_jenis = ?");
+        $stmt->execute([$id]);
+        if ($stmt->fetchColumn() > 0) return true;
+
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM hewan WHERE id_jenis = ?");
+        $stmt->execute([$id]);
+        if ($stmt->fetchColumn() > 0) return true;
+
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM kandang WHERE id_jenis = ?");
+        $stmt->execute([$id]);
+        if ($stmt->fetchColumn() > 0) return true;
+
+        return false;
+    }
+
     public function delete($id) { 
         $stmt = $this->pdo->prepare("DELETE FROM jenis_hewan WHERE id_jenis = ?"); 
         return $stmt->execute([$id]); 

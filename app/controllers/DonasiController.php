@@ -20,14 +20,21 @@ class DonasiController {
             $nominal = (float)($_POST['nominal'] ?? 0);
             $nama_donatur = trim($_POST['nama_donatur'] ?? '');
             $tanggal = $_POST['tanggal'] ?? '';
+            $keterangan = trim($_POST['keterangan'] ?? '');
 
-            if ($nominal <= 0) {
-                $error_validation = "Nominal donasi harus lebih besar dari 0!";
-            } elseif (empty($nama_donatur)) {
-                $error_validation = "Nama donatur / instansi tidak boleh kosong!";
+            if ($nominal < 1000) {
+                $error_validation = "Nominal donasi/pengeluaran harus minimal Rp 1.000!";
+            } elseif (strlen($nama_donatur) < 3 || strlen($nama_donatur) > 50) {
+                $error_validation = "Nama donatur / instansi harus diisi antara 3-50 karakter!";
             } elseif (empty($tanggal)) {
                 $error_validation = "Tanggal transaksi tidak boleh kosong!";
+            } elseif ($tanggal > date('Y-m-d')) {
+                $error_validation = "Tanggal transaksi tidak boleh melebihi hari ini!";
+            } elseif (!empty($keterangan) && strlen($keterangan) > 200) {
+                $error_validation = "Keterangan tidak boleh lebih dari 200 karakter!";
             } else {
+                $_POST['nama_donatur'] = $nama_donatur;
+                $_POST['keterangan'] = $keterangan;
                 $this->m->insert($_POST);
                 header('Location: index.php?page=donasi');
                 exit;
@@ -42,14 +49,21 @@ class DonasiController {
             $nominal = (float)($_POST['nominal'] ?? 0);
             $nama_donatur = trim($_POST['nama_donatur'] ?? '');
             $tanggal = $_POST['tanggal'] ?? '';
+            $keterangan = trim($_POST['keterangan'] ?? '');
 
-            if ($nominal <= 0) {
-                $error_validation = "Nominal donasi harus lebih besar dari 0!";
-            } elseif (empty($nama_donatur)) {
-                $error_validation = "Nama donatur / instansi tidak boleh kosong!";
+            if ($nominal < 1000) {
+                $error_validation = "Nominal donasi/pengeluaran harus minimal Rp 1.000!";
+            } elseif (strlen($nama_donatur) < 3 || strlen($nama_donatur) > 50) {
+                $error_validation = "Nama donatur / instansi harus diisi antara 3-50 karakter!";
             } elseif (empty($tanggal)) {
                 $error_validation = "Tanggal transaksi tidak boleh kosong!";
+            } elseif ($tanggal > date('Y-m-d')) {
+                $error_validation = "Tanggal transaksi tidak boleh melebihi hari ini!";
+            } elseif (!empty($keterangan) && strlen($keterangan) > 200) {
+                $error_validation = "Keterangan tidak boleh lebih dari 200 karakter!";
             } else {
+                $_POST['nama_donatur'] = $nama_donatur;
+                $_POST['keterangan'] = $keterangan;
                 $this->m->update($id, $_POST);
                 header('Location: index.php?page=donasi');
                 exit;

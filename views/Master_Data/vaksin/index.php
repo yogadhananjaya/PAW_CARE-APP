@@ -11,6 +11,11 @@
             <a href="index.php?page=vaksin_create" class="btn btn-primary">+ Tambah Vaksin</a>
         <?php endif; ?>
     </header>
+    <?php if (isset($_GET['error_delete'])): ?>
+        <div style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-weight:600;font-size:14px;">
+            ⚠️ Gagal menghapus: Vaksin ini masih digunakan dalam rekam medis riwayat kesehatan aktif!
+        </div>
+    <?php endif; ?>
     <div class="card">
         <table class="crud-table">
             <thead>

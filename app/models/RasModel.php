@@ -50,6 +50,13 @@ class RasModel
         return $stmt->execute([$id_jenis, $nama_ras, $id]);
     }
 
+    public function isUsedInHewan($id)
+    {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM hewan WHERE id_ras = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetchColumn() > 0;
+    }
+
     public function delete($id)
     {
         $stmt = $this->pdo->prepare("DELETE FROM ras WHERE id_ras = ?");

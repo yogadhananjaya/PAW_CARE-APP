@@ -11,6 +11,11 @@
             <a href="index.php?page=kandang_create" class="btn btn-primary">+ Tambah Kandang</a>
         <?php endif; ?>
     </header>
+    <?php if (isset($_GET['error_delete'])): ?>
+        <div style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-weight:600;font-size:14px;">
+            ⚠️ Gagal menghapus: Kandang ini masih digunakan oleh penempatan kandang yang aktif!
+        </div>
+    <?php endif; ?>
     <div class="card">
         <table class="crud-table">
             <thead>

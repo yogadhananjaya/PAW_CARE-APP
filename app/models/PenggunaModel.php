@@ -93,6 +93,32 @@ class PenggunaModel {
         ]); 
     }
 
+    // Cek apakah pengguna digunakan pada data transaksi (riwayat_kesehatan, jadwal_kunjungan, transaksi_adopsi)
+    public function isUsed($id) {
+        // Cek di tabel riwayat_kesehatan (hanya yang tidak soft-delete)
+        $stmt1 = $this->pdo->prepare("SELECT COUNT(*) FROM riwayat_kesehatan WHERE id_pengguna = ? AND deleted_at IS NULL");
+        $stmt1->execute([$id]);
+        if ($stmt1->fetchColumn() > 0) {
+            return true;
+        }
+
+        // Cek di tabel jadwal_kunjungan
+        $stmt2 = $this->pdo->prepare("SELECT COUNT(*) FROM jadwal_kunjungan WHERE id_pengguna = ?");
+        $stmt2->execute([$id]);
+        if ($stmt2->fetchColumn() > 0) {
+            return true;
+        }
+
+        // Cek di tabel transaksi_adopsi
+        $stmt3 = $this->pdo->prepare("SELECT COUNT(*) FROM transaksi_adopsi WHERE id_pengguna = ?");
+        $stmt3->execute([$id]);
+        if ($stmt3->fetchColumn() > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
     // Hapus pengguna berdasarkan ID
     public function delete($id) { 
         $stmt = $this->pdo->prepare("DELETE FROM pengguna WHERE id_pengguna = ?"); 

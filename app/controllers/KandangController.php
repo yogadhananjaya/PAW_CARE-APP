@@ -17,7 +17,17 @@ class KandangController {
     public function create() {
         $error_duplikat = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if ($this->m->isDuplicate($_POST['kode_kandang'], $_POST['nama_kandang'])) {
+            $nama_kandang = trim($_POST['nama_kandang']);
+            $kapasitas = (int)$_POST['kapasitas'];
+            $kode_kandang = $_POST['kode_kandang'];
+
+            if ($nama_kandang === '') {
+                $error_duplikat = "Nama kandang tidak boleh kosong!";
+            } elseif (strlen($nama_kandang) > 50) {
+                $error_duplikat = "Nama kandang tidak boleh lebih dari 50 karakter!";
+            } elseif ($kapasitas <= 0) {
+                $error_duplikat = "Kapasitas kandang harus lebih dari 0!";
+            } elseif ($this->m->isDuplicate($kode_kandang, $nama_kandang)) {
                 $error_duplikat = "Kode kandang atau nama kandang tersebut sudah terdaftar!";
             } else {
                 $this->m->insert($_POST);
@@ -35,7 +45,17 @@ class KandangController {
     public function edit($id) {
         $error_duplikat = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if ($this->m->isDuplicate($_POST['kode_kandang'], $_POST['nama_kandang'], $id)) {
+            $nama_kandang = trim($_POST['nama_kandang']);
+            $kapasitas = (int)$_POST['kapasitas'];
+            $kode_kandang = $_POST['kode_kandang'];
+
+            if ($nama_kandang === '') {
+                $error_duplikat = "Nama kandang tidak boleh kosong!";
+            } elseif (strlen($nama_kandang) > 50) {
+                $error_duplikat = "Nama kandang tidak boleh lebih dari 50 karakter!";
+            } elseif ($kapasitas <= 0) {
+                $error_duplikat = "Kapasitas kandang harus lebih dari 0!";
+            } elseif ($this->m->isDuplicate($kode_kandang, $nama_kandang, $id)) {
                 $error_duplikat = "Kode kandang atau nama kandang tersebut sudah terdaftar!";
             } else {
                 $this->m->update($id, $_POST);
@@ -50,6 +70,10 @@ class KandangController {
     }
 
     public function delete($id) {
+        if ($this->m->isUsed($id)) {
+            header('Location: index.php?page=kandang&error_delete=1');
+            exit;
+        }
         $this->m->delete($id);
         header('Location: index.php?page=kandang');
         exit;

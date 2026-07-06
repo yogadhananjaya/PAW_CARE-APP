@@ -42,6 +42,12 @@ class KandangModel {
         return $stmt->execute([$data['kode_kandang'], $data['nama_kandang'], $data['id_jenis'], $data['kapasitas'], $data['status'], $id]); 
     }
 
+    public function isUsed($id) {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM penempatan_kandang WHERE id_kandang = ? AND status = 'Aktif'");
+        $stmt->execute([$id]);
+        return $stmt->fetchColumn() > 0;
+    }
+
     public function delete($id) { 
         $stmt = $this->pdo->prepare("DELETE FROM kandang WHERE id_kandang = ?"); 
         return $stmt->execute([$id]); 

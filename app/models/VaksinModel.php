@@ -67,6 +67,12 @@ class VaksinModel {
         return $result;
     }
 
+    public function isUsed($id) {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM riwayat_kesehatan WHERE id_vaksin = ? AND deleted_at IS NULL");
+        $stmt->execute([$id]);
+        return $stmt->fetchColumn() > 0;
+    }
+
     public function delete($id) { 
         $this->pdo->prepare("DELETE FROM vaksin_jenis WHERE id_vaksin = ?")->execute([$id]);
         $stmt = $this->pdo->prepare("DELETE FROM vaksin WHERE id_vaksin = ?"); 

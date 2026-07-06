@@ -17,6 +17,11 @@
                 ⚠️ Hewan harus memiliki minimal 1 rekam Vaksinasi sebelum dapat direkomendasikan.
             </div>
         <?php endif; ?>
+        <?php if (isset($_GET['error']) && $_GET['error'] == 'delete_failed'): ?>
+            <div style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; border-radius:10px; padding:12px 18px; margin-bottom:15px; font-weight:600; font-size:14px;">
+                ⚠️ Gagal menghapus: Hewan ini sedang memiliki transaksi adopsi atau jadwal kunjungan yang aktif!
+            </div>
+        <?php endif; ?>
         <table class="crud-table">
             <thead>
                 <tr>

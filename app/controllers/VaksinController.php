@@ -16,10 +16,20 @@ class VaksinController {
     public function create() {
         $error_duplikat = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if ($this->m->isDuplicate($_POST['nama_vaksin'])) {
-                $error_duplikat = "Vaksin '" . htmlspecialchars($_POST['nama_vaksin']) . "' sudah terdaftar!";
+            $nama_vaksin = trim($_POST['nama_vaksin']);
+            $stok = (int)($_POST['stok'] ?? 0);
+            $deskripsi = trim($_POST['deskripsi'] ?? '');
+
+            if ($nama_vaksin === '') {
+                $error_duplikat = "Nama vaksin tidak boleh kosong!";
+            } elseif (strlen($nama_vaksin) > 50) {
+                $error_duplikat = "Nama vaksin tidak boleh lebih dari 50 karakter!";
+            } elseif ($stok < 0) {
+                $error_duplikat = "Stok vaksin tidak boleh kurang dari 0!";
+            } elseif ($this->m->isDuplicate($nama_vaksin)) {
+                $error_duplikat = "Vaksin '" . htmlspecialchars($nama_vaksin) . "' sudah terdaftar!";
             } else {
-                $this->m->insert($_POST['nama_vaksin'], $_POST['id_jenis'] ?? [], $_POST['deskripsi'], $_POST['status'], $_POST['stok'] ?? 0);
+                $this->m->insert($nama_vaksin, $_POST['id_jenis'] ?? [], $deskripsi, $_POST['status'], $stok);
                 header('Location: index.php?page=vaksin');
                 exit;
             }
@@ -30,10 +40,20 @@ class VaksinController {
     public function edit($id) {
         $error_duplikat = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if ($this->m->isDuplicate($_POST['nama_vaksin'], $id)) {
-                $error_duplikat = "Vaksin '" . htmlspecialchars($_POST['nama_vaksin']) . "' sudah terdaftar!";
+            $nama_vaksin = trim($_POST['nama_vaksin']);
+            $stok = (int)($_POST['stok'] ?? 0);
+            $deskripsi = trim($_POST['deskripsi'] ?? '');
+
+            if ($nama_vaksin === '') {
+                $error_duplikat = "Nama vaksin tidak boleh kosong!";
+            } elseif (strlen($nama_vaksin) > 50) {
+                $error_duplikat = "Nama vaksin tidak boleh lebih dari 50 karakter!";
+            } elseif ($stok < 0) {
+                $error_duplikat = "Stok vaksin tidak boleh kurang dari 0!";
+            } elseif ($this->m->isDuplicate($nama_vaksin, $id)) {
+                $error_duplikat = "Vaksin '" . htmlspecialchars($nama_vaksin) . "' sudah terdaftar!";
             } else {
-                $this->m->update($id, $_POST['nama_vaksin'], $_POST['id_jenis'] ?? [], $_POST['deskripsi'], $_POST['status'], $_POST['stok'] ?? 0);
+                $this->m->update($id, $nama_vaksin, $_POST['id_jenis'] ?? [], $deskripsi, $_POST['status'], $stok);
                 header('Location: index.php?page=vaksin');
                 exit;
             }
@@ -43,6 +63,10 @@ class VaksinController {
     }
 
     public function delete($id) {
+        if ($this->m->isUsed($id)) {
+            header('Location: index.php?page=vaksin&error_delete=1');
+            exit;
+        }
         $this->m->delete($id);
         header('Location: index.php?page=vaksin');
         exit;
