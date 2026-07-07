@@ -47,6 +47,19 @@ try {
 } catch (Exception $e) {
     // Abaikan jika kolom sudah ada
 }
+try {
+    $pdo->exec("ALTER TABLE vaksin ADD COLUMN id_jenis INT NOT NULL");
+    $pdo->exec("ALTER TABLE vaksin ADD CONSTRAINT fk_vaksin_jenis FOREIGN KEY (id_jenis) REFERENCES jenis_hewan(id_jenis) ON DELETE CASCADE");
+    echo "Kolom 'id_jenis' ditambahkan ke tabel vaksin.\n";
+} catch (Exception $e) {
+    // Abaikan jika kolom atau foreign key sudah ada
+}
+try {
+    $pdo->exec("DROP TABLE IF EXISTS vaksin_jenis");
+    echo "Tabel 'vaksin_jenis' berhasil dihapus jika ada.\n";
+} catch (Exception $e) {
+    // Abaikan
+}
 
 echo "\n=== MIGRASI DATABASE SELESAI DENGAN SUKSES ===\n";
 ?>

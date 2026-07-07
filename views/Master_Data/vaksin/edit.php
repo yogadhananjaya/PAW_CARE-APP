@@ -20,18 +20,17 @@
             </div>
             <div class="form-group">
                 <label>Jenis Hewan</label>
-                <div style="display:flex; gap:20px; padding:10px 0;">
+                <select name="id_jenis" class="form-control" required>
+                    <option value="">-- Pilih Jenis Hewan --</option>
                     <?php 
-                    $curr_jenis = isset($_POST['id_jenis']) ? $_POST['id_jenis'] : explode(',', $data['id_jenis_list'] ?? '');
+                    $curr_jenis = $_POST['id_jenis'] ?? $data['id_jenis_list'] ?? '';
                     ?>
                     <?php foreach ($jenis_list as $j): ?>
-                        <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
-                            <input type="checkbox" name="id_jenis[]" value="<?= $j['id_jenis'] ?>" <?= in_array($j['id_jenis'], $curr_jenis) ? 'checked' : '' ?>>
+                        <option value="<?= $j['id_jenis'] ?>" <?= ($curr_jenis == $j['id_jenis']) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($j['nama_jenis']) ?>
-                        </label>
+                        </option>
                     <?php endforeach; ?>
-                </div>
-                <small style="color:#64748b;">Kosongkan = berlaku untuk semua jenis hewan</small>
+                </select>
             </div>
             <div class="form-group">
                 <label>Deskripsi</label>

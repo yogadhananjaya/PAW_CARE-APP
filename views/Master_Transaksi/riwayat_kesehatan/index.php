@@ -31,8 +31,8 @@ foreach ($data as $row) {
 
     <!-- Tab Navigasi -->
     <div style="display:flex; gap:0; margin-bottom:20px; border-bottom:2px solid #e2e8f0;">
-        <button onclick="switchTab('aktif')" id="tab-aktif" style="padding:10px 20px; border:none; background:none; font-weight:700; font-size:14px; color:#4f46e5; cursor:pointer; border-bottom:3px solid #4f46e5; margin-bottom:-2px;">Riwayat Aktif</button>
-        <button onclick="switchTab('semua')" id="tab-semua" style="padding:10px 20px; border:none; background:none; font-weight:600; font-size:14px; color:#94a3b8; cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px;">Riwayat Semuanya</button>
+        <button onclick="switchTab('aktif')" id="tab-aktif" style="padding:10px 20px; border:none; background:none; font-weight:700; font-size:14px; color:#4f46e5; cursor:pointer; border-bottom:3px solid #4f46e5; margin-bottom:-2px;">Rekam Medis Aktif</button>
+        <button onclick="switchTab('semua')" id="tab-semua" style="padding:10px 20px; border:none; background:none; font-weight:600; font-size:14px; color:#94a3b8; cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px;">Semua Rekam Medis</button>
     </div>
 
 

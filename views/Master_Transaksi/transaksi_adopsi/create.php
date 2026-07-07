@@ -7,7 +7,8 @@
     </header>
     <div class="card" style="max-width: 650px;">
         <?php if (!empty($error_duplikat)): ?>
-            <div style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-weight:600;font-size:14px;">
+            <div
+                style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-weight:600;font-size:14px;">
                 ⚠️ <?= htmlspecialchars($error_duplikat) ?>
             </div>
         <?php endif; ?>
@@ -17,7 +18,8 @@
                 <label>Pengadopsi <small style="color:#999;">(Hanya yang Terverifikasi KTP)</small></label>
                 <select name="id_pengadopsi" class="form-control" required>
                     <option value="">-- Pilih Pengadopsi --</option>
-                    <?php foreach($a as $ad): ?><option value="<?= $ad['id_pengadopsi'] ?>"><?= $ad['nama'] ?></option><?php endforeach; ?>
+                    <?php foreach ($a as $ad): ?>
+                        <option value="<?= $ad['id_pengadopsi'] ?>"><?= $ad['nama'] ?></option><?php endforeach; ?>
                 </select>
             </div>
 
@@ -26,7 +28,8 @@
                 <label>Hewan yang Diadopsi</label>
                 <select name="id_hewan" class="form-control" required>
                     <option value="">-- Pilih Hewan --</option>
-                    <?php foreach($h as $hw): ?><option value="<?= $hw['id_hewan'] ?>"><?= $hw['nama_hewan'] ?></option><?php endforeach; ?>
+                    <?php foreach ($h as $hw): ?>
+                        <option value="<?= $hw['id_hewan'] ?>"><?= $hw['nama_hewan'] ?></option><?php endforeach; ?>
                 </select>
             </div>
 
@@ -35,7 +38,8 @@
                 <label>Admin / Koordinator Penanggung Jawab <small style="color:#999;">(opsional)</small></label>
                 <select name="id_pengguna" class="form-control">
                     <option value="">-- Belum Ditugaskan --</option>
-                    <?php foreach($pg as $p): ?><option value="<?= $p['id_pengguna'] ?>"><?= $p['nama_pengguna'] ?></option><?php endforeach; ?>
+                    <?php foreach ($pg as $p): ?>
+                        <option value="<?= $p['id_pengguna'] ?>"><?= $p['nama_pengguna'] ?></option><?php endforeach; ?>
                 </select>
             </div>
 

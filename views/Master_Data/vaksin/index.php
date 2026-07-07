@@ -36,7 +36,7 @@
                     <td><?= $no++ ?></td>
                     <td><?= htmlspecialchars($row['kode_vaksin'] ?? '') ?></td>
                     <td><strong><?= htmlspecialchars($row['nama_vaksin']) ?></strong></td>
-                    <td><?= htmlspecialchars($row['nama_jenis'] ?? 'Semua Jenis') ?></td>
+                    <td><?= htmlspecialchars($row['nama_jenis'] ?? '-') ?></td>
                     <td><?= htmlspecialchars($row['deskripsi']) ?></td>
                     <td>
                         <span style="padding:4px 8px; border-radius:10px; font-size:12px; font-weight:bold; 

@@ -37,19 +37,13 @@ CREATE TABLE IF NOT EXISTS kandang (
 );
 
 CREATE TABLE IF NOT EXISTS vaksin (
-   id_vaksin INT AUTO_INCREMENT PRIMARY KEY,
+    id_vaksin INT AUTO_INCREMENT PRIMARY KEY,
     kode_vaksin VARCHAR(10) UNIQUE,
     nama_vaksin VARCHAR(100) NOT NULL,
+    id_jenis INT NOT NULL,
     deskripsi TEXT NULL,
     status ENUM('Tersedia','Habis','Discontinue') DEFAULT 'Tersedia',
-    stok INT DEFAULT 0
-);
-
-CREATE TABLE IF NOT EXISTS vaksin_jenis (
-    id_vaksin INT NOT NULL,
-    id_jenis INT NOT NULL,
-    PRIMARY KEY (id_vaksin, id_jenis),
-    FOREIGN KEY (id_vaksin) REFERENCES vaksin(id_vaksin) ON DELETE CASCADE,
+    stok INT DEFAULT 0,
     FOREIGN KEY (id_jenis) REFERENCES jenis_hewan(id_jenis) ON DELETE CASCADE
 );
 

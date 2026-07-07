@@ -111,14 +111,11 @@ class RiwayatKesehatanModel {
         return $this->pdo->query("SELECT id_hewan, nama_hewan, id_jenis FROM hewan")->fetchAll(); 
     }
 
-    // Ambil daftar vaksin untuk dropdown (semua status, Habis/Discontinue disabled)
     public function getVaksin() { 
         return $this->pdo->query("
-            SELECT v.id_vaksin, v.nama_vaksin, v.status, v.stok, GROUP_CONCAT(vj.id_jenis) as id_jenis_list
-            FROM vaksin v
-            LEFT JOIN vaksin_jenis vj ON v.id_vaksin = vj.id_vaksin
-            GROUP BY v.id_vaksin
-            ORDER BY v.status='Tersedia' DESC, v.nama_vaksin ASC
+            SELECT id_vaksin, nama_vaksin, status, stok, id_jenis as id_jenis_list
+            FROM vaksin
+            ORDER BY status='Tersedia' DESC, nama_vaksin ASC
         ")->fetchAll(); 
     }
 

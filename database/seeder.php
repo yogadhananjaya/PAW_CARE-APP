@@ -15,7 +15,6 @@ try {
     $pdo->exec("TRUNCATE TABLE riwayat_kesehatan");
     $pdo->exec("TRUNCATE TABLE hewan");
     $pdo->exec("TRUNCATE TABLE vaksin");
-    $pdo->exec("TRUNCATE TABLE vaksin_jenis");
     $pdo->exec("TRUNCATE TABLE kandang");
     $pdo->exec("TRUNCATE TABLE ras");
     $pdo->exec("TRUNCATE TABLE jenis_hewan");
@@ -95,20 +94,17 @@ try {
 
     // 5. Insert Vaksin
     $vaksin = [
-        ['kode' => 'VK0001', 'nama' => 'Feline Tricat', 'deskripsi' => 'Vaksinasi untuk Kucing mencegah FPV, FRV, dan FCV.', 'status' => 'Tersedia', 'stok' => 12, 'jenis' => ['Kucing']],
-        ['kode' => 'VK0002', 'nama' => 'Rabies Vaccine',  'deskripsi' => 'Vaksin anti rabies untuk Kucing & Anjing.', 'status' => 'Tersedia', 'stok' => 3,  'jenis' => ['Kucing','Anjing']],
-        ['kode' => 'VK0003', 'nama' => 'Eurican 4',      'deskripsi' => 'Vaksinasi lengkap untuk Anjing.', 'status' => 'Tersedia', 'stok' => 0,  'jenis' => ['Anjing']]
+        ['kode' => 'VK0001', 'nama' => 'Feline Tricat', 'deskripsi' => 'Vaksinasi untuk Kucing mencegah FPV, FRV, dan FCV.', 'status' => 'Tersedia', 'stok' => 12, 'nama_jenis' => 'Kucing'],
+        ['kode' => 'VK0002', 'nama' => 'Rabies Vaccine',  'deskripsi' => 'Vaksin anti rabies untuk Kucing & Anjing.', 'status' => 'Tersedia', 'stok' => 3,  'nama_jenis' => 'Kucing'],
+        ['kode' => 'VK0003', 'nama' => 'Eurican 4',      'deskripsi' => 'Vaksinasi lengkap untuk Anjing.', 'status' => 'Tersedia', 'stok' => 0,  'nama_jenis' => 'Anjing']
     ];
-    $stmt = $pdo->prepare("INSERT INTO vaksin (kode_vaksin, nama_vaksin, deskripsi, status, stok) VALUES (?, ?, ?, ?, ?)");
-    $stmt_pivot = $pdo->prepare("INSERT INTO vaksin_jenis (id_vaksin, id_jenis) VALUES (?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO vaksin (kode_vaksin, nama_vaksin, id_jenis, deskripsi, status, stok) VALUES (?, ?, ?, ?, ?, ?)");
     foreach ($vaksin as $v) {
-        $stmt->execute([$v['kode'], $v['nama'], $v['deskripsi'], $v['status'], $v['stok'] ?? 0]);
-        $id_vaksin = $pdo->lastInsertId();
-        foreach ($v['jenis'] as $nama_jenis) {
-            $id_jenis = $pdo->prepare("SELECT id_jenis FROM jenis_hewan WHERE nama_jenis = ?");
-            $id_jenis->execute([$nama_jenis]);
-            $ij = $id_jenis->fetchColumn();
-            if ($ij) $stmt_pivot->execute([$id_vaksin, $ij]);
+        $id_jenis = $pdo->prepare("SELECT id_jenis FROM jenis_hewan WHERE nama_jenis = ?");
+        $id_jenis->execute([$v['nama_jenis']]);
+        $ij = $id_jenis->fetchColumn();
+        if ($ij) {
+            $stmt->execute([$v['kode'], $v['nama'], $ij, $v['deskripsi'], $v['status'], $v['stok'] ?? 0]);
         }
     }
     echo "Sukses memasukkan data dummy Vaksin.\n";
