@@ -163,9 +163,7 @@ if ($adopter) {
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Work Sans', 'Plus Jakarta Sans', sans-serif; }
-        body { background-color: var(--bg-page); color: var(--text-main); min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
-
-        /* Top Navbar Styling */
+        body { background-color: var(--bg-page); color: var(--text-main); min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; }
         .top-navbar {
             display: flex; justify-content: space-between; align-items: center;
             background: #FFFFFF;
@@ -221,6 +219,7 @@ if ($adopter) {
         .main-content { 
             width: 100%; margin: 0; padding: 30px 4%; 
             animation: tabFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            flex: 1;
         }
 
         @keyframes tabFadeIn {
@@ -1266,7 +1265,7 @@ if ($adopter) {
     </div>
 
     <!-- Footer Section -->
-    <footer style="background-color: #0F172A; color: #FFFFFF; padding: 60px 5% 30px; margin-top: 80px; border-top: 1px solid rgba(255,255,255,0.1);">
+    <footer style="background-color: #0F172A; color: #FFFFFF; padding: 60px 5% 30px; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; max-width: 1200px; margin: 0 auto; margin-bottom: 40px;">
             <div style="grid-column: span 2; min-width: 280px;">
                 <h3 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 800; margin-bottom: 20px; color: #FFFFFF;">PawCare</h3>

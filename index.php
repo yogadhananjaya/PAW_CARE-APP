@@ -317,6 +317,52 @@ switch ($page) {
         header('Location: index.php');
         break;
 
+    case 'donasi_proses':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $nama_donatur = trim($_POST['nama_donatur'] ?? '');
+            $nominal = floatval($_POST['nominal'] ?? 0);
+            $metode_pembayaran = $_POST['metode_pembayaran'] ?? 'Transfer Bank';
+            $keterangan = trim($_POST['keterangan'] ?? '');
+
+            if (empty($nama_donatur) || strlen($nama_donatur) < 3 || !preg_match("/^[A-Za-z\s]+$/", $nama_donatur)) {
+                echo "<script>alert('Gagal: Nama donatur harus diisi huruf minimal 3 karakter.'); window.history.back();</script>";
+                exit;
+            }
+            if ($nominal < 10000) {
+                echo "<script>alert('Gagal: Nominal donasi minimal Rp 10.000'); window.history.back();</script>";
+                exit;
+            }
+
+            $kode = buat_kode_otomatis('donasi', 'kode_donasi', 'DN');
+            $stmt = $pdo->prepare("INSERT INTO donasi (kode_donasi, nama_donatur, nominal, kategori, keterangan, tanggal, metode_pembayaran, status_konfirmasi) VALUES (?, ?, ?, 'Pemasukan', ?, CURDATE(), ?, 'Menunggu')");
+            $stmt->execute([$kode, $nama_donatur, $nominal, $keterangan, $metode_pembayaran]);
+            $id_donasi = $pdo->lastInsertId();
+
+            header("Location: index.php?page=donasi_bayar&id=" . $id_donasi);
+            exit;
+        }
+        break;
+
+    case 'donasi_bayar':
+        $id = intval($_GET['id'] ?? 0);
+        $stmt = $pdo->prepare("SELECT * FROM donasi WHERE id_donasi = ?");
+        $stmt->execute([$id]);
+        $donasi = $stmt->fetch();
+        if (!$donasi) {
+            echo "Donasi tidak ditemukan.";
+            exit;
+        }
+        include __DIR__ . '/views/user/donasi_bayar.php';
+        break;
+
+    case 'donasi_sukses':
+        $id = intval($_GET['id'] ?? 0);
+        $stmt = $pdo->prepare("UPDATE donasi SET status_konfirmasi = 'Dikonfirmasi' WHERE id_donasi = ?");
+        $stmt->execute([$id]);
+        echo "<script>alert('Terima kasih atas donasi Anda! Donasi Anda telah kami terima.'); window.location.href='index.php?page=home';</script>";
+        exit;
+        break;
+
     // ==================== DASHBOARD BERDASARKAN ROLE ====================
     case 'dashboard_superadmin':
         if (!check_access(['SuperAdmin'])) { header('Location: index.php?page=login'); exit; }

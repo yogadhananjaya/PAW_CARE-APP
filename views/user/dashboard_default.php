@@ -3,6 +3,10 @@
 require_once __DIR__ . '/../../config/connect.php';
 $stmt_hewan = $pdo->query("SELECT h.*, j.nama_jenis, r.nama_ras FROM hewan h JOIN jenis_hewan j ON h.id_jenis = j.id_jenis JOIN ras r ON h.id_ras = r.id_ras WHERE h.status_adopsi = 'Tersedia' AND h.rekomendasi_adopsi = 1 ORDER BY h.id_hewan DESC LIMIT 6");
 $katalog_hewan = $stmt_hewan->fetchAll();
+
+// Menarik data donasi terkini untuk ditampilkan di Beranda
+$stmt_donasi = $pdo->query("SELECT * FROM donasi WHERE kategori = 'Pemasukan' AND status_konfirmasi = 'Dikonfirmasi' ORDER BY id_donasi DESC LIMIT 5");
+$donasi_list = $stmt_donasi->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -112,6 +116,101 @@ $katalog_hewan = $stmt_hewan->fetchAll();
                     <p style="color: #94a3b8; font-size: 16px;">🐾 Saat ini belum ada hewan yang tersedia untuk diadopsi. Silakan periksa kembali nanti!</p>
                 </div>
             <?php endif; ?>
+        </div>
+    </section>
+
+    <!-- Donation Section -->
+    <section class="donation-section" style="padding: 80px 8%; background: #ffffff; border-top: 1px solid rgba(15,23,42,0.05);">
+        <div style="text-align:center;">
+            <h2 class="interactive-title" style="font-size:36px; color:#0f172a; font-family:'Outfit', sans-serif; margin-bottom:10px;">Dukung Perawatan Hewan 🐾</h2>
+            <p style="text-align:center; color:#94a3b8; margin-bottom:50px;">Bantu kami menyediakan pakan, tempat tinggal yang layak, dan perawatan medis untuk mereka</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; max-width: 1100px; margin: 0 auto;">
+            <!-- Donation Form -->
+            <div style="background: #ffffff; border: 1px solid rgba(15,23,42,0.08); border-radius: 24px; padding: 30px; box-shadow: 0 10px 30px rgba(15,23,42,0.02);">
+                <h3 style="font-size: 20px; font-family: 'Outfit', sans-serif; color: #0f172a; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">Formulir Donasi</h3>
+                <form method="POST" action="index.php?page=donasi_proses" onsubmit="return validateDonationForm(this);">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display:block; margin-bottom:6px; font-weight:600; font-size:13px; color:#0f172a;">Nama Donatur</label>
+                        <input type="text" name="nama_donatur" required minlength="3" pattern="^[A-Za-z\s]+$" placeholder="Nama Lengkap Anda" style="width:100%; padding:12px 15px; border:1px solid #cbd5e1; border-radius:10px; font-size:14px; outline:none;">
+                        <small style="color: #94a3b8; font-size: 11px; margin-top: 4px; display: block;">Hanya huruf dan spasi, minimal 3 karakter.</small>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display:block; margin-bottom:6px; font-weight:600; font-size:13px; color:#0f172a;">Nominal Donasi (IDR)</label>
+                        <input type="number" name="nominal" min="10000" step="1000" value="50000" required style="width:100%; padding:12px 15px; border:1px solid #cbd5e1; border-radius:10px; font-size:14px; outline:none;">
+                        <small style="color: #94a3b8; font-size: 11px; margin-top: 4px; display: block;">Minimal donasi Rp 10.000.</small>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display:block; margin-bottom:6px; font-weight:600; font-size:13px; color:#0f172a;">Metode Pembayaran</label>
+                        <select name="metode_pembayaran" style="width:100%; padding:12px 15px; border:1px solid #cbd5e1; border-radius:10px; font-size:14px; outline:none; background:#fff;">
+                            <option value="Transfer Bank">Transfer Bank</option>
+                            <option value="E-Wallet">E-Wallet / QRIS</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label style="display:block; margin-bottom:6px; font-weight:600; font-size:13px; color:#0f172a;">Catatan / Pesan</label>
+                        <textarea name="keterangan" placeholder="Tulis doa atau dukungan Anda..." rows="3" style="width:100%; padding:12px 15px; border:1px solid #cbd5e1; border-radius:10px; font-size:14px; outline:none; resize:none;"></textarea>
+                    </div>
+                    <button type="submit" style="width:100%; background:#bd4a0a; color:#fff; border:none; padding:14px; border-radius:30px; font-weight:700; font-size:14px; cursor:pointer; box-shadow: 0 4px 12px rgba(189,74,10,0.2); transition:all 0.3s ease;">Donasi Sekarang</button>
+                </form>
+            </div>
+
+            <script>
+            function validateDonationForm(form) {
+                var nama = form.nama_donatur.value.trim();
+                var nominal = parseInt(form.nominal.value, 10);
+                
+                if (nama.length < 3) {
+                    alert("Nama donatur minimal harus terdiri dari 3 karakter.");
+                    form.nama_donatur.focus();
+                    return false;
+                }
+                
+                var nameRegex = /^[A-Za-z\s]+$/;
+                if (!nameRegex.test(nama)) {
+                    alert("Nama donatur hanya boleh berisi huruf dan spasi.");
+                    form.nama_donatur.focus();
+                    return false;
+                }
+                
+                if (isNaN(nominal) || nominal < 10000) {
+                    alert("Nominal donasi minimal adalah Rp 10.000.");
+                    form.nominal.focus();
+                    return false;
+                }
+                return true;
+            }
+            </script>
+
+            <!-- Recent Donors -->
+            <div style="background: #ffffff; border: 1px solid rgba(15,23,42,0.08); border-radius: 24px; padding: 30px; box-shadow: 0 10px 30px rgba(15,23,42,0.02);">
+                <h3 style="font-size: 20px; font-family: 'Outfit', sans-serif; color: #0f172a; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">Donatur Terkini 💖</h3>
+                <div style="display: flex; flex-direction: column; gap: 15px; max-height: 380px; overflow-y: auto; padding-right: 5px;">
+                    <?php if (count($donasi_list) > 0): ?>
+                        <?php foreach($donasi_list as $donasi): ?>
+                            <div style="background: #f8fafc; border-radius: 12px; padding: 15px; border-left: 4px solid #bd4a0a; display: flex; flex-direction: column; gap: 4px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-weight: 700; color: #0f172a; font-size: 14px;"><?= htmlspecialchars($donasi['nama_donatur']) ?></span>
+                                    <span style="font-size: 12px; color: #64748b; font-weight: 500;"><?= date('d M Y', strtotime($donasi['tanggal'])) ?></span>
+                                </div>
+                                <div style="font-weight: 800; color: #DE3B3B; font-size: 15px; font-family: 'Outfit', sans-serif;">
+                                    Rp <?= number_format($donasi['nominal'], 0, ',', '.') ?>
+                                </div>
+                                <?php if (!empty($donasi['keterangan'])): ?>
+                                    <div style="font-size: 13px; color: #64748b; font-style: italic; margin-top: 4px;">
+                                        "<?= htmlspecialchars($donasi['keterangan']) ?>"
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div style="text-align: center; color: #94a3b8; padding: 40px 0; font-size: 14px;">
+                            🐾 Belum ada donatur terbaru. Jadilah donatur pertama kami!
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
     </section>
 
