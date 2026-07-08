@@ -484,6 +484,13 @@ switch ($page) {
         $stmt_jadwal = $pdo->prepare("INSERT INTO jadwal_kunjungan (kode_jadwal_kunjungan, id_pengadopsi, id_hewan, metode, tanggal_jadwal, alamat_tujuan, status_jadwal) VALUES (?, ?, ?, ?, ?, ?, 'Menunggu')");
         $stmt_jadwal->execute([$kode_jadwal, $id_pengadopsi, $id_hewan, $metode_kunjungan, $tanggal_jadwal, $alamat_tujuan]);
 
+        if (isset($_POST['redirect_ke_pembayaran'])) {
+            $amount = floatval($_POST['amount_pembayaran'] ?? 160000);
+            $metode = $_POST['metode_pembayaran'] ?? 'QRIS';
+            header("Location: index.php?page=pembayaran_create&amount=" . urlencode($amount) . "&metode=" . urlencode($metode) . "&id_hewan=" . urlencode($id_hewan));
+            exit;
+        }
+
         echo "<script>alert('✅ Pengajuan adopsi berhasil! Jadwal kunjungan telah dibuat. Silakan tunggu konfirmasi dari tim PawCare.'); window.location.href='index.php?page=dashboard_user&tab=pengajuan';</script>";
         exit;
 

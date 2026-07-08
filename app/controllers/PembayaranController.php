@@ -23,7 +23,16 @@ class PembayaranController {
         if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['amount']) && isset($_GET['metode'])) {
             $amount = floatval($_GET['amount']);
             $metode = $_GET['metode'];
-            $id_pengadopsi = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+            
+            $id_pengadopsi = null;
+            if (isset($_SESSION['user_id'])) {
+                $stmt_adopter = $GLOBALS['pdo']->prepare("SELECT id_pengadopsi FROM pengadopsi WHERE id_pengguna = ?");
+                $stmt_adopter->execute([$_SESSION['user_id']]);
+                $adopter = $stmt_adopter->fetch();
+                if ($adopter) {
+                    $id_pengadopsi = $adopter['id_pengadopsi'];
+                }
+            }
 
             $provider = $metode;
             $reference = uniqid('pay_');
@@ -40,8 +49,11 @@ class PembayaranController {
                 $metadata['deeplink'] = $provider . '://pay?ref=' . $reference;
             } elseif ($metode === 'QRIS' || stripos($metode, 'QRIS') !== false) {
                 $qr_payload = 'PawCare|'.$reference.'|'.$amount;
-                $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#fff"/><text x="10" y="20" font-size="12">'.htmlspecialchars($qr_payload).'</text></svg>';
-                $metadata['qris_svg'] = 'data:image/svg+xml;utf8,' . rawurlencode($svg);
+                $metadata['qris_svg'] = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' . urlencode($qr_payload);
+            }
+
+            if (isset($_GET['id_hewan'])) {
+                $metadata['id_hewan'] = intval($_GET['id_hewan']);
             }
 
             // Simpan record pembayaran dengan status 'Pending'. Reference digunakan

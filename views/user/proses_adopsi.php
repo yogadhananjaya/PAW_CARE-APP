@@ -212,6 +212,9 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
 
 <div class="main-wrapper">
     <div class="wizard-container">
+        <div style="text-align: left; margin-bottom: 20px;">
+            <a href="index.php?page=dashboard_user" class="btn btn-secondary" style="border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; font-weight: 600;">🏠 Kembali Ke Halaman Utama</a>
+        </div>
         <h2 style="text-align: center; margin-bottom: 10px;">🐾 Formulir Komitmen & Adopsi Hewan</h2>
         <p style="text-align: center; color: #64748b; font-size: 14px; margin-bottom: 30px;">
             Anda mengajukan adopsi untuk: <strong><?= htmlspecialchars($hewan['nama_hewan']) ?></strong> (<?= htmlspecialchars($hewan['nama_jenis']) ?> - <?= htmlspecialchars($hewan['nama_ras']) ?>)
@@ -407,10 +410,7 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
 
                 <div style="display: flex; justify-content: space-between; margin-top: 30px;">
                     <button type="button" class="btn-wizard btn-prev" onclick="prevStep(4)">Kembali</button>
-                    <div>
-                        <button type="button" class="btn-wizard" style="background:#4f46e5; color:#fff; margin-right:10px;" onclick="goToPayment(160000, 'VA')">Bayar via Bank (VA)</button>
-                        <button type="button" class="btn-wizard" style="background:#10b981; color:#fff;" onclick="goToPayment(160000, 'QRIS')">Bayar via QRIS</button>
-                    </div>
+                    <button type="button" class="btn-wizard" style="background:#4f46e5; color:#fff;" onclick="submitAdoptionPayment()">Bayar Sekarang</button>
                 </div>
             </div>
 
@@ -521,9 +521,36 @@ $nama_adopter = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
         nextStep(4);
     }
     function goToPayment(amount, metode) {
-        // Redirect ke pembayaran demo dengan parameter amount & metode
-        const url = 'index.php?page=pembayaran_create&amount=' + encodeURIComponent(amount) + '&metode=' + encodeURIComponent(metode);
-        window.location.href = url;
+        const form = document.getElementById('adoption-form');
+        
+        let inputMetode = form.querySelector('input[name="metode_pembayaran"]');
+        if (!inputMetode) {
+            inputMetode = document.createElement('input');
+            inputMetode.type = 'hidden';
+            inputMetode.name = 'metode_pembayaran';
+            form.appendChild(inputMetode);
+        }
+        inputMetode.value = metode;
+
+        let inputRedirect = document.createElement('input');
+        inputRedirect.type = 'hidden';
+        inputRedirect.name = 'redirect_ke_pembayaran';
+        inputRedirect.value = '1';
+        form.appendChild(inputRedirect);
+
+        let inputAmount = document.createElement('input');
+        inputAmount.type = 'hidden';
+        inputAmount.name = 'amount_pembayaran';
+        inputAmount.value = amount;
+        form.appendChild(inputAmount);
+
+        form.submit();
+    }
+    function submitAdoptionPayment() {
+        const selectedRadio = document.querySelector('input[name="metode_pembayaran"]:checked');
+        let metode = selectedRadio ? selectedRadio.value : 'Transfer Bank';
+        let paymentMethod = (metode === 'Transfer Bank') ? 'VA' : 'QRIS';
+        goToPayment(160000, paymentMethod);
     }
 </script>
 

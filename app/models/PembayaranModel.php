@@ -31,7 +31,28 @@ class PembayaranModel {
         // Uses JSON_MERGE_PRESERVE so existing metadata is kept.
         $stmt = $this->pdo->prepare("UPDATE pembayaran SET status = ?, metadata = COALESCE(metadata, JSON_ARRAY()), metadata = JSON_MERGE_PRESERVE(metadata, ?), updated_at = NOW() WHERE reference = ?");
         $meta_json = json_encode(['webhook' => $meta]);
-        return $stmt->execute([$status, $meta_json, $reference]);
+        $res = $stmt->execute([$status, $meta_json, $reference]);
+
+        if ($status === 'Success') {
+            $pay = $this->getByReference($reference);
+            if ($pay) {
+                $pay_meta = json_decode($pay['metadata'] ?? 'null', true) ?: [];
+                $id_hewan = $pay_meta['id_hewan'] ?? null;
+                $id_pengadopsi = $pay['id_pengadopsi'] ?? null;
+
+                if ($id_hewan) {
+                    // Update status hewan jadi Diadopsi
+                    $this->pdo->prepare("UPDATE hewan SET status_adopsi = 'Diadopsi' WHERE id_hewan = ?")->execute([$id_hewan]);
+
+                    if ($id_pengadopsi) {
+                        // Update status transaksi adopsi jadi Aktif
+                        $this->pdo->prepare("UPDATE transaksi_adopsi SET status_kontrak = 'Aktif' WHERE id_hewan = ? AND id_pengadopsi = ? AND status_kontrak = 'Ditandatangani'")->execute([$id_hewan, $id_pengadopsi]);
+                    }
+                }
+            }
+        }
+
+        return $res;
     }
 
     public function getByReference($reference) {
