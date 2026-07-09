@@ -371,14 +371,7 @@
             
             <!-- Gambar Kiri -->
             <div class="image-card">
-                <?php 
-                $foto_path = 'assets/img/hewan/' . ($hewan['url_foto_hewan'] ?? '');
-                if (!empty($hewan['url_foto_hewan']) && file_exists(__DIR__ . '/../../' . $foto_path)): 
-                ?>
-                    <img src="<?= htmlspecialchars($foto_path) ?>" alt="Foto <?= htmlspecialchars($hewan['nama_hewan']) ?>">
-                <?php else: ?>
-                    <div style="display:flex; width:100%; height:100%; align-items:center; justify-content:center; color:#cbd5e1; font-size:96px; background:#f1f5f9;">🐾</div>
-                <?php endif; ?>
+                <img src="<?= !empty($hewan['url_foto_hewan']) ? 'assets/img/hewan/' . htmlspecialchars($hewan['url_foto_hewan']) : '' ?>" alt="Foto <?= htmlspecialchars($hewan['nama_hewan']) ?>" onerror="this.onerror=null; this.src='assets/img/logo.png';">
                 
                 <?php if ($hewan['status_adopsi'] === 'Tersedia'): ?>
                     <span class="status-badge">Siap Diadopsi</span>

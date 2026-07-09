@@ -622,21 +622,9 @@ if ($adopter) {
                 <h2 class="section-title">Katalog Hewan Tersedia</h2>
                 <?php if (count($katalog_hewan) > 0): ?>
                     <div class="catalog-grid">
-                        <?php 
-                        $counter_user = 0;
-                        foreach ($katalog_hewan as $hewan): 
-                            $counter_user++;
-                            $isHiddenUser = $counter_user > 10 ? 'style="display: none;" class="pet-card extra-pet-user"' : 'class="pet-card"';
-                        ?>
-                            <div <?= $isHiddenUser ?>>
-                                <?php 
-                                $foto_path = 'assets/img/hewan/' . ($hewan['url_foto_hewan'] ?? '');
-                                if (!empty($hewan['url_foto_hewan']) && file_exists(__DIR__ . '/../../' . $foto_path)): 
-                                ?>
-                                    <img src="<?= htmlspecialchars($foto_path) ?>" class="pet-img" alt="Foto">
-                                <?php else: ?>
-                                    <div class="pet-img" style="display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:32px; background:#f1f5f9;">🐾</div>
-                                <?php endif; ?>
+                        <?php foreach ($katalog_hewan as $hewan): ?>
+                            <div class="pet-card">
+                                <img src="<?= !empty($hewan['url_foto_hewan']) ? 'assets/img/hewan/' . htmlspecialchars($hewan['url_foto_hewan']) : '' ?>" class="pet-img" alt="Foto" onerror="this.onerror=null; this.src='assets/img/logo.png';">
                                 <div class="pet-name"><?= htmlspecialchars($hewan['nama_hewan']) ?></div>
                                 <div class="pet-breed"><?= htmlspecialchars($hewan['nama_jenis']) ?> - <?= htmlspecialchars($hewan['nama_ras']) ?></div>
                                 <div class="pet-tags">
@@ -647,26 +635,8 @@ if ($adopter) {
                             </div>
                         <?php endforeach; ?>
 
-                        <?php if (count($katalog_hewan) > 10): ?>
-                            <div id="btn-load-more-user-container" style="grid-column: 1 / -1; text-align: center; margin-top: 30px; margin-bottom: 20px;">
-                                <button onclick="showAllUserPets()" class="btn-adopt" style="width: auto; padding: 12px 35px; border-radius: 30px; font-weight: 700; cursor: pointer; display: inline-block;">Semua Katalog</button>
-                            </div>
-                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
-
-                <script>
-                function showAllUserPets() {
-                    var extraPetsUser = document.querySelectorAll('.extra-pet-user');
-                    extraPetsUser.forEach(function(pet) {
-                        pet.style.display = 'block';
-                        gsap.fromTo(pet, {opacity: 0, scale: 0.95}, {opacity: 1, scale: 1, duration: 0.3});
-                    });
-                    var btnContainerUser = document.getElementById('btn-load-more-user-container');
-                    if (btnContainerUser) {
-                        btnContainerUser.style.display = 'none';
-                    }
-                }
                 </script>
 
             <?php elseif ($tab == 'pengajuan'): ?>
