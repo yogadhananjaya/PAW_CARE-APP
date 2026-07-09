@@ -431,10 +431,22 @@
 
                 <!-- Alert & CTA Button -->
                 <div class="cta-box">
-
+                    <?php 
+                    // Ambil status verifikasi pengadopsi saat ini dari session
+                    $adopter_status = 'Belum';
+                    if (isset($_SESSION['username'])) {
+                        $stmt_status = $pdo->prepare("SELECT status_verifikasi FROM pengadopsi WHERE nama_pengguna = ?");
+                        $stmt_status->execute([$_SESSION['username']]);
+                        $adopter_status = $stmt_status->fetchColumn() ?: 'Belum';
+                    }
+                    ?>
 
                     <?php if ($hewan['status_adopsi'] === 'Tersedia'): ?>
-                        <a href="index.php?page=proses_adopsi&id=<?= $hewan['id_hewan'] ?>" class="btn-primary-adopt">Mulai Adopsi Sekarang</a>
+                        <?php if ($adopter_status === 'Menunggu'): ?>
+                            <button disabled class="btn-disabled-adopt" style="background: #e2e8f0; color: #94a3b8;">Menunggu Verifikasi Akun...</button>
+                        <?php else: ?>
+                            <a href="index.php?page=proses_adopsi&id=<?= $hewan['id_hewan'] ?>" class="btn-primary-adopt">Mulai Adopsi Sekarang</a>
+                        <?php endif; ?>
                     <?php else: ?>
                         <button disabled class="btn-disabled-adopt">Tidak Tersedia untuk Adopsi</button>
                     <?php endif; ?>

@@ -52,6 +52,12 @@ switch ($page) {
                 exit;
             }
 
+            // Validasi Password  
+            if (!preg_match('/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/', $password)) {
+                echo "<script>alert('Gagal: Password minimal harus 8 karakter dan mengandung kombinasi huruf serta angka.'); window.history.back();</script>";
+                exit;
+            }
+
             if ($adopterModel->isDuplicateUsername($username)) {
                 echo "<script>alert('Gagal: Username \"" . htmlspecialchars($username) . "\" sudah terdaftar! Silakan gunakan username lain.'); window.history.back();</script>";
                 exit;

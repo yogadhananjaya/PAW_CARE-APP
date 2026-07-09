@@ -549,7 +549,9 @@ if ($adopter) {
                                     <div class="gallery-info">
                                         <div class="gallery-info-header">
                                             <h4 class="gallery-pet-name"><?= $petName ?></h4>
-                                            <span class="material-symbols-outlined gallery-heart-icon">favorite</span>
+                                            <?php if (!$adopter || $adopter['status_verifikasi'] !== 'Menunggu'): ?>
+                                                <span class="material-symbols-outlined gallery-heart-icon">favorite</span>
+                                            <?php endif; ?>
                                         </div>
                                         <div class="gallery-pet-meta"><?= $petType ?> - <?= $petRas ?> &bull; <?= $umur_text ?></div>
                                         <div class="gallery-pet-tags">
