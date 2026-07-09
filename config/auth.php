@@ -5,9 +5,10 @@ if (session_status() == PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/connect.php';
 
-function login($username, $password) {
+function login($username, $password)
+{
     global $pdo;
-    
+
     // Kredensial khusus SuperAdmin sesuai permintaan spesifikasi
     if ($username === 'pawcare' && $password === 'kelompok5') {
         $_SESSION['user_id'] = 1;
@@ -15,13 +16,13 @@ function login($username, $password) {
         $_SESSION['role'] = 'SuperAdmin';
         return true;
     }
-    
+
     try {
         // 1. Cek apakah ini akun Pengadopsi langsung di tabel pengadopsi
         $stmt_adopter = $pdo->prepare("SELECT * FROM pengadopsi WHERE nama_pengguna = ?");
         $stmt_adopter->execute([$username]);
         $adopter = $stmt_adopter->fetch();
-        
+
         if ($adopter && password_verify($password, $adopter['kata_sandi'])) {
             if ($adopter['status_verifikasi'] === 'Terverifikasi') {
                 // Hanya buat akun pengguna resmi setelah disetujui oleh admin
@@ -49,18 +50,18 @@ function login($username, $password) {
                 $_SESSION['user_id'] = $adopter['id_pengadopsi'];
                 $_SESSION['pending_adopter_id'] = $adopter['id_pengadopsi'];
             }
-            
+
             $_SESSION['username'] = $adopter['nama_pengguna'];
             $_SESSION['nama_lengkap'] = $adopter['nama_lengkap'];
             $_SESSION['role'] = 'User';
             return true;
         }
-        
+
         // 2. Jika tidak ditemukan di pengadopsi, cek di tabel pengguna (untuk Admin/Staf)
         $stmt_user = $pdo->prepare("SELECT * FROM pengguna WHERE nama_pengguna = ?");
         $stmt_user->execute([$username]);
         $user = $stmt_user->fetch();
-        
+
         if ($user && password_verify($password, $user['kata_sandi'])) {
             $_SESSION['user_id'] = $user['id_pengguna'];
             $_SESSION['username'] = $user['nama_pengguna'];
@@ -72,11 +73,12 @@ function login($username, $password) {
     } catch (Exception $e) {
         return false;
     }
-    
+
     return false;
 }
 
-function logout() {
+function logout()
+{
     if (session_status() == PHP_SESSION_NONE) {
         session_start();
     }
@@ -85,7 +87,8 @@ function logout() {
     session_destroy();
 }
 
-function get_current_adopter_id() {
+function get_current_adopter_id()
+{
     if (session_status() == PHP_SESSION_NONE) {
         session_start();
     }
@@ -105,7 +108,8 @@ function get_current_adopter_id() {
     return null;
 }
 
-function sync_pengadopsi_session() {
+function sync_pengadopsi_session()
+{
     if (session_status() == PHP_SESSION_NONE) {
         session_start();
     }
@@ -128,52 +132,54 @@ function sync_pengadopsi_session() {
     $_SESSION['nama_lengkap'] = $adopter['nama_lengkap'];
 }
 
-function check_access($allowed_roles = []) {
+function check_access($allowed_roles = [])
+{
     if (session_status() == PHP_SESSION_NONE) {
         session_start();
     }
-    
+
     // Jika belum login sama sekali
     if (!isset($_SESSION['role'])) {
         return false;
     }
-    
+
     // Jika rute bisa diakses siapa saja yang sudah login
     if (empty($allowed_roles)) {
         return true;
     }
-    
+
     $role = $_SESSION['role'];
     if ($role == 'Perawat Hewan') {
         $role = 'Perawat';
     }
-    
+
     // Cek apakah role pengguna saat ini ada di dalam array role yang diizinkan
     return in_array($role, $allowed_roles);
 }
 
 //  Fungsi check_rbac super sederhana untuk memeriksa hak akses berdasarkan Role
-function check_rbac($entity, $action) {
+function check_rbac($entity, $action)
+{
     if (session_status() == PHP_SESSION_NONE) {
         session_start();
     }
-    
+
     // 1. Ambil role user dari session
     $role = '';
     if (isset($_SESSION['role'])) {
         $role = $_SESSION['role'];
     }
-    
+
     // Jika belum login, tolak semua
     if ($role == '') {
         return false;
     }
-    
+
     // Normalisasi role Perawat Hewan dan Perawat agar sama
     if ($role == 'Perawat Hewan') {
         $role = 'Perawat';
     }
-    
+
     // ============================================
     // 2. ATURAN HAK AKSES UNTUK SUPERADMIN
     // ============================================
@@ -225,13 +231,13 @@ function check_rbac($entity, $action) {
         if ($entity == 'donasi') {
             return true;
         }
-        
+
         return true;
     }
+
     
-    // ============================================
     // 3. ATURAN HAK AKSES UNTUK KOORDINATOR
-    // ============================================
+    
     if ($role == 'Koordinator') {
         // Kelola Akun Internal: Ditolak (❌)
         if ($entity == 'pengguna') {
@@ -267,12 +273,9 @@ function check_rbac($entity, $action) {
         if ($entity == 'penempatan_kandang') {
             return true;
         }
-        // Kelola Jadwal Kunjungan Adopter: R (Hanya Read)
+        // Kelola Jadwal Kunjungan Adopter: CRUD penuh 
         if ($entity == 'jadwal_kunjungan') {
-            if ($action == 'index') {
-                return true;
-            }
-            return false;
+            return true;
         }
         // Kelola Kontrak Adopsi: Sign Admin, Aktivasi & Inisiasi (Tidak boleh menghapus/delete)
         if ($entity == 'transaksi_adopsi') {
@@ -292,10 +295,10 @@ function check_rbac($entity, $action) {
         if ($entity == 'donasi') {
             return false;
         }
-        
+
         return false;
     }
-    
+
     // ============================================
     // 4. ATURAN HAK AKSES UNTUK PERAWAT
     // ============================================
@@ -352,10 +355,10 @@ function check_rbac($entity, $action) {
         if ($entity == 'donasi') {
             return false;
         }
-        
+
         return false;
     }
-    
+
     // Peran lainnya (seperti Pengadopsi/User umum) ditolak dari modul backend ini
     return false;
 }
