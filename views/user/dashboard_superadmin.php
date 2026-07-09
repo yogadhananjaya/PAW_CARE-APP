@@ -216,8 +216,11 @@ $notif_karantina = $stmt_notif_karantina->fetchAll();
             <a href="index.php?page=pengadopsi" class="quick-action-btn">
                 Verifikasi Adopter Baru
             </a>
+            <a href="index.php?page=report_donasi_pemasukan" target="_blank" class="quick-action-btn danger">
+                Laporan Donasi Pemasukan (PDF)
+            </a>
             <a href="index.php?page=report_donasi" target="_blank" class="quick-action-btn danger">
-                Unduh Laporan PDF
+                Laporan Pemasukan & Pengeluaran (PDF)
             </a>
         </div>
     </div>

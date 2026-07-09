@@ -24,5 +24,18 @@ class ReportController {
         $m = new DonasiModel();
         $this->generatePdf('laporan_donasi.php', ['data' => $m->getAll()], 'Laporan_Donasi_PawCare');
     }
+
+    public function laporanDonasiPemasukan() {
+        require_once __DIR__ . '/../models/DonasiModel.php';
+        $m = new DonasiModel();
+        $all = $m->getAll();
+        $filtered = [];
+        foreach ($all as $item) {
+            if ($item['kategori'] === 'Pemasukan') {
+                $filtered[] = $item;
+            }
+        }
+        $this->generatePdf('laporan_donasi_pemasukan.php', ['data' => $filtered], 'Laporan_Donasi_Pemasukan_PawCare');
+    }
 }
 ?>

@@ -737,6 +737,14 @@ switch ($page) {
             }
         }
         
+        // Fitur Laporan PDF Donasi Pemasukan
+        if ($page == 'report_donasi_pemasukan' && check_access(['SuperAdmin'])) {
+            require_once __DIR__ . '/app/controllers/ReportController.php';
+            $ctrl = new ReportController();
+            $ctrl->laporanDonasiPemasukan();
+            break;
+        }
+
         // Fitur Laporan PDF Donasi
         if ($page == 'report_donasi' && check_access(['SuperAdmin'])) {
             require_once __DIR__ . '/app/controllers/ReportController.php';

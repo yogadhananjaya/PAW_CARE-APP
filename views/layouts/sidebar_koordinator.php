@@ -109,15 +109,6 @@ function koordGetCaretIcon($current, $pages) {
         </li>
     </ul>
 
-    <!-- Halaman Utama di atas User Profile -->
-    <ul class="sidebar-links" style="margin-top: 20px; margin-bottom: 10px;">
-        <li>
-            <a href="index.php?page=landing" class="<?php echo koordIsActive($current_page, 'landing'); ?>">
-                🏠 Halaman Utama
-            </a>
-        </li>
-    </ul>
-
     <!-- Profil User di bagian bawah sidebar -->
     <div class="sidebar-user">
         <div class="user-info">
