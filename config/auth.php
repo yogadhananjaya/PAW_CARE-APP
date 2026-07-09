@@ -25,7 +25,10 @@ function login($username, $password) {
         if ($adopter && password_verify($password, $adopter['kata_sandi'])) {
             if ($adopter['status_verifikasi'] === 'Terverifikasi') {
                 // Hanya buat akun pengguna resmi setelah disetujui oleh admin
-                if (empty($adopter['id_pengguna'])) {
+                $stmt_check_user = $pdo->prepare("SELECT id_pengguna FROM pengguna WHERE nama_pengguna = ?");
+                $stmt_check_user->execute([$adopter['nama_pengguna']]);
+                $user_row = $stmt_check_user->fetch();
+                if (!$user_row) {
                     $kode_pg = buat_kode_otomatis('pengguna', 'kode_pengguna', 'PG');
                     $stmt_insert = $pdo->prepare("INSERT INTO pengguna (kode_pengguna, nama_lengkap, jabatan, kontak, nama_pengguna, kata_sandi, role, status) VALUES (?, ?, 'Pengadopsi', ?, ?, ?, 'User', 'Aktif')");
                     $stmt_insert->execute([
@@ -33,16 +36,13 @@ function login($username, $password) {
                         $adopter['nama_lengkap'],
                         $adopter['no_hp'],
                         $adopter['nama_pengguna'],
-                        $adopter['kata_sandi'] // Gunakan hash password yang sama
+                        $adopter['kata_sandi']
                     ]);
                     $new_id_pengguna = $pdo->lastInsertId();
-                    
-                    // Hubungkan kembali di tabel pengadopsi
-                    $stmt_update = $pdo->prepare("UPDATE pengadopsi SET id_pengguna = ? WHERE id_pengadopsi = ?");
-                    $stmt_update->execute([$new_id_pengguna, $adopter['id_pengadopsi']]);
-                    $adopter['id_pengguna'] = $new_id_pengguna;
+                } else {
+                    $new_id_pengguna = $user_row['id_pengguna'];
                 }
-                $_SESSION['user_id'] = $adopter['id_pengguna'];
+                $_SESSION['user_id'] = $new_id_pengguna;
                 unset($_SESSION['pending_adopter_id']);
             } else {
                 // Simpan session untuk calon adopter yang masih menunggu verifikasi
@@ -96,8 +96,8 @@ function get_current_adopter_id() {
     }
 
     if (isset($_SESSION['user_id']) && is_numeric($_SESSION['user_id']) && $_SESSION['user_id'] > 0) {
-        $stmt = $pdo->prepare("SELECT id_pengadopsi FROM pengadopsi WHERE id_pengguna = ?");
-        $stmt->execute([$_SESSION['user_id']]);
+        $stmt = $pdo->prepare("SELECT id_pengadopsi FROM pengadopsi WHERE nama_pengguna = ?");
+        $stmt->execute([$_SESSION['username'] ?? '']);
         $row = $stmt->fetch();
         return $row['id_pengadopsi'] ?? null;
     }
@@ -111,25 +111,21 @@ function sync_pengadopsi_session() {
     }
 
     global $pdo;
-    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'User' || empty($_SESSION['user_id'])) {
+    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'User' || empty($_SESSION['username'])) {
         return;
     }
 
-    $current_id = $_SESSION['user_id'];
-    $stmt = $pdo->prepare("SELECT id_pengadopsi, id_pengguna, nama_pengguna, nama_lengkap FROM pengadopsi WHERE id_pengadopsi = ? OR id_pengguna = ?");
-    $stmt->execute([$current_id, $current_id]);
+    $current_username = $_SESSION['username'];
+    $stmt = $pdo->prepare("SELECT id_pengadopsi, nama_pengguna, nama_lengkap FROM pengadopsi WHERE nama_pengguna = ?");
+    $stmt->execute([$current_username]);
     $adopter = $stmt->fetch();
 
     if (!$adopter) {
         return;
     }
 
-    if (!empty($adopter['id_pengguna']) && $current_id != $adopter['id_pengguna']) {
-        $_SESSION['user_id'] = $adopter['id_pengguna'];
-        unset($_SESSION['pending_adopter_id']);
-        $_SESSION['username'] = $adopter['nama_pengguna'];
-        $_SESSION['nama_lengkap'] = $adopter['nama_lengkap'];
-    }
+    $_SESSION['username'] = $adopter['nama_pengguna'];
+    $_SESSION['nama_lengkap'] = $adopter['nama_lengkap'];
 }
 
 function check_access($allowed_roles = []) {

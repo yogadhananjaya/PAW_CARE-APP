@@ -46,7 +46,7 @@ class PengadopsiModel {
         $stmt->execute([$pengadopsi_id]);
         $adopter = $stmt->fetch();
 
-        if (!$adopter || $adopter['status_verifikasi'] !== 'Terverifikasi' || !empty($adopter['id_pengguna'])) {
+        if (!$adopter || $adopter['status_verifikasi'] !== 'Terverifikasi') {
             return false;
         }
 
@@ -66,14 +66,7 @@ class PengadopsiModel {
             $adopter['kata_sandi']
         ]);
 
-        if ($success) {
-            $new_id_pengguna = $this->pdo->lastInsertId();
-            $stmtUpdate = $this->pdo->prepare("UPDATE pengadopsi SET id_pengguna = ? WHERE id_pengadopsi = ?");
-            $stmtUpdate->execute([$new_id_pengguna, $pengadopsi_id]);
-            return true;
-        }
-
-        return false;
+        return $success;
     }
 
     // Simpan data pengadopsi baru (kolom sesuai DB baru)
@@ -175,10 +168,10 @@ class PengadopsiModel {
         }
 
         if ($exclude_id) {
-            $stmt3 = $this->pdo->prepare("SELECT id_pengguna FROM pengadopsi WHERE id_pengadopsi = ?");
+            $stmt3 = $this->pdo->prepare("SELECT nama_pengguna FROM pengadopsi WHERE id_pengadopsi = ?");
             $stmt3->execute([$exclude_id]);
-            $linked_pengguna_id = $stmt3->fetchColumn();
-            if ($linked_pengguna_id && $linked_pengguna_id == $existing_pengguna_id) {
+            $linked_username = $stmt3->fetchColumn();
+            if ($linked_username && strtolower($linked_username) == strtolower($nama_pengguna)) {
                 return false;
             }
         }

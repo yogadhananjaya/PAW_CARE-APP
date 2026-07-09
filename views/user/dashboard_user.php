@@ -10,8 +10,8 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // 1. Ambil data profil pengadopsi
-$stmt = $pdo->prepare("SELECT * FROM pengadopsi WHERE id_pengguna = ? OR id_pengadopsi = ?");
-$stmt->execute([$user_id, $user_id]);
+$stmt = $pdo->prepare("SELECT * FROM pengadopsi WHERE nama_pengguna = ?");
+$stmt->execute([$_SESSION['username'] ?? '']);
 $adopter = $stmt->fetch();
 
 // Menentukan tab aktif (default: beranda)
