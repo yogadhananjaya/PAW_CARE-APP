@@ -88,6 +88,18 @@ if ($adopter) {
     $stmt_app->execute([$adopter['id_pengadopsi']]);
     $applied_animals = $stmt_app->fetchAll();
 }
+
+// Ambil data donasi terkini untuk ditampilkan di Beranda
+$stmt_donasi = $pdo->query("SELECT * FROM donasi WHERE kategori = 'Pemasukan' AND status_konfirmasi = 'Dikonfirmasi' ORDER BY id_donasi DESC LIMIT 5");
+$donasi_list = $stmt_donasi->fetchAll();
+
+// Tentukan nama donatur otomatis dari akun login
+$nama_donatur_val = '';
+if ($adopter && !empty($adopter['nama_lengkap'])) {
+    $nama_donatur_val = htmlspecialchars($adopter['nama_lengkap']);
+} else {
+    $nama_donatur_val = htmlspecialchars($_SESSION['username'] ?? '');
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -100,8 +112,7 @@ if ($adopter) {
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <style>
         :root {
-            /* Design System Token: {{DATA:DESIGN_SYSTEM:DESIGN_SYSTEM_1}} */
-            --design-system-token: '{{DATA:DESIGN_SYSTEM:DESIGN_SYSTEM_1}}';
+
             --primary: #a33900;          /* Warm Red/Orange */
             --primary-hover: #cc4900;
             --primary-light: #ffdbce;
@@ -391,7 +402,7 @@ if ($adopter) {
     </style>
 </head>
 <body>
-    <canvas id="shader-canvas" data-shader="{{DATA:ANIMATION:ANIMATION_12}}"></canvas>
+    <canvas id="shader-canvas"></canvas>
 
     <nav class="top-navbar">
         <div class="nav-left">
@@ -499,7 +510,7 @@ if ($adopter) {
                         </div>
                     </div>
                     <div class="hero-image">
-                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKEQJq6ZAfQEGqHVM09jjbKo0P-kVQPNqJu7tGpMp5MDlT0G4oPkp2CZaw4AzrdcadQqDt14bTOTtUhvaBd1yQmxgCb5Fsqb5Zm_svupsoOpaldpt8cuVVbN6dmx9rGTTRYkSuLJRNhqyrWt5aVTVFHA1qNzbafQUJqsqA2By9vDueZfF1ymsdCf-l-hEt96KAj6Q2PeUOD5nFKr4sZycxnzSwZRK81YzaY0dugOFNQlag0_xqpOHhFU_XsTTlZ1aCzk4eTxkwZyI" alt="Hewan Peliharaan" class="hero-photo" data-image="{{DATA:IMAGE:IMAGE_9}}">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKEQJq6ZAfQEGqHVM09jjbKo0P-kVQPNqJu7tGpMp5MDlT0G4oPkp2CZaw4AzrdcadQqDt14bTOTtUhvaBd1yQmxgCb5Fsqb5Zm_svupsoOpaldpt8cuVVbN6dmx9rGTTRYkSuLJRNhqyrWt5aVTVFHA1qNzbafQUJqsqA2By9vDueZfF1ymsdCf-l-hEt96KAj6Q2PeUOD5nFKr4sZycxnzSwZRK81YzaY0dugOFNQlag0_xqpOHhFU_XsTTlZ1aCzk4eTxkwZyI" alt="Hewan Peliharaan" class="hero-photo">
                         <div class="hero-card">
                             <h4>PawCare Shelter</h4>
                             <p>Kami merawat setiap hewan dengan kasih sayang, kesehatan, dan keamanan sebelum mereka menemukan keluarga baru.</p>
@@ -618,6 +629,101 @@ if ($adopter) {
                         </div>
                     </div>
                 </section>
+
+                <!-- Donation Section -->
+                <section class="donation-section" style="padding: 80px 8%; background: #ffffff; border-top: 1px solid rgba(15,23,42,0.05); margin-top: 60px; border-radius: 24px;">
+                    <div style="text-align:center;">
+                        <h2 class="interactive-title" style="font-size:36px; color:#0f172a; font-family:'Outfit', sans-serif; margin-bottom:10px;">Dukung Perawatan Hewan 🐾</h2>
+                        <p style="text-align:center; color:#94a3b8; margin-bottom:50px;">Bantu kami menyediakan pakan, tempat tinggal yang layak, dan perawatan medis untuk mereka</p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; max-width: 1100px; margin: 0 auto; text-align: left;">
+                        <!-- Donation Form -->
+                        <div style="background: #ffffff; border: 1px solid rgba(15,23,42,0.08); border-radius: 24px; padding: 30px; box-shadow: 0 10px 30px rgba(15,23,42,0.02);">
+                            <h3 style="font-size: 20px; font-family: 'Outfit', sans-serif; color: #0f172a; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">Formulir Donasi</h3>
+                            <form method="POST" action="index.php?page=donasi_proses" onsubmit="return validateDonationForm(this);">
+                                <div style="margin-bottom: 15px;">
+                                    <label style="display:block; margin-bottom:6px; font-weight:600; font-size:13px; color:#0f172a;">Nama Donatur</label>
+                                    <input type="text" name="nama_donatur" value="<?= $nama_donatur_val ?>" readonly required minlength="3" pattern="^[A-Za-z\s]+$" style="width:100%; padding:12px 15px; border:1px solid #cbd5e1; border-radius:10px; font-size:14px; outline:none; background-color: #f1f5f9; cursor: not-allowed;">
+                                    <small style="color: #94a3b8; font-size: 11px; margin-top: 4px; display: block;">Diisi otomatis dari akun Anda.</small>
+                                </div>
+                                <div style="margin-bottom: 15px;">
+                                    <label style="display:block; margin-bottom:6px; font-weight:600; font-size:13px; color:#0f172a;">Nominal Donasi (IDR)</label>
+                                    <input type="number" name="nominal" min="10000" step="1000" value="50000" required style="width:100%; padding:12px 15px; border:1px solid #cbd5e1; border-radius:10px; font-size:14px; outline:none;">
+                                    <small style="color: #94a3b8; font-size: 11px; margin-top: 4px; display: block;">Minimal donasi Rp 10.000.</small>
+                                </div>
+                                <div style="margin-bottom: 15px;">
+                                    <label style="display:block; margin-bottom:6px; font-weight:600; font-size:13px; color:#0f172a;">Metode Pembayaran</label>
+                                    <select name="metode_pembayaran" style="width:100%; padding:12px 15px; border:1px solid #cbd5e1; border-radius:10px; font-size:14px; outline:none; background:#fff;">
+                                        <option value="Transfer Bank">Transfer Bank</option>
+                                        <option value="E-Wallet">E-Wallet / QRIS</option>
+                                    </select>
+                                </div>
+                                <div style="margin-bottom: 20px;">
+                                    <label style="display:block; margin-bottom:6px; font-weight:600; font-size:13px; color:#0f172a;">Catatan / Pesan</label>
+                                    <textarea name="keterangan" placeholder="Tulis doa atau dukungan Anda..." rows="3" style="width:100%; padding:12px 15px; border:1px solid #cbd5e1; border-radius:10px; font-size:14px; outline:none; resize:none;"></textarea>
+                                </div>
+                                <button type="submit" style="width:100%; background:#bd4a0a; color:#fff; border:none; padding:14px; border-radius:30px; font-weight:700; font-size:14px; cursor:pointer; box-shadow: 0 4px 12px rgba(189,74,10,0.2); transition:all 0.3s ease;">Donasi Sekarang</button>
+                            </form>
+                        </div>
+
+                        <!-- Recent Donors -->
+                        <div style="background: #ffffff; border: 1px solid rgba(15,23,42,0.08); border-radius: 24px; padding: 30px; box-shadow: 0 10px 30px rgba(15,23,42,0.02);">
+                            <h3 style="font-size: 20px; font-family: 'Outfit', sans-serif; color: #0f172a; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">Donatur Terkini 💖</h3>
+                            <div style="display: flex; flex-direction: column; gap: 15px; max-height: 380px; overflow-y: auto; padding-right: 5px;">
+                                <?php if (count($donasi_list) > 0): ?>
+                                    <?php foreach ($donasi_list as $donasi): ?>
+                                        <div style="background: #f8fafc; border-radius: 12px; padding: 15px; border-left: 4px solid #bd4a0a; display: flex; flex-direction: column; gap: 4px;">
+                                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                                <span style="font-weight: 700; color: #0f172a; font-size: 14px;"><?= htmlspecialchars($donasi['nama_donatur']) ?></span>
+                                                <span style="font-size: 12px; color: #64748b; font-weight: 500;"><?= date('d M Y', strtotime($donasi['tanggal'])) ?></span>
+                                            </div>
+                                            <div style="font-weight: 800; color: #DE3B3B; font-size: 15px; font-family: 'Outfit', sans-serif;">
+                                                Rp <?= number_format($donasi['nominal'], 0, ',', '.') ?>
+                                            </div>
+                                            <?php if (!empty($donasi['keterangan'])): ?>
+                                                <div style="font-size: 13px; color: #64748b; font-style: italic; margin-top: 4px;">
+                                                    "<?= htmlspecialchars($donasi['keterangan']) ?>"
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div style="text-align: center; color: #94a3b8; padding: 40px 0; font-size: 14px;">
+                                        🐾 Belum ada donatur terbaru. Jadilah donatur pertama kami!
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <script>
+                    function validateDonationForm(form) {
+                        var nama = form.nama_donatur.value.trim();
+                        var nominal = parseInt(form.nominal.value, 10);
+
+                        if (nama.length < 3) {
+                            alert("Nama donatur minimal harus terdiri dari 3 karakter.");
+                            form.nama_donatur.focus();
+                            return false;
+                        }
+
+                        var nameRegex = /^[A-Za-z\s]+$/;
+                        if (!nameRegex.test(nama)) {
+                            alert("Nama donatur hanya boleh berisi huruf dan spasi.");
+                            form.nama_donatur.focus();
+                            return false;
+                        }
+
+                        if (isNaN(nominal) || nominal < 10000) {
+                            alert("Nominal donasi minimal adalah Rp 10.000.");
+                            form.nominal.focus();
+                            return false;
+                        }
+                        return true;
+                    }
+                </script>
             <?php elseif ($tab == 'katalog'): ?>
                 <h2 class="section-title">Katalog Hewan Tersedia</h2>
                 <?php if (count($katalog_hewan) > 0): ?>
@@ -1326,7 +1432,7 @@ if ($adopter) {
 
     <?php include __DIR__ . '/chatbot_widget.php'; ?>
     <script>
-        // Subtle background shader script: {{DATA:ANIMATION:ANIMATION_12}}
+        // Efek latar belakang shader dinamis dengan canvas
         const canvas = document.getElementById('shader-canvas');
         if (canvas) {
             const ctx = canvas.getContext('2d');
