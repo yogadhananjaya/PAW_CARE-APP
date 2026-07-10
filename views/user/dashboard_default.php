@@ -475,7 +475,7 @@ $donasi_list = $stmt_donasi->fetchAll();
             }
         });
 
-        // Ponytail: hover 3d removed as requested, added gentle floating animation instead
+        // Animasi floating lembut untuk hero image
         if (document.getElementById('hero-pet-image')) {
             gsap.to('#hero-pet-image', {
                 y: -12,
@@ -505,7 +505,6 @@ $donasi_list = $stmt_donasi->fetchAll();
 
 
 
-        // Ponytail: hover 3d removed on cards
         // 5. Kebijakan Accordion Interactivity
         document.querySelectorAll('.faq-question').forEach(btn => {
             btn.addEventListener('click', () => {
