@@ -1,6 +1,73 @@
 <?php
 // Menarik data hewan dari database untuk ditampilkan di Homepage
 require_once __DIR__ . '/../../config/connect.php';
+
+if (!function_exists('getPetImage')) {
+    function getPetImage($hewan) {
+        $url = $hewan['url_foto_hewan'] ?? '';
+        $jenis = strtolower($hewan['nama_jenis'] ?? '');
+        $ras = strtolower($hewan['nama_ras'] ?? '');
+        
+        if (!empty($url)) {
+            if (file_exists(__DIR__ . '/../../uploads/hewan/' . $url)) {
+                return 'uploads/hewan/' . $url;
+            }
+            if (file_exists(__DIR__ . '/../../assets/img/hewan/' . $url)) {
+                return 'assets/img/hewan/' . $url;
+            }
+        }
+        
+        if (strpos($jenis, 'kucing') !== false) {
+            $kucing_images = [
+                'image.png', 'image copy.png', 'image copy 2.png', 'image copy 3.png',
+                'image copy 4.png', 'image copy 5.png', 'image copy 6.png', 'image copy 7.png',
+                'image copy 8.png', 'image copy 9.png', 'image copy 10.png', 'image copy 11.png'
+            ];
+            $id = intval($hewan['id_hewan'] ?? 0);
+            $idx = $id % count($kucing_images);
+            return 'assets/img/hewan/kucing/' . $kucing_images[$idx];
+        }
+        
+        if (strpos($jenis, 'anjing') !== false) {
+            $dir_path = __DIR__ . '/../../assets/img/hewan/anjing/';
+            if (is_dir($dir_path)) {
+                $files = array_diff(scandir($dir_path), array('.', '..', '.gitkeep'));
+                if (count($files) > 0) {
+                    $id = intval($hewan['id_hewan'] ?? 0);
+                    $files = array_values($files);
+                    $idx = $id % count($files);
+                    return 'assets/img/hewan/anjing/' . $files[$idx];
+                }
+            }
+            
+            if (strpos($ras, 'golden') !== false) {
+                return 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&q=80&w=600';
+            } elseif (strpos($ras, 'bulldog') !== false) {
+                return 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&q=80&w=600';
+            } elseif (strpos($ras, 'pomeranian') !== false) {
+                return 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&q=80&w=600';
+            } else {
+                return 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600';
+            }
+        }
+
+        if (strpos($jenis, 'kelinci') !== false) {
+            $dir_path = __DIR__ . '/../../assets/img/hewan/kelinci/';
+            if (is_dir($dir_path)) {
+                $files = array_diff(scandir($dir_path), array('.', '..', '.gitkeep'));
+                if (count($files) > 0) {
+                    $id = intval($hewan['id_hewan'] ?? 0);
+                    $files = array_values($files);
+                    $idx = $id % count($files);
+                    return 'assets/img/hewan/kelinci/' . $files[$idx];
+                }
+            }
+            return 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?auto=format&fit=crop&q=80&w=600';
+        }
+        
+        return 'assets/img/logo.png';
+    }
+}
 $stmt_hewan = $pdo->query("SELECT h.*, j.nama_jenis, r.nama_ras FROM hewan h JOIN jenis_hewan j ON h.id_jenis = j.id_jenis JOIN ras r ON h.id_ras = r.id_ras WHERE h.status_adopsi = 'Tersedia' ORDER BY h.id_hewan DESC");
 $katalog_hewan = $stmt_hewan->fetchAll();
 
@@ -144,7 +211,7 @@ $donasi_list = $stmt_donasi->fetchAll();
                     <div <?= $isHidden ?>>
                         <div class="pet-img-wrapper"
                             style="height: 200px; background: rgba(255,255,255,0.02); border-radius: 16px; overflow: hidden; margin-bottom:15px; border: 1px solid rgba(255,255,255,0.05);">
-                            <img src="uploads/hewan/<?= !empty($hewan['url_foto_hewan']) ? htmlspecialchars($hewan['url_foto_hewan']) : '' ?>"
+                            <img src="<?= getPetImage($hewan) ?>"
                                 onerror="this.onerror=null; this.src='assets/img/logo.png';"
                                 style="width:100%; height:100%; object-fit:cover; transition: transform 0.5s ease;">
                         </div>
