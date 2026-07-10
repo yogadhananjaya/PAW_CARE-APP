@@ -180,9 +180,32 @@
             container.classList.remove("right-panel-active");
         });
 
-        // Clear chatbot sessionStorage data upon arrival at login page
-        sessionStorage.removeItem('pawbot_chat_history');
-        sessionStorage.removeItem('pawbot_chat_active');
+        // Validasi form Sign Up sebelum dikirim
+        const signUpForm = document.querySelector('.sign-up-container form');
+        signUpForm.addEventListener('submit', function(e) {
+            const usernameInput = signUpForm.querySelector('input[name="username"]');
+            const passwordInput = signUpForm.querySelector('input[name="password"]');
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+
+            // 1. Validasi Username 
+            const usernameRegex = /^[a-zA-Z0-9_]{4,20}$/;
+            if (!usernameRegex.test(username)) {
+                alert('Gagal: Username hanya boleh berisi huruf, angka, dan underscore (_), serta panjangnya 4 hingga 20 karakter.');
+                e.preventDefault();
+                usernameInput.focus();
+                return false;
+            }
+
+            // 2. Validasi Password  
+            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+            if (!passwordRegex.test(password)) {
+                alert('Gagal: Password minimal harus 8 karakter dan mengandung kombinasi huruf serta angka.');
+                e.preventDefault();
+                passwordInput.focus();
+                return false;
+            }
+        });
     </script>
 </body>
 </html>

@@ -63,7 +63,7 @@
       <div class="page-title">Kelola Jadwal Pertemuan Adopter</div>
       <div class="page-sub">Konfirmasi pengajuan kunjungan dari calon adopter ke shelter.</div>
     </div>
-    <?php if ($_SESSION['role'] === 'SuperAdmin'): ?>
+    <?php if (in_array($_SESSION['role'], ['SuperAdmin', 'Koordinator'])): ?>
     <a href="index.php?page=jadwal_kunjungan_create" class="btn-add">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Tambah Jadwal
@@ -112,7 +112,7 @@
               <th>Hewan</th>
               <th>Metode / Tujuan</th>
               <th>Tanggal &amp; Waktu</th>
-              <?php if ($_SESSION['role'] === 'SuperAdmin'): ?>
+              <?php if (in_array($_SESSION['role'], ['SuperAdmin', 'Koordinator'])): ?>
               <th style="width:100px;">Aksi</th>
               <?php endif; ?>
             </tr>
@@ -131,7 +131,7 @@
                 <?php endif; ?>
               </td>
               <td><?= date('d M Y, H:i', strtotime($r['tanggal_jadwal'])) ?></td>
-              <?php if ($_SESSION['role'] === 'SuperAdmin'): ?>
+              <?php if (in_array($_SESSION['role'], ['SuperAdmin', 'Koordinator'])): ?>
               <td>
                 <div class="jk-actions">
                   <!-- Tombol Konfirmasi 1-klik (hanya muncul di baris Menunggu) -->
@@ -178,7 +178,7 @@
               <th>Hewan</th>
               <th>Metode / Tujuan</th>
               <th>Tanggal &amp; Waktu</th>
-              <?php if ($_SESSION['role'] === 'SuperAdmin'): ?>
+              <?php if (in_array($_SESSION['role'], ['SuperAdmin', 'Koordinator'])): ?>
               <th style="width:100px;">Aksi</th>
               <?php endif; ?>
             </tr>
@@ -197,7 +197,7 @@
                 <?php endif; ?>
               </td>
               <td><?= date('d M Y, H:i', strtotime($r['tanggal_jadwal'])) ?></td>
-              <?php if ($_SESSION['role'] === 'SuperAdmin'): ?>
+              <?php if (in_array($_SESSION['role'], ['SuperAdmin', 'Koordinator'])): ?>
               <td>
                 <div class="jk-actions">
                   <!-- Tombol Selesai Kunjungan -->

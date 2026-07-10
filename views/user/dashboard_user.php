@@ -10,8 +10,8 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // 1. Ambil data profil pengadopsi
-$stmt = $pdo->prepare("SELECT * FROM pengadopsi WHERE id_pengguna = ? OR id_pengadopsi = ?");
-$stmt->execute([$user_id, $user_id]);
+$stmt = $pdo->prepare("SELECT * FROM pengadopsi WHERE nama_pengguna = ?");
+$stmt->execute([$_SESSION['username'] ?? '']);
 $adopter = $stmt->fetch();
 
 // Menentukan tab aktif (default: beranda)
@@ -68,7 +68,7 @@ if ($adopter && !$is_unverified) {
 
 // Ambil data gallery hewan yang tersedia untuk ditampilkan pada beranda
 $gallery_pets = [];
-$stmt_gallery = $pdo->query("SELECT h.*, j.nama_jenis, r.nama_ras FROM hewan h JOIN jenis_hewan j ON h.id_jenis = j.id_jenis JOIN ras r ON h.id_ras = r.id_ras WHERE h.status_adopsi = 'Tersedia' ORDER BY h.id_hewan DESC LIMIT 6");
+$stmt_gallery = $pdo->query("SELECT h.*, j.nama_jenis, r.nama_ras FROM hewan h JOIN jenis_hewan j ON h.id_jenis = j.id_jenis JOIN ras r ON h.id_ras = r.id_ras WHERE h.status_adopsi = 'Tersedia' ORDER BY h.id_hewan DESC");
 $gallery_pets = $stmt_gallery->fetchAll();
 
 // 3. Ambil data pengajuan adopsi milik user ini (untuk tab Pengajuan Saya)
@@ -521,26 +521,30 @@ if ($adopter) {
                         <a href="index.php?page=dashboard_user&tab=katalog" style="color: var(--primary); font-weight: 700; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">Semua Katalog <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span></a>
                     </div>
                     <div class="gallery-grid">
-                        <?php foreach ($gallery_pets as $pet): ?>
-                            <?php
-                                $imagePath = !empty($pet['url_foto_hewan']) ? "uploads/hewan/{$pet['url_foto_hewan']}" : "assets/img/logo.png";
-                                $petName = htmlspecialchars($pet['nama_hewan']);
-                                $petType = htmlspecialchars($pet['nama_jenis']);
-                                $petRas = htmlspecialchars($pet['nama_ras']);
-                                $umur = intval($pet['estimasi_umur']);
-                                $umur_text = ($umur >= 12) ? (round($umur / 12) . ' Tahun') : ($umur . ' Bulan');
-                                
-                                // Generate tags
-                                $hobi = $pet['hobi'] ?? '';
-                                $tags = [];
-                                if (!empty($hobi)) {
-                                    $tags = array_filter(array_map('trim', explode(',', $hobi)));
-                                }
-                                if (empty($tags)) {
-                                    $tags = [$pet['jenis_kelamin'] === 'Jantan' ? 'Sangat Ceria' : 'Manja', 'Ramah'];
-                                }
-                            ?>
-                            <a href="index.php?page=hewan_detail&id=<?= $pet['id_hewan'] ?>" class="gallery-link">
+                        <?php 
+                        $counter_gallery = 0;
+                        foreach ($gallery_pets as $pet): 
+                            $counter_gallery++;
+                            $isHiddenGallery = $counter_gallery > 10 ? 'style="display: none;" class="gallery-link extra-gallery-pet"' : 'class="gallery-link"';
+                            $foto_hewan_path = "uploads/hewan/" . ($pet['url_foto_hewan'] ?? '');
+                            $imagePath = (!empty($pet['url_foto_hewan']) && file_exists(__DIR__ . '/../../' . $foto_hewan_path)) ? $foto_hewan_path : "assets/img/logo.png";
+                            $petName = htmlspecialchars($pet['nama_hewan']);
+                            $petType = htmlspecialchars($pet['nama_jenis']);
+                            $petRas = htmlspecialchars($pet['nama_ras']);
+                            $umur = intval($pet['estimasi_umur']);
+                            $umur_text = ($umur >= 12) ? (round($umur / 12) . ' Tahun') : ($umur . ' Bulan');
+                            
+                            // Generate tags
+                            $hobi = $pet['hobi'] ?? '';
+                            $tags = [];
+                            if (!empty($hobi)) {
+                                $tags = array_filter(array_map('trim', explode(',', $hobi)));
+                            }
+                            if (empty($tags)) {
+                                $tags = [$pet['jenis_kelamin'] === 'Jantan' ? 'Sangat Ceria' : 'Manja', 'Ramah'];
+                            }
+                        ?>
+                            <a href="index.php?page=hewan_detail&id=<?= $pet['id_hewan'] ?>" <?= $isHiddenGallery ?>>
                                 <article class="gallery-card">
                                     <div class="gallery-img-container">
                                         <span class="gallery-status-badge">Tersedia</span>
@@ -549,7 +553,9 @@ if ($adopter) {
                                     <div class="gallery-info">
                                         <div class="gallery-info-header">
                                             <h4 class="gallery-pet-name"><?= $petName ?></h4>
-                                            <span class="material-symbols-outlined gallery-heart-icon">favorite</span>
+                                            <?php if (!$adopter || $adopter['status_verifikasi'] !== 'Menunggu'): ?>
+                                                <span class="material-symbols-outlined gallery-heart-icon">favorite</span>
+                                            <?php endif; ?>
                                         </div>
                                         <div class="gallery-pet-meta"><?= $petType ?> - <?= $petRas ?> &bull; <?= $umur_text ?></div>
                                         <div class="gallery-pet-tags">
@@ -561,7 +567,29 @@ if ($adopter) {
                                 </article>
                             </a>
                         <?php endforeach; ?>
+
+                        <?php if (count($gallery_pets) > 10): ?>
+                            <div id="btn-load-more-gallery-container" style="grid-column: 1 / -1; text-align: center; margin-top: 30px;">
+                                <button onclick="showAllGalleryPets()" class="btn-adopt" style="width: auto; padding: 12px 35px; border-radius: 30px; font-weight: 700; cursor: pointer; display: inline-block;">Semua Katalog</button>
+                            </div>
+                        <?php endif; ?>
                     </div>
+
+                    <script>
+                    function showAllGalleryPets() {
+                        var extraGalleryPets = document.querySelectorAll('.extra-gallery-pet');
+                        extraGalleryPets.forEach(function(pet) {
+                            pet.style.display = 'block';
+                            if (window.gsap) {
+                                gsap.fromTo(pet, {opacity: 0, scale: 0.95}, {opacity: 1, scale: 1, duration: 0.3});
+                            }
+                        });
+                        var btnContainerGallery = document.getElementById('btn-load-more-gallery-container');
+                        if (btnContainerGallery) {
+                            btnContainerGallery.style.display = 'none';
+                        }
+                    }
+                    </script>
                 </section>
 
                 <section class="steps-section" style="margin-top: 60px; margin-bottom: 40px; text-align: center;">
@@ -596,14 +624,7 @@ if ($adopter) {
                     <div class="catalog-grid">
                         <?php foreach ($katalog_hewan as $hewan): ?>
                             <div class="pet-card">
-                                <?php 
-                                $foto_path = 'assets/img/hewan/' . ($hewan['url_foto_hewan'] ?? '');
-                                if (!empty($hewan['url_foto_hewan']) && file_exists(__DIR__ . '/../../' . $foto_path)): 
-                                ?>
-                                    <img src="<?= htmlspecialchars($foto_path) ?>" class="pet-img" alt="Foto">
-                                <?php else: ?>
-                                    <div class="pet-img" style="display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:32px; background:#f1f5f9;">🐾</div>
-                                <?php endif; ?>
+                                <img src="<?= !empty($hewan['url_foto_hewan']) ? 'assets/img/hewan/' . htmlspecialchars($hewan['url_foto_hewan']) : '' ?>" class="pet-img" alt="Foto" onerror="this.onerror=null; this.src='assets/img/logo.png';">
                                 <div class="pet-name"><?= htmlspecialchars($hewan['nama_hewan']) ?></div>
                                 <div class="pet-breed"><?= htmlspecialchars($hewan['nama_jenis']) ?> - <?= htmlspecialchars($hewan['nama_ras']) ?></div>
                                 <div class="pet-tags">
@@ -613,8 +634,10 @@ if ($adopter) {
                                 <a href="index.php?page=hewan_detail&id=<?= $hewan['id_hewan'] ?>" class="btn-adopt">Detail Hewan</a>
                             </div>
                         <?php endforeach; ?>
+
                     </div>
                 <?php endif; ?>
+                </script>
 
             <?php elseif ($tab == 'pengajuan'): ?>
                 <style>

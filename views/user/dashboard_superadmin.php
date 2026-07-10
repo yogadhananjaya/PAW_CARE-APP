@@ -19,14 +19,27 @@ $total_karantina = $stmt_hewan_karantina->fetchColumn();
 
 $stmt_donasi_bulan = $pdo->query("SELECT SUM(nominal) FROM donasi WHERE status_konfirmasi = 'Dikonfirmasi' AND MONTH(tanggal) = MONTH(CURDATE()) AND YEAR(tanggal) = YEAR(CURDATE())");
 $total_donasi = $stmt_donasi_bulan->fetchColumn() ?? 0;
-// Ambil data adopsi per bulan untuk tahun ini
-$stmt_chart = $pdo->query("
+
+// Tentukan tahun aktif
+$selected_year = isset($_GET['chart_year']) ? intval($_GET['chart_year']) : intval(date('Y'));
+
+// Ambil tahun-tahun unik dari transaksi_adopsi untuk pilihan filter
+$stmt_years = $pdo->query("SELECT DISTINCT YEAR(tanggal_adopsi) as tahun FROM transaksi_adopsi ORDER BY tahun DESC");
+$available_years = $stmt_years->fetchAll(PDO::FETCH_COLUMN) ?: [date('Y')];
+if (!in_array(date('Y'), $available_years)) {
+    $available_years[] = date('Y');
+    rsort($available_years);
+}
+
+// Ambil data adopsi per bulan untuk tahun terpilih yang pernah aktif (Aktif atau Batal)
+$stmt_chart = $pdo->prepare("
     SELECT MONTH(tanggal_adopsi) as bulan_num, COUNT(*) as jumlah 
     FROM transaksi_adopsi 
-    WHERE YEAR(tanggal_adopsi) = YEAR(CURDATE()) 
+    WHERE YEAR(tanggal_adopsi) = ? AND status_kontrak IN ('Aktif', 'Batal')
     GROUP BY MONTH(tanggal_adopsi) 
     ORDER BY MONTH(tanggal_adopsi)
 ");
+$stmt_chart->execute([$selected_year]);
 $chart_data = $stmt_chart->fetchAll();
 
 $months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -102,7 +115,15 @@ $notif_karantina = $stmt_notif_karantina->fetchAll();
                     <h3 style="font-size:16px; font-weight:700; color:#0f172a; margin: 0; display:flex; align-items:center; gap:8px;">
                         📈 Grafik Hewan yang Telah Diadopsi (Per Bulan)
                     </h3>
-                    <span style="font-size:12px; font-weight:600; color:#64748b; background:#f1f5f9; padding:4px 10px; border-radius:20px;">Tahun <?= date('Y') ?></span>
+                    <form method="GET" action="index.php" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                        <input type="hidden" name="page" value="dashboard_superadmin">
+                        <label for="chart_year" style="font-size:12px; font-weight:600; color:#64748b;">Pilih Tahun:</label>
+                        <select name="chart_year" id="chart_year" onchange="this.form.submit()" style="font-size:12px; font-weight:600; color:#64748b; background:#f1f5f9; padding:4px 10px; border-radius:20px; border:1px solid #cbd5e1; outline:none; cursor:pointer;">
+                            <?php foreach ($available_years as $y): ?>
+                                <option value="<?= $y ?>" <?= $y == $selected_year ? 'selected' : '' ?>>Tahun <?= $y ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </form>
                 </div>
                 <div style="position: relative; height: 260px; width: 100%;">
                     <canvas id="adoptionChart"></canvas>
@@ -216,8 +237,11 @@ $notif_karantina = $stmt_notif_karantina->fetchAll();
             <a href="index.php?page=pengadopsi" class="quick-action-btn">
                 Verifikasi Adopter Baru
             </a>
+            <a href="index.php?page=report_donasi_pemasukan" target="_blank" class="quick-action-btn danger">
+                Laporan Donasi Pemasukan (PDF)
+            </a>
             <a href="index.php?page=report_donasi" target="_blank" class="quick-action-btn danger">
-                Unduh Laporan PDF
+                Laporan Pemasukan & Pengeluaran (PDF)
             </a>
         </div>
     </div>

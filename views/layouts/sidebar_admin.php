@@ -182,7 +182,13 @@
 
         <?php if (($_SESSION['role'] ?? '') === 'SuperAdmin'): ?>
             <li>
-                <!-- Link Cetak PDF Laporan Donasi -->
+                <!-- Link Laporan Donasi Pemasukan PDF -->
+                <a href="index.php?page=report_donasi_pemasukan" target="_blank" style="color: #3498db; display: inline-block; margin-right: 10px;">
+                    📥 Laporan Pemasukan (PDF)
+                </a>
+            </li>
+            <li>
+                <!-- Link Laporan Donasi Semua PDF -->
                 <a href="index.php?page=report_donasi" target="_blank" style="color: #3498db; display: inline-block; margin-right: 10px;">
                     📥 Laporan Donasi (PDF)
                 </a>
@@ -193,16 +199,6 @@
         <?php endif; ?>
     </ul>
 
-    <!-- Halaman Utama di atas User Profile -->
-    <ul class="sidebar-links" style="margin-top: 15px;">
-        <li>
-            <a href="index.php?page=landing"
-                class="<?php if (isset($_GET['page']) && $_GET['page'] == 'landing')
-                    echo 'active'; ?>">
-                🏠 Halaman Utama
-            </a>
-        </li>
-    </ul>
 
     <!-- KARTU PROFIL PENGGUNA (Tampil di bagian bawah sidebar) -->
     <div class="sidebar-user">

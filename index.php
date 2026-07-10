@@ -52,6 +52,12 @@ switch ($page) {
                 exit;
             }
 
+            // Validasi Password  
+            if (!preg_match('/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/', $password)) {
+                echo "<script>alert('Gagal: Password minimal harus 8 karakter dan mengandung kombinasi huruf serta angka.'); window.history.back();</script>";
+                exit;
+            }
+
             if ($adopterModel->isDuplicateUsername($username)) {
                 echo "<script>alert('Gagal: Username \"" . htmlspecialchars($username) . "\" sudah terdaftar! Silakan gunakan username lain.'); window.history.back();</script>";
                 exit;
@@ -761,6 +767,14 @@ switch ($page) {
             }
         }
         
+        // Fitur Laporan PDF Donasi Pemasukan
+        if ($page == 'report_donasi_pemasukan' && check_access(['SuperAdmin'])) {
+            require_once __DIR__ . '/app/controllers/ReportController.php';
+            $ctrl = new ReportController();
+            $ctrl->laporanDonasiPemasukan();
+            break;
+        }
+
         // Fitur Laporan PDF Donasi
         if ($page == 'report_donasi' && check_access(['SuperAdmin'])) {
             require_once __DIR__ . '/app/controllers/ReportController.php';

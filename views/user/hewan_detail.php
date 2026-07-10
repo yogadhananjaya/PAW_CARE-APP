@@ -371,14 +371,7 @@
             
             <!-- Gambar Kiri -->
             <div class="image-card">
-                <?php 
-                $foto_path = 'assets/img/hewan/' . ($hewan['url_foto_hewan'] ?? '');
-                if (!empty($hewan['url_foto_hewan']) && file_exists(__DIR__ . '/../../' . $foto_path)): 
-                ?>
-                    <img src="<?= htmlspecialchars($foto_path) ?>" alt="Foto <?= htmlspecialchars($hewan['nama_hewan']) ?>">
-                <?php else: ?>
-                    <div style="display:flex; width:100%; height:100%; align-items:center; justify-content:center; color:#cbd5e1; font-size:96px; background:#f1f5f9;">🐾</div>
-                <?php endif; ?>
+                <img src="<?= !empty($hewan['url_foto_hewan']) ? 'assets/img/hewan/' . htmlspecialchars($hewan['url_foto_hewan']) : '' ?>" alt="Foto <?= htmlspecialchars($hewan['nama_hewan']) ?>" onerror="this.onerror=null; this.src='assets/img/logo.png';">
                 
                 <?php if ($hewan['status_adopsi'] === 'Tersedia'): ?>
                     <span class="status-badge">Siap Diadopsi</span>
@@ -431,10 +424,22 @@
 
                 <!-- Alert & CTA Button -->
                 <div class="cta-box">
-
+                    <?php 
+                    // Ambil status verifikasi pengadopsi saat ini dari session
+                    $adopter_status = 'Belum';
+                    if (isset($_SESSION['username'])) {
+                        $stmt_status = $pdo->prepare("SELECT status_verifikasi FROM pengadopsi WHERE nama_pengguna = ?");
+                        $stmt_status->execute([$_SESSION['username']]);
+                        $adopter_status = $stmt_status->fetchColumn() ?: 'Belum';
+                    }
+                    ?>
 
                     <?php if ($hewan['status_adopsi'] === 'Tersedia'): ?>
-                        <a href="index.php?page=proses_adopsi&id=<?= $hewan['id_hewan'] ?>" class="btn-primary-adopt">Mulai Adopsi Sekarang</a>
+                        <?php if ($adopter_status === 'Menunggu'): ?>
+                            <button disabled class="btn-disabled-adopt" style="background: #e2e8f0; color: #94a3b8;">Menunggu Verifikasi Akun...</button>
+                        <?php else: ?>
+                            <a href="index.php?page=proses_adopsi&id=<?= $hewan['id_hewan'] ?>" class="btn-primary-adopt">Mulai Adopsi Sekarang</a>
+                        <?php endif; ?>
                     <?php else: ?>
                         <button disabled class="btn-disabled-adopt">Tidak Tersedia untuk Adopsi</button>
                     <?php endif; ?>

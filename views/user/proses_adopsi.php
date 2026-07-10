@@ -8,8 +8,8 @@ if (empty($_SESSION['user_id'])) {
 // Ambil id_pengadopsi menggunakan model terpusat dan cek cooldown 1 bulan
 require_once __DIR__ . '/../../app/models/PengadopsiModel.php';
 $pm = new PengadopsiModel();
-$stmt_adopter = $pdo->prepare("SELECT id_pengadopsi FROM pengadopsi WHERE id_pengguna = ?");
-$stmt_adopter->execute([$_SESSION['user_id']]);
+$stmt_adopter = $pdo->prepare("SELECT id_pengadopsi FROM pengadopsi WHERE nama_pengguna = ?");
+$stmt_adopter->execute([$_SESSION['username'] ?? '']);
 $adopter = $stmt_adopter->fetch();
 if ($adopter) {
     // Gunakan helper untuk memeriksa apakah boleh mengajukan adopsi lagi
