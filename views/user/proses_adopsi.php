@@ -38,7 +38,7 @@ HTML;
 
 $id_hewan = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-$stmt = $pdo->prepare("SELECT h.*, r.nama_ras, j.nama_jenis FROM hewan h JOIN ras r ON h.id_ras = r.id_ras JOIN jenis_hewan j ON h.id_jenis = j.id_jenis WHERE h.id_hewan = ? AND h.status_adopsi = 'Tersedia' AND h.rekomendasi_adopsi = 1");
+$stmt = $pdo->prepare("SELECT h.*, r.nama_ras, j.nama_jenis FROM hewan h JOIN ras r ON h.id_ras = r.id_ras JOIN jenis_hewan j ON h.id_jenis = j.id_jenis WHERE h.id_hewan = ? AND h.status_adopsi = 'Tersedia'");
 $stmt->execute([$id_hewan]);
 $hewan = $stmt->fetch();
 

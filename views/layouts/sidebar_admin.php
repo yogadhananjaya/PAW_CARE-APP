@@ -183,8 +183,11 @@
         <?php if (($_SESSION['role'] ?? '') === 'SuperAdmin'): ?>
             <li>
                 <!-- Link Cetak PDF Laporan Donasi -->
-                <a href="index.php?page=report_donasi" target="_blank" style="color: #3498db;">
+                <a href="index.php?page=report_donasi" target="_blank" style="color: #3498db; display: inline-block; margin-right: 10px;">
                     📥 Laporan Donasi (PDF)
+                </a>
+                <a href="index.php?page=report_donasi_excel" style="color: #2ecc71; display: inline-block;">
+                    🟢 Laporan Donasi (Excel)
                 </a>
             </li>
         <?php endif; ?>

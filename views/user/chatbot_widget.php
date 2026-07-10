@@ -6,26 +6,30 @@
         position: fixed;
         bottom: 30px;
         right: 30px;
-        width: 60px;
-        height: 60px;
-        background: linear-gradient(135deg, #e67e22, #f39c12);
+        width: 64px;
+        height: 64px;
+        background: transparent;
         border-radius: 50%;
-        box-shadow: 0 8px 20px rgba(230, 126, 34, 0.3);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         z-index: 9999;
+        padding: 0;
+        overflow: hidden;
         transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     .chatbot-fab:hover {
         transform: scale(1.1);
-        box-shadow: 0 12px 24px rgba(230, 126, 34, 0.5);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.3);
     }
-    .chatbot-fab svg {
-        width: 32px;
-        height: 32px;
-        fill: white;
+    .chatbot-fab img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        display: block;
     }
     
     /* Chatbot Window Container */
@@ -225,17 +229,14 @@
 
 <!-- Toggle FAB Button -->
 <div class="chatbot-fab" id="chatbotFab" onclick="toggleChatWindow()">
-    <!-- Dog Logo SVG -->
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2C6.477 2 2 6.477 2 12c0 3.33 1.633 6.273 4.143 8.083l-1.077 2.155C4.85 22.67 5.093 23 5.46 23h3.58a1 1 0 0 0 .894-.553L11.146 20h1.708l1.212 2.447a1 1 0 0 0 .894.553h3.58c.367 0 .61-.33.394-.762l-1.077-2.155C20.367 18.273 22 15.33 22 12c0-5.523-4.477-10-10-10zm-3 9.5c-.828 0-1.5-.672-1.5-1.5S8.172 8.5 9 8.5s1.5 6.72 1.5 1.5c0 .828-.672 1.5-1.5 1.5zm6 0c-.828 0-1.5-.672-1.5-1.5S14.172 8.5 15 8.5s1.5 6.72 1.5 1.5c0 .828-.672 1.5-1.5 1.5z" />
-    </svg>
+    <img src="assets/img/iconpawcare.png" alt="PawBot">
 </div>
 
 <!-- Chatbot Window -->
 <div class="chatbot-window" id="chatbotWindow">
     <div class="chatbot-header">
         <div class="chatbot-profile">
-            <div class="chatbot-avatar">🐶</div>
+            <div class="chatbot-avatar"><img src="assets/img/iconpawcare.png" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" alt="PawBot"></div>
             <div class="chatbot-info-text">
                 <h4>PawBot</h4>
                 <div class="chatbot-status">Online</div>
@@ -266,9 +267,24 @@
 </div>
 
 <script>
+    // Load chat history from sessionStorage on load
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedHistory = sessionStorage.getItem('pawbot_chat_history');
+        if (savedHistory) {
+            document.getElementById('chatbotMessages').innerHTML = savedHistory;
+            document.getElementById('chatbotMessages').scrollTop = document.getElementById('chatbotMessages').scrollHeight;
+        }
+        
+        const isWindowActive = sessionStorage.getItem('pawbot_chat_active');
+        if (isWindowActive === 'true') {
+            document.getElementById('chatbotWindow').classList.add('active');
+        }
+    });
+
     function toggleChatWindow() {
         const windowEl = document.getElementById('chatbotWindow');
         windowEl.classList.toggle('active');
+        sessionStorage.setItem('pawbot_chat_active', windowEl.classList.contains('active'));
         if (windowEl.classList.contains('active')) {
             document.getElementById('chatbotInput').focus();
         }
@@ -278,6 +294,11 @@
         if (event.key === 'Enter') {
             sendChatbotMessage();
         }
+    }
+    
+    function saveChatHistory() {
+        const messagesEl = document.getElementById('chatbotMessages');
+        sessionStorage.setItem('pawbot_chat_history', messagesEl.innerHTML);
     }
     
     function sendChatbotMessage() {
@@ -320,6 +341,7 @@
         bubble.innerHTML = text.replace(/\n/g, '<br>');
         messagesEl.appendChild(bubble);
         messagesEl.scrollTop = messagesEl.scrollHeight;
+        saveChatHistory();
     }
     
     let typingCounter = 0;

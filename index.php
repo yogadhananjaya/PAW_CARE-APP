@@ -175,141 +175,165 @@ switch ($page) {
         }
         break;
     case 'chatbot_api':
-        // Syarat 1: Hanya bisa diakses jika sudah login
-        if (!isset($_SESSION['user_id'])) { 
-            echo json_encode(['reply' => 'Sesi berakhir. Silakan login kembali untuk berinteraksi dengan PawBot.']); 
-            exit; 
+        header('Content-Type: application/json; charset=UTF-8');
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['reply' => 'Sesi berakhir. Silakan login kembali untuk berinteraksi dengan PawBot.']);
+            exit;
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $user_message = trim($_POST['message'] ?? '');
-            if (empty($user_message)) {
-                echo json_encode(['reply' => 'Pesan tidak boleh kosong.']);
-                exit;
-            }
-            
-            // Syarat 2: Tarik HANYA data hewan dari database yang tersedia (status_adopsi = 'Tersedia')
-            $stmt = $pdo->query("SELECT h.nama_hewan, j.nama_jenis, r.nama_ras, h.jenis_kelamin, h.estimasi_umur, h.deskripsi, h.hobi, h.funfact FROM hewan h JOIN jenis_hewan j ON h.id_jenis = j.id_jenis JOIN ras r ON h.id_ras = r.id_ras WHERE h.status_adopsi = 'Tersedia'");
-            $pets = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            $db_context = "Data hewan di shelter saat ini:\n";
-            if (count($pets) > 0) {
-                foreach($pets as $p) {
-                    $db_context .= "- Nama: {$p['nama_hewan']} | Spesies: {$p['nama_jenis']} ({$p['nama_ras']}) | Gender: {$p['jenis_kelamin']} | Umur: {$p['estimasi_umur']} bulan | Hobi: {$p['hobi']} | Fun Fact: {$p['funfact']} | Deskripsi: {$p['deskripsi']}\n";
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['reply' => 'Metode tidak didukung.']);
+            exit;
+        }
+
+        $user_message = trim($_POST['message'] ?? '');
+        if (empty($user_message)) {
+            echo json_encode(['reply' => 'Pesan tidak boleh kosong.']);
+            exit;
+        }
+        
+        // Tarik data hewan yang tersedia
+        $stmt = $pdo->query("SELECT h.nama_hewan, j.nama_jenis, r.nama_ras, h.jenis_kelamin, h.estimasi_umur, h.deskripsi, h.hobi, h.funfact FROM hewan h JOIN jenis_hewan j ON h.id_jenis = j.id_jenis JOIN ras r ON h.id_ras = r.id_ras WHERE h.status_adopsi = 'Tersedia'");
+        $pets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $db_context = "Data hewan di shelter saat ini:\n";
+        foreach ($pets as $p) {
+            $db_context .= "- Nama: {$p['nama_hewan']} | Spesies: {$p['nama_jenis']} ({$p['nama_ras']}) | Gender: {$p['jenis_kelamin']} | Umur: {$p['estimasi_umur']} bulan | Hobi: {$p['hobi']} | Fun Fact: {$p['funfact']} | Deskripsi: {$p['deskripsi']}\n";
+        }
+
+        $system_prompt = "Kamu adalah PawBot, asisten AI pemberi rekomendasi adopsi hewan dari PawCare. TUGAS UTAMA: Berikan rekomendasi hewan yang cocok berdasarkan preferensi atau pertanyaan user. ATURAN KETAT:\n1. Kamu HANYA BOLEH merekomendasikan hewan dari daftar 'Data hewan di shelter saat ini' yang diberikan.\n2. Jangan pernah menyebutkan atau merekomendasikan hewan yang tidak ada di daftar database tersebut.\n3. Jika user mencari spesifikasi atau kriteria hewan yang tidak tersedia, katakan dengan jujur bahwa kriteria tersebut sedang tidak tersedia di database, lalu tawarkan opsi hewan lain yang paling mendekati dari data yang ada.\n4. Jawablah dengan ramah, komunikatif, dan menggunakan bahasa Indonesia yang santun namun ringkas.";
+
+        // ── Helper: rule-based offline matching ──────────────────────────────
+        $offline_reply = function() use ($pets, $user_message) {
+            $msg_lower = mb_strtolower($user_message, 'UTF-8');
+            $matched_pets = [];
+
+            // Keyword maps for Indonesian terms
+            $keyword_groups = [
+                'kucing'   => ['kucing', 'cat', 'kitty'],
+                'anjing'   => ['anjing', 'dog', 'puppy'],
+                'kelinci'  => ['kelinci', 'rabbit', 'bunny'],
+                'jantan'   => ['jantan', 'male'],
+                'betina'   => ['betina', 'female'],
+                'muda'     => ['muda', 'kecil', 'bayi', 'kitten'],
+                'tua'      => ['tua', 'dewasa'],
+                'aktif'    => ['aktif', 'lincah', 'energik', 'bermain'],
+                'manja'    => ['manja', 'penurut', 'tenang', 'jinak'],
+                'all'      => ['ada hewan', 'hewan apa', 'daftar hewan', 'semua hewan', 'apa saja', 'hewan saja'],
+            ];
+
+            foreach ($pets as $p) {
+                $haystack = mb_strtolower(
+                    $p['nama_hewan'] . ' ' . $p['nama_jenis'] . ' ' . $p['nama_ras'] . ' ' .
+                    $p['jenis_kelamin'] . ' ' . ($p['deskripsi'] ?? '') . ' ' .
+                    ($p['hobi'] ?? '') . ' ' . ($p['funfact'] ?? ''),
+                    'UTF-8'
+                );
+                $match = false;
+
+                // Direct substring match
+                if (mb_strpos($haystack, $msg_lower) !== false) {
+                    $match = true;
                 }
+
+                // Keyword-group matching
+                foreach ($keyword_groups as $group => $words) {
+                    $inMsg = false; $inHay = false;
+                    foreach ($words as $w) {
+                        if (mb_strpos($msg_lower, $w) !== false) $inMsg = true;
+                        if (mb_strpos($haystack, $w) !== false || mb_strpos($haystack, $group) !== false) $inHay = true;
+                    }
+                    if ($inMsg && $inHay) { $match = true; break; }
+                }
+
+                // Age match  (e.g. "2 bulan")
+                if (preg_match('/(\d+)\s*bulan/', $msg_lower, $ageMatch)) {
+                    if ((int)$ageMatch[1] === (int)$p['estimasi_umur']) $match = true;
+                }
+
+                // Individual pet name search
+                if (mb_strpos($msg_lower, mb_strtolower($p['nama_hewan'], 'UTF-8')) !== false) $match = true;
+
+                if ($match) $matched_pets[] = $p;
+            }
+
+            if (!empty($matched_pets)) {
+                $reply = "🐾 Berikut rekomendasi hewan yang cocok dengan pencarian Anda:\n\n";
+                foreach ($matched_pets as $idx => $mp) {
+                    $num = $idx + 1;
+                    $reply .= "{$num}. **{$mp['nama_hewan']}** ({$mp['nama_jenis']} - {$mp['nama_ras']})\n";
+                    $reply .= "   • Gender: {$mp['jenis_kelamin']}\n";
+                    $reply .= "   • Umur: {$mp['estimasi_umur']} bulan\n";
+                    if (!empty($mp['hobi']))    $reply .= "   • Hobi: {$mp['hobi']}\n";
+                    if (!empty($mp['funfact'])) $reply .= "   • Fun Fact: {$mp['funfact']}\n";
+                    if (!empty($mp['deskripsi'])) $reply .= "   • Deskripsi: {$mp['deskripsi']}\n";
+                    $reply .= "\n";
+                }
+                $reply .= "Silakan tanya lagi jika ingin rekomendasi berdasarkan jenis, gender, umur, atau karakter hewan 😊";
             } else {
-                $db_context .= "Saat ini tidak ada hewan yang tersedia.\n";
-            }
-
-            // System Prompt: Mengunci AI agar tidak berhalusinasi keluar dari konteks dan memberikan rekomendasi
-            $system_prompt = "Kamu adalah PawBot, asisten AI pemberi rekomendasi adopsi hewan dari PawCare. TUGAS UTAMA: Berikan rekomendasi hewan yang cocok berdasarkan preferensi atau pertanyaan user. ATURAN KETAT:\n1. Kamu HANYA BOLEH merekomendasikan hewan dari daftar 'Data hewan di shelter saat ini' yang diberikan.\n2. Jangan pernah menyebutkan atau merekomendasikan hewan yang tidak ada di daftar database tersebut.\n3. Jika user mencari spesifikasi atau kriteria hewan yang tidak tersedia, katakan dengan jujur bahwa kriteria tersebut sedang tidak tersedia di database, lalu tawarkan opsi hewan lain yang paling mendekati dari data yang ada.\n4. Jawablah dengan ramah, komunikatif, dan menggunakan bahasa Indonesia yang santun namun ringkas.";
-
-            // Ambil API KEY dari env
-            $api_key = get_env_var('GEMINI_API_KEY', 'GANTI_DENGAN_API_KEY_GEMINI_ANDA');
-            
-            if ($api_key === 'GANTI_DENGAN_API_KEY_GEMINI_ANDA' || empty($api_key)) {
-                // FALLBACK MODE: Deteksi kata kunci cerdas dari database lokal
-                $matched_pets = [];
-                $msg_lower = strtolower($user_message);
-                
-                foreach ($pets as $p) {
-                    $match = false;
-                    
-                    // Cek pencocokan kata kunci
-                    if (strpos($msg_lower, 'kucing') !== false && strtolower($p['nama_jenis']) === 'kucing') $match = true;
-                    if (strpos($msg_lower, 'anjing') !== false && strtolower($p['nama_jenis']) === 'anjing') $match = true;
-                    if (strpos($msg_lower, 'kelinci') !== false && strtolower($p['nama_jenis']) === 'kelinci') $match = true;
-                    if (strpos($msg_lower, 'jantan') !== false && strtolower($p['jenis_kelamin']) === 'jantan') $match = true;
-                    if (strpos($msg_lower, 'betina') !== false && strtolower($p['jenis_kelamin']) === 'betina') $match = true;
-                    if (strpos($msg_lower, 'persia') !== false && strpos(strtolower($p['nama_ras']), 'persia') !== false) $match = true;
-                    if (strpos($msg_lower, 'golden') !== false && strpos(strtolower($p['nama_ras']), 'golden') !== false) $match = true;
-                    if (strpos($msg_lower, 'bulldog') !== false && strpos(strtolower($p['nama_ras']), 'bulldog') !== false) $match = true;
-                    if (strpos($msg_lower, 'manja') !== false && (strpos(strtolower($p['deskripsi']), 'manja') !== false || strpos(strtolower($p['hobi']), 'manja') !== false)) $match = true;
-                    if (strpos($msg_lower, 'aktif') !== false && (strpos(strtolower($p['deskripsi']), 'aktif') !== false || strpos(strtolower($p['hobi']), 'aktif') !== false)) $match = true;
-                    if (strpos($msg_lower, strtolower($p['nama_hewan'])) !== false) $match = true;
-                    
-                    if ($match) {
-                        $matched_pets[] = $p;
+                // General questions / greetings
+                $greetings = ['halo', 'hai', 'hi', 'hello', 'selamat', 'pagi', 'siang', 'malam', 'apa kabar'];
+                foreach ($greetings as $g) {
+                    if (mb_strpos($msg_lower, $g) !== false) {
+                        return "Halo! Saya PawBot 🐾 Asisten adopsi PawCare. Silakan tanyakan rekomendasi hewan yang ingin Anda adopsi, misalnya: 'kucing betina yang manja' atau 'anjing aktif'.";
                     }
                 }
-                
-                $reply = "📢 **[Offline Fallback Mode - Harap atur GEMINI_API_KEY di file .env Anda untuk mengaktifkan AI asli]**\n\n";
-                if (!empty($matched_pets)) {
-                    $reply .= "Berikut rekomendasi hewan peliharaan di shelter kami yang cocok dengan pencarian Anda:\n\n";
-                    foreach ($matched_pets as $idx => $mp) {
-                        $num = $idx + 1;
-                        $reply .= "**{$num}. {$mp['nama_hewan']}** ({$mp['nama_jenis']} - {$mp['nama_ras']})\n";
-                        $reply .= "• Gender: {$mp['jenis_kelamin']}\n";
-                        $reply .= "• Umur: {$mp['estimasi_umur']} bulan\n";
-                        $reply .= "• Deskripsi: {$mp['deskripsi']}\n";
-                        $reply .= "• Hobi: *{$mp['hobi']}*\n";
-                        $reply .= "• Fun Fact: *{$mp['funfact']}*\n\n";
+                $adopsi_words = ['adopsi', 'cara', 'prosedur', 'syarat', 'daftar', 'bagaimana'];
+                foreach ($adopsi_words as $w) {
+                    if (mb_strpos($msg_lower, $w) !== false) {
+                        return "Untuk mengadopsi hewan di PawCare:\n1. Pastikan akun Anda sudah terverifikasi oleh admin.\n2. Pilih hewan di tab Katalog Hewan.\n3. Klik 'Adopsi Sekarang' dan ikuti panduan wizard.\n4. Jadwalkan kunjungan shelter.\n5. Tanda tangani kontrak adopsi digital.\n\nAda yang ingin ditanyakan lebih lanjut? 🐶";
                     }
-                    $reply .= "Apakah Anda tertarik untuk mengajukan adopsi atau menjadwalkan kunjungan?";
-                } else {
-                    $reply .= "Halo! Saya PawBot. Saat ini kami memiliki beberapa jenis hewan peliharaan di shelter seperti:\n";
-                    $cats = array_filter($pets, function($x) { return strtolower($x['nama_jenis']) === 'kucing'; });
-                    $dogs = array_filter($pets, function($x) { return strtolower($x['nama_jenis']) === 'anjing'; });
-                    $rabbits = array_filter($pets, function($x) { return strtolower($x['nama_jenis']) === 'kelinci'; });
-                    
-                    if (!empty($cats)) {
-                        $names = array_map(function($x) { return $x['nama_hewan']; }, array_slice($cats, 0, 3));
-                        $reply .= "• **Kucing**: " . implode(', ', $names) . "...\n";
-                    }
-                    if (!empty($dogs)) {
-                        $names = array_map(function($x) { return $x['nama_hewan']; }, array_slice($dogs, 0, 3));
-                        $reply .= "• **Anjing**: " . implode(', ', $names) . "...\n";
-                    }
-                    if (!empty($rabbits)) {
-                        $names = array_map(function($x) { return $x['nama_hewan']; }, array_slice($rabbits, 0, 3));
-                        $reply .= "• **Kelinci**: " . implode(', ', $names) . "...\n";
-                    }
-                    $reply .= "\nCoba tanyakan dengan kata kunci seperti *'kucing'*, *'anjing'*, *'jantan'*, *'aktif'*, atau nama ras seperti *'Persia'* untuk mendapatkan rekomendasi spesifik!";
                 }
-                echo json_encode(['reply' => $reply]);
-                exit;
+                $reply = "Maaf, saya belum menemukan hewan yang cocok dengan kata kunci tersebut.\n\n";
+                $reply .= "Saat ini tersedia hewan berikut di shelter kami:\n";
+                foreach (array_slice($pets, 0, 6) as $pet) {
+                    $reply .= "• {$pet['nama_hewan']} ({$pet['nama_jenis']} - {$pet['nama_ras']})\n";
+                }
+                $reply .= "\nCoba tanya dengan kata kunci seperti: kucing, anjing, kelinci, jantan, betina, manja, aktif, atau nama hewan tertentu 🐾";
             }
-            
-            // Format Payload untuk Gemini API (gemini-1.5-flash)
-            $data = [
+            return $reply;
+        };
+
+        // ── Try Gemini API if key looks valid (starts with AIza) ─────────────
+        $api_key = get_env_var('GEMINI_API_KEY', '');
+        $use_gemini = !empty($api_key);
+
+        if ($use_gemini) {
+            $payload = [
                 "contents" => [
                     ["role" => "user", "parts" => [["text" => $system_prompt . "\n\n" . $db_context . "\n\nPertanyaan User: " . $user_message]]]
                 ],
-                "generationConfig" => [
-                    "temperature" => 0.2
-                ]
+                "generationConfig" => ["temperature" => 0.2]
             ];
 
-            // Proses cURL ke Google Gemini API
             $ch = curl_init("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $api_key);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-            
-            // Optional: skip SSL verification for local environments (if needed)
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            
-            $response = curl_exec($ch);
-            if (curl_errno($ch)) {
-                $error_msg = curl_error($ch);
-                echo json_encode(['reply' => 'Maaf, terjadi kesalahan koneksi AI: ' . $error_msg]);
-                exit;
-            }
-            curl_close($ch);
-            
-            $result = json_decode($response, true);
-            
-            // Ekstrak jawaban AI
-            if (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
-                $ai_reply = $result['candidates'][0]['content']['parts'][0]['text'];
-            } else {
-                $ai_reply = "Maaf, sistem AI sedang sibuk atau mengalami masalah respons. Silakan coba kembali nanti.";
-            }
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+                CURLOPT_POST           => true,
+                CURLOPT_POSTFIELDS     => json_encode($payload),
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_TIMEOUT        => 10,
+            ]);
 
-            echo json_encode(['reply' => $ai_reply]);
-            exit;
+            $response  = curl_exec($ch);
+            $curl_err  = curl_errno($ch);
+            curl_close($ch);
+
+            if (!$curl_err && $response) {
+                $result = json_decode($response, true);
+                if (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
+                    echo json_encode(['reply' => $result['candidates'][0]['content']['parts'][0]['text']]);
+                    exit;
+                }
+                // Key valid format tapi API menolak (quota/invalid) → fallback offline
+            }
+            // cURL error atau response kosong → fallback offline
         }
+
+        // ── Offline fallback ─────────────────────────────────────────────────
+        echo json_encode(['reply' => $offline_reply()]);
+        exit;
         break;
 
     case 'logout':
@@ -742,6 +766,14 @@ switch ($page) {
             require_once __DIR__ . '/app/controllers/ReportController.php';
             $ctrl = new ReportController();
             $ctrl->laporanDonasi();
+            break;
+        }
+
+        // Fitur Laporan Excel Donasi
+        if ($page == 'report_donasi_excel' && check_access(['SuperAdmin'])) {
+            require_once __DIR__ . '/app/controllers/ReportController.php';
+            $ctrl = new ReportController();
+            $ctrl->laporanDonasiExcel();
             break;
         }
 

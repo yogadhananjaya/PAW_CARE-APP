@@ -179,6 +179,10 @@
         signInButton.addEventListener('click', () => {
             container.classList.remove("right-panel-active");
         });
+
+        // Clear chatbot sessionStorage data upon arrival at login page
+        sessionStorage.removeItem('pawbot_chat_history');
+        sessionStorage.removeItem('pawbot_chat_active');
     </script>
 </body>
 </html>

@@ -13,8 +13,9 @@ CREATE TABLE IF NOT EXISTS pengadopsi (
     url_ktp VARCHAR(255) NULL,
     status_verifikasi ENUM('Belum','Menunggu','Terverifikasi','Ditolak') DEFAULT 'Belum',
     tanggal_verifikasi DATE NULL,
-    catatan_verifikasi TEXT NULL
-   
+    catatan_verifikasi TEXT NULL,
+    id_pengguna INT NULL,
+    FOREIGN KEY (id_pengguna) REFERENCES pengguna(id_pengguna) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS donasi (
