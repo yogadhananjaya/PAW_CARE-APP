@@ -6,8 +6,8 @@ composer.json
 composer.lock
 
 # Environment
-#.env
+.env
 
 # Upload Folder (Abaikan file gambarnya, simpan foldernya saja)
-#assets/img/hewan/*
-#!assets/img/hewan/.gitkeep
+assets/img/hewan/*
+!assets/img/hewan/.gitkeep
