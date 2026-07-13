@@ -61,11 +61,66 @@
 
             <div class="form-group">
                 <label>Ganti Foto (Kosongkan jika tidak ingin mengubah foto)</label>
-                <?php if(!empty($hewan['url_foto_hewan'])): ?>
-                    <div style="margin-bottom:10px;">
-                        <img src="assets/img/hewan/<?= htmlspecialchars($hewan['url_foto_hewan']) ?>" style="height:60px; border-radius:5px;">
-                    </div>
-                <?php endif; ?>
+                <?php
+                $photo_path = '';
+                $url = $hewan['url_foto_hewan'] ?? '';
+                $jenis = strtolower($hewan['nama_jenis'] ?? '');
+                $ras = strtolower($hewan['nama_ras'] ?? '');
+                
+                if (!empty($url)) {
+                    if (file_exists(__DIR__ . '/../../../uploads/hewan/' . $url)) {
+                        $photo_path = 'uploads/hewan/' . $url;
+                    } elseif (file_exists(__DIR__ . '/../../../assets/img/hewan/' . $url)) {
+                        $photo_path = 'assets/img/hewan/' . $url;
+                    }
+                }
+                
+                if (empty($photo_path)) {
+                    if (strpos($jenis, 'kucing') !== false) {
+                        $kucing_images = [
+                            'image.png', 'image copy.png', 'image copy 2.png', 'image copy 3.png',
+                            'image copy 4.png', 'image copy 5.png', 'image copy 6.png', 'image copy 7.png',
+                            'image copy 8.png', 'image copy 9.png', 'image copy 10.png', 'image copy 11.png'
+                        ];
+                        $id = intval($hewan['id_hewan'] ?? 0);
+                        $idx = $id % count($kucing_images);
+                        $photo_path = 'assets/img/hewan/kucing/' . $kucing_images[$idx];
+                    } elseif (strpos($jenis, 'anjing') !== false) {
+                        $dir_path = __DIR__ . '/../../../assets/img/hewan/anjing/';
+                        if (is_dir($dir_path)) {
+                            $files = array_diff(scandir($dir_path), array('.', '..', '.gitkeep'));
+                            if (count($files) > 0) {
+                                $id = intval($hewan['id_hewan'] ?? 0);
+                                $files = array_values($files);
+                                $idx = $id % count($files);
+                                $photo_path = 'assets/img/hewan/anjing/' . $files[$idx];
+                            }
+                        }
+                        if (empty($photo_path)) {
+                            $photo_path = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600';
+                        }
+                    } elseif (strpos($jenis, 'kelinci') !== false) {
+                        $dir_path = __DIR__ . '/../../../assets/img/hewan/kelinci/';
+                        if (is_dir($dir_path)) {
+                            $files = array_diff(scandir($dir_path), array('.', '..', '.gitkeep'));
+                            if (count($files) > 0) {
+                                $id = intval($hewan['id_hewan'] ?? 0);
+                                $files = array_values($files);
+                                $idx = $id % count($files);
+                                $photo_path = 'assets/img/hewan/kelinci/' . $files[$idx];
+                            }
+                        }
+                        if (empty($photo_path)) {
+                            $photo_path = 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?auto=format&fit=crop&q=80&w=600';
+                        }
+                    } else {
+                        $photo_path = 'assets/img/logo.png';
+                    }
+                }
+                ?>
+                <div style="margin-bottom:10px;">
+                    <img src="<?= htmlspecialchars($photo_path) ?>" style="height:100px; border-radius:8px;" onerror="this.onerror=null; this.src='assets/img/logo.png';">
+                </div>
                 <input type="file" name="url_foto_hewan" class="form-control" accept="image/*">
             </div>
 

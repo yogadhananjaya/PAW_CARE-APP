@@ -42,11 +42,64 @@
                     <td><?= $no++ ?></td>
                     <td><?= htmlspecialchars($row['kode_hewan'] ?? '') ?></td>
                     <td>
-                        <?php if(!empty($row['url_foto_hewan'])): ?>
-                            <img src="assets/img/hewan/<?= htmlspecialchars($row['url_foto_hewan']) ?>" style="width:60px; height:60px; object-fit:cover; border-radius:8px;">
-                        <?php else: ?>
-                            <div style="width:60px; height:60px; background:#f0ece3; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:11px; color:#aaa; font-weight:600;">No Foto</div>
-                        <?php endif; ?>
+                        <?php
+                        $photo_path = '';
+                        $url = $row['url_foto_hewan'] ?? '';
+                        $jenis = strtolower($row['nama_jenis'] ?? '');
+                        $ras = strtolower($row['nama_ras'] ?? '');
+                        
+                        if (!empty($url)) {
+                            if (file_exists(__DIR__ . '/../../../uploads/hewan/' . $url)) {
+                                $photo_path = 'uploads/hewan/' . $url;
+                            } elseif (file_exists(__DIR__ . '/../../../assets/img/hewan/' . $url)) {
+                                $photo_path = 'assets/img/hewan/' . $url;
+                            }
+                        }
+                        
+                        if (empty($photo_path)) {
+                            if (strpos($jenis, 'kucing') !== false) {
+                                $kucing_images = [
+                                    'image.png', 'image copy.png', 'image copy 2.png', 'image copy 3.png',
+                                    'image copy 4.png', 'image copy 5.png', 'image copy 6.png', 'image copy 7.png',
+                                    'image copy 8.png', 'image copy 9.png', 'image copy 10.png', 'image copy 11.png'
+                                ];
+                                $id = intval($row['id_hewan'] ?? 0);
+                                $idx = $id % count($kucing_images);
+                                $photo_path = 'assets/img/hewan/kucing/' . $kucing_images[$idx];
+                            } elseif (strpos($jenis, 'anjing') !== false) {
+                                $dir_path = __DIR__ . '/../../../assets/img/hewan/anjing/';
+                                if (is_dir($dir_path)) {
+                                    $files = array_diff(scandir($dir_path), array('.', '..', '.gitkeep'));
+                                    if (count($files) > 0) {
+                                        $id = intval($row['id_hewan'] ?? 0);
+                                        $files = array_values($files);
+                                        $idx = $id % count($files);
+                                        $photo_path = 'assets/img/hewan/anjing/' . $files[$idx];
+                                    }
+                                }
+                                if (empty($photo_path)) {
+                                    $photo_path = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600';
+                                }
+                            } elseif (strpos($jenis, 'kelinci') !== false) {
+                                $dir_path = __DIR__ . '/../../../assets/img/hewan/kelinci/';
+                                if (is_dir($dir_path)) {
+                                    $files = array_diff(scandir($dir_path), array('.', '..', '.gitkeep'));
+                                    if (count($files) > 0) {
+                                        $id = intval($row['id_hewan'] ?? 0);
+                                        $files = array_values($files);
+                                        $idx = $id % count($files);
+                                        $photo_path = 'assets/img/hewan/kelinci/' . $files[$idx];
+                                    }
+                                }
+                                if (empty($photo_path)) {
+                                    $photo_path = 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?auto=format&fit=crop&q=80&w=600';
+                                }
+                            } else {
+                                $photo_path = 'assets/img/logo.png';
+                            }
+                        }
+                        ?>
+                        <img src="<?= htmlspecialchars($photo_path) ?>" style="width:60px; height:60px; object-fit:cover; border-radius:8px;" onerror="this.onerror=null; this.src='assets/img/logo.png';">
                     </td>
                     <td><strong><?= htmlspecialchars($row['nama_hewan']) ?></strong></td>
                     <td><?= htmlspecialchars($row['nama_jenis']) ?> (<?= htmlspecialchars($row['nama_ras']) ?>)</td>

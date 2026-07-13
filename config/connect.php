@@ -25,7 +25,7 @@ try {
 }
 
 // Fungsi Helper untuk membuat Kode Alfanumerik Otomatis
-function buat_kode_otomatis($nama_tabel, $nama_kolom, $prefix) {
+function buat_kode_otomatis($nama_tabel, $nama_kolom, $prefix, $panjang_pad = 4) {
     global $pdo;
     
     // Ambil kode terakhir dari tabel tersebut
@@ -35,7 +35,7 @@ function buat_kode_otomatis($nama_tabel, $nama_kolom, $prefix) {
     
     // Jika belum ada data sama sekali, mulai dari 0001
     if (!$data || empty($data[$nama_kolom])) {
-        return $prefix . "0001";
+        return $prefix . str_pad(1, $panjang_pad, "0", STR_PAD_LEFT);
     }
     
     // Ambil string kode terakhir, contoh: "HW0001"
@@ -48,8 +48,8 @@ function buat_kode_otomatis($nama_tabel, $nama_kolom, $prefix) {
     // Tambahkan 1 ke angka tersebut
     $angka_baru = (int)$angka_saja + 1; // Hasil: 2
     
-    // Gabungkan kembali prefix dengan angka baru yang diformat 4 digit (misal: "HW0002")
-    $kode_baru = $prefix . str_pad($angka_baru, 4, "0", STR_PAD_LEFT);
+    // Gabungkan kembali prefix dengan angka baru yang diformat
+    $kode_baru = $prefix . str_pad($angka_baru, $panjang_pad, "0", STR_PAD_LEFT);
     
     return $kode_baru;
 }

@@ -133,7 +133,7 @@ try {
     // 7. Insert Hewan
     $hewan = [
         [
-            'kode' => 'HW0001', 
+            'kode' => 'HWN001', 
             'id_ras' => 1, // Persia
             'id_jenis' => $id_kucing, 
             'nama' => 'Bella', 
@@ -153,7 +153,7 @@ try {
             'funfact' => 'Suka tidur siang telentang dan mendengkur pelan ketika diusap lehernya.'
         ],
         [
-            'kode' => 'HW0002', 
+            'kode' => 'HWN002', 
             'id_ras' => 3, // Golden
             'id_jenis' => $id_anjing, 
             'nama' => 'Bruno', 
@@ -173,7 +173,7 @@ try {
             'funfact' => 'Bisa tersenyum menampakkan giginya ketika merasa senang atau diajak bermain.'
         ],
         [
-            'kode' => 'HW0003', 
+            'kode' => 'HWN003', 
             'id_ras' => 1, // Persia
             'id_jenis' => $id_kucing, 
             'nama' => 'Kitty', 
@@ -193,7 +193,7 @@ try {
             'funfact' => 'Selalu bersin tepat tiga kali setiap kali bangun dari tidur siangnya.'
         ],
         [
-            'kode' => 'HW0004', 
+            'kode' => 'HWN004', 
             'id_ras' => 1, // Persia
             'id_jenis' => $id_kucing, 
             'nama' => 'Oliver', 
@@ -213,7 +213,7 @@ try {
             'funfact' => 'Hanya mau makan jika makanannya diletakkan di piring kecil berbentuk bintang.'
         ],
         [
-            'kode' => 'HW0005', 
+            'kode' => 'HWN005', 
             'id_ras' => 2, // Anggora
             'id_jenis' => $id_kucing, 
             'nama' => 'Luna', 
@@ -233,7 +233,7 @@ try {
             'funfact' => 'Bisa berdiri dengan dua kaki belakang selama beberapa detik saat meminta camilan.'
         ],
         [
-            'kode' => 'HW0006', 
+            'kode' => 'HWN006', 
             'id_ras' => 2, // Anggora
             'id_jenis' => $id_kucing, 
             'nama' => 'Cleo', 
@@ -253,7 +253,7 @@ try {
             'funfact' => 'Sangat peka terhadap alunan musik klasik dan akan mendengkur keras jika mendengarnya.'
         ],
         [
-            'kode' => 'HW0007', 
+            'kode' => 'HWN007', 
             'id_ras' => 1, // Persia
             'id_jenis' => $id_kucing, 
             'nama' => 'Simba', 
@@ -270,10 +270,10 @@ try {
             'url_foto' => null,
             'deskripsi' => 'Persia oranye cerah dengan corak mirip harimau kecil.',
             'hobi' => 'Memanjat gorden ruang tamu hingga ke puncak tertinggi',
-            'funfact' => 'Memiliki pola bintik unik berbentuk lambang hati di telapak kaki kiri depannya.'
+            'funfact' => 'Memiliki pola bintik unik berbentuk lambang hati di telapak kaki kaki kiri depannya.'
         ],
         [
-            'kode' => 'HW0008', 
+            'kode' => 'HWN008', 
             'id_ras' => 2, // Anggora
             'id_jenis' => $id_kucing, 
             'nama' => 'Leo', 
@@ -293,7 +293,7 @@ try {
             'funfact' => 'Sangat takut dengan suara kantong plastik kering yang ditiup atau dikucek.'
         ],
         [
-            'kode' => 'HW0009', 
+            'kode' => 'HWN009', 
             'id_ras' => 3, // Golden Retriever
             'id_jenis' => $id_anjing, 
             'nama' => 'Buddy', 
@@ -313,7 +313,7 @@ try {
             'funfact' => 'Dapat diajarkan membawa koran atau sandal di pagi hari tanpa merusaknya.'
         ],
         [
-            'kode' => 'HW0010', 
+            'kode' => 'HWN010', 
             'id_ras' => 3, // Golden Retriever
             'id_jenis' => $id_anjing, 
             'nama' => 'Max', 
@@ -333,7 +333,7 @@ try {
             'funfact' => 'Selalu berputar tepat tiga kali sebelum akhirnya melingkar untuk tidur.'
         ],
         [
-            'kode' => 'HW0011', 
+            'kode' => 'HWN011', 
             'id_ras' => 4, // Bulldog
             'id_jenis' => $id_anjing, 
             'nama' => 'Rocky', 
@@ -353,7 +353,7 @@ try {
             'funfact' => 'Mendengkur sangat keras saat tidur menyerupai mesin traktor mini.'
         ],
         [
-            'kode' => 'HW0012', 
+            'kode' => 'HWN012', 
             'id_ras' => 4, // Bulldog
             'id_jenis' => $id_anjing, 
             'nama' => 'Lola', 
@@ -373,7 +373,7 @@ try {
             'funfact' => 'Sangat menyukai anak kucing dan selalu membiarkan kucing tidur di punggungnya.'
         ],
         [
-            'kode' => 'HW0013', 
+            'kode' => 'HWN013', 
             'id_ras' => 3, // Golden Retriever
             'id_jenis' => $id_anjing, 
             'nama' => 'Goldie', 
@@ -393,7 +393,7 @@ try {
             'funfact' => 'Lebih menyukai potongan wortel kukus dingin dibandingkan camilan biskuit anjing.'
         ],
         [
-            'kode' => 'HW0014', 
+            'kode' => 'HWN014', 
             'id_ras' => 4, // Bulldog
             'id_jenis' => $id_anjing, 
             'nama' => 'Spike', 
@@ -413,7 +413,7 @@ try {
             'funfact' => 'Selalu menyembunyikan kepalanya di balik kaki perawat ketika bertemu orang asing.'
         ],
         [
-            'kode' => 'HW0015', 
+            'kode' => 'HWN015', 
             'id_ras' => 5, // Angora Bunny
             'id_jenis' => $id_kelinci, 
             'nama' => 'Snowy', 
@@ -433,7 +433,7 @@ try {
             'funfact' => 'Memiliki bulu dahi yang sangat tebal hingga menutupi sebagian matanya.'
         ],
         [
-            'kode' => 'HW0016', 
+            'kode' => 'HWN016', 
             'id_ras' => 5, // Angora Bunny
             'id_jenis' => $id_kelinci, 
             'nama' => 'Fluffy', 
@@ -453,7 +453,7 @@ try {
             'funfact' => 'Suka digendong telentang seperti bayi dan akan memejamkan mata jika dielus dahinya.'
         ],
         [
-            'kode' => 'HW0017', 
+            'kode' => 'HWN017', 
             'id_ras' => 5, // Angora Bunny
             'id_jenis' => $id_kelinci, 
             'nama' => 'Cinnabon', 
@@ -473,7 +473,7 @@ try {
             'funfact' => 'Kedua telinganya akan bergoyang cepat saat mendengar suara bungkus pakan dibuka.'
         ],
         [
-            'kode' => 'HW0018', 
+            'kode' => 'HWN018', 
             'id_ras' => 5, // Angora Bunny
             'id_jenis' => $id_kelinci, 
             'nama' => 'Cookie', 
@@ -493,7 +493,7 @@ try {
             'funfact' => 'Memiliki pola belang bulat hitam di punggungnya yang menyerupai kue keping cokelat.'
         ],
         [
-            'kode' => 'HW0019', 
+            'kode' => 'HWN019', 
             'id_ras' => 1, // Persia
             'id_jenis' => $id_kucing, 
             'nama' => 'Milo', 
@@ -513,7 +513,7 @@ try {
             'funfact' => 'Hanya mau tertidur pulas jika beralaskan kain flanel berwarna biru muda.'
         ],
         [
-            'kode' => 'HW0020', 
+            'kode' => 'HWN020', 
             'id_ras' => 5, // Angora Bunny
             'id_jenis' => $id_kelinci, 
             'nama' => 'Mocha', 
@@ -599,11 +599,11 @@ try {
 
     // 12. Insert Donasi
     $donasi = [
-        ['kode' => 'DN0001', 'nama' => 'Rian Adopter', 'id_pengadopsi' => $id_adopter_rian, 'nominal' => 250000.00, 'kategori' => 'Pemasukan', 'keterangan' => 'Donasi peduli kucing Bella.', 'tanggal' => '2026-06-26', 'metode' => 'Transfer Bank', 'bukti' => null, 'status' => 'Dikonfirmasi']
+        ['kode' => 'DN0001', 'nama' => 'Rian Adopter', 'nominal' => 250000.00, 'kategori' => 'Pemasukan', 'keterangan' => 'Donasi peduli kucing Bella.', 'tanggal' => '2026-06-26', 'metode' => 'Transfer Bank', 'bukti' => null, 'status' => 'Dikonfirmasi']
     ];
-    $stmt = $pdo->prepare("INSERT INTO donasi (kode_donasi, nama_donatur, id_pengadopsi, nominal, kategori, keterangan, tanggal, metode_pembayaran, url_bukti, status_konfirmasi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO donasi (kode_donasi, nama_donatur, nominal, kategori, keterangan, tanggal, metode_pembayaran, url_bukti, status_konfirmasi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
     foreach ($donasi as $dn) {
-        $stmt->execute([$dn['kode'], $dn['nama'], $dn['id_pengadopsi'], $dn['nominal'], $dn['kategori'], $dn['keterangan'], $dn['tanggal'], $dn['metode'], $dn['bukti'], $dn['status']]);
+        $stmt->execute([$dn['kode'], $dn['nama'], $dn['nominal'], $dn['kategori'], $dn['keterangan'], $dn['tanggal'], $dn['metode'], $dn['bukti'], $dn['status']]);
     }
     echo "Sukses memasukkan data dummy Donasi.\n";
 
