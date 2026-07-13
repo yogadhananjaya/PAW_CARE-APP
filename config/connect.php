@@ -30,8 +30,8 @@ function buat_kode_otomatis($nama_tabel, $nama_kolom, $prefix) {
     
     // Ambil kode terakhir dari tabel tersebut
     $query = "SELECT $nama_kolom FROM $nama_tabel ORDER BY $nama_kolom DESC LIMIT 1";
-    $stmt = $pdo->query($query);
-    $data = $stmt->fetch();
+    $stmt = $pdo->query($query); // HW0001
+    $data = $stmt->fetch(); // ['kode_hewan' => 'HW0001']
     
     // Jika belum ada data sama sekali, mulai dari 0001
     if (!$data || empty($data[$nama_kolom])) {
@@ -42,15 +42,16 @@ function buat_kode_otomatis($nama_tabel, $nama_kolom, $prefix) {
     $kode_terakhir = $data[$nama_kolom];
     
     // Potong prefix (misal: "HW") untuk mengambil angka di belakangnya
-    $panjang_prefix = strlen($prefix);
-    $angka_saja = substr($kode_terakhir, $panjang_prefix); // Hasil: "0001"
+    $panjang_prefix = strlen($prefix); // HW = Panjangnya 2 
+    $angka_saja = substr($kode_terakhir, $panjang_prefix); // HW0001,2 . menghapus 2 huruf di depan  -> Hasil :  0001 
     
     // Tambahkan 1 ke angka tersebut
-    $angka_baru = (int)$angka_saja + 1; // Hasil: 2
+    $angka_baru = (int)$angka_saja + 1; // 1 + 1 = 2 // 0001 + 1 = 0002, hasil akhir 2, karena 0 nya di hilangkan sebab integer
     
     // Gabungkan kembali prefix dengan angka baru yang diformat 4 digit (misal: "HW0002")
-    $kode_baru = $prefix . str_pad($angka_baru, 4, "0", STR_PAD_LEFT);
-    
+    $kode_baru = $prefix . str_pad($angka_baru, 4, "0", STR_PAD_LEFT); // HW + 0001 -> HW0001
+    // str_pad(input_teks, panjang_target, karakter_pengganjal, posisi_pengganjal);
+
     return $kode_baru;
 }
 

@@ -28,7 +28,8 @@ $transaksi_pages = array('penempatan_kandang_koordinator', 'jadwal_kunjungan', '
 // -----------------------------------------------------------------------------
 
 // Fungsi menandai menu tunggal yang aktif
-function koordIsActive($current, $target) {
+function koordIsActive($current, $target)
+{
     if ($current == $target) {
         return 'active';
     }
@@ -36,7 +37,8 @@ function koordIsActive($current, $target) {
 }
 
 // Fungsi menandai dropdown yang sedang aktif (jika halaman anak dibuka)
-function koordIsDropdownActive($current, $pages) {
+function koordIsDropdownActive($current, $pages)
+{
     if (in_array($current, $pages)) {
         return 'active';
     }
@@ -44,7 +46,8 @@ function koordIsDropdownActive($current, $pages) {
 }
 
 // Fungsi menampilkan isi dropdown (terbuka jika halaman anak aktif)
-function koordIsDropdownOpen($current, $pages) {
+function koordIsDropdownOpen($current, $pages)
+{
     if (in_array($current, $pages)) {
         return 'show';
     }
@@ -52,7 +55,8 @@ function koordIsDropdownOpen($current, $pages) {
 }
 
 // Fungsi mengubah ikon panah dropdown
-function koordGetCaretIcon($current, $pages) {
+function koordGetCaretIcon($current, $pages)
+{
     if (in_array($current, $pages)) {
         return '▲';
     }
@@ -66,14 +70,16 @@ function koordGetCaretIcon($current, $pages) {
 
     <!-- Logo / Nama Aplikasi -->
     <div class="sidebar-title" style="justify-content: center; padding: 20px 15px;">
-        <img src="assets/img/logo.png" alt="PawCare Logo" style="height: 75px; max-width: 100%; object-fit: contain; display: block;">
+        <img src="assets/img/logo.png" alt="PawCare Logo"
+            style="height: 75px; max-width: 100%; object-fit: contain; display: block;">
     </div>
 
     <!-- Bagian Menu Utama -->
     <div class="sidebar-section-title">Utama</div>
     <ul class="sidebar-links">
         <li>
-            <a href="index.php?page=dashboard_koordinator" class="<?php echo koordIsActive($current_page, 'dashboard_koordinator'); ?>">
+            <a href="index.php?page=dashboard_koordinator"
+                class="<?php echo koordIsActive($current_page, 'dashboard_koordinator'); ?>">
                 📊 Dashboard Koordinator
             </a>
         </li>
@@ -83,30 +89,24 @@ function koordGetCaretIcon($current, $pages) {
     <div class="sidebar-section-title">Transaksi</div>
     <ul class="sidebar-links">
         <li>
-            <a href="index.php?page=penempatan_kandang_koordinator" class="<?php echo koordIsActive($current_page, 'penempatan_kandang_koordinator'); ?>">
+            <a href="index.php?page=penempatan_kandang_koordinator"
+                class="<?php echo koordIsActive($current_page, 'penempatan_kandang_koordinator'); ?>">
                 📦 Penempatan Kandang
             </a>
         </li>
         <li>
-            <a href="index.php?page=jadwal_kunjungan" class="<?php echo koordIsActive($current_page, 'jadwal_kunjungan'); ?>">
+            <a href="index.php?page=jadwal_kunjungan"
+                class="<?php echo koordIsActive($current_page, 'jadwal_kunjungan'); ?>">
                 📅 Jadwal Kunjungan
             </a>
         </li>
         <li>
-            <a href="index.php?page=transaksi_adopsi" class="<?php echo koordIsActive($current_page, 'transaksi_adopsi'); ?>">
+            <a href="index.php?page=transaksi_adopsi"
+                class="<?php echo koordIsActive($current_page, 'transaksi_adopsi'); ?>">
                 🤝 Transaksi Adopsi
             </a>
         </li>
-    </ul>
 
-    <!-- Menu Operasional: Intake Hewan Baru -->
-    <div class="sidebar-section-title">Operasional</div>
-    <ul class="sidebar-links">
-        <li>
-            <a href="index.php?page=hewan" class="<?php echo koordIsActive($current_page, 'hewan'); ?>">
-                🐾 Intake Hewan Baru
-            </a>
-        </li>
     </ul>
 
     <!-- Profil User di bagian bawah sidebar -->
@@ -124,8 +124,10 @@ function koordGetCaretIcon($current, $pages) {
             </div>
         </div>
         <!-- Tombol Logout -->
-        <a href="index.php?page=logout" class="logout-icon" title="Keluar" onclick="return confirm('Apakah Anda yakin ingin keluar?');">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <a href="index.php?page=logout" class="logout-icon" title="Keluar"
+            onclick="return confirm('Apakah Anda yakin ingin keluar?');">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                 <polyline points="16 17 21 12 16 7"></polyline>
                 <line x1="21" y1="12" x2="9" y2="12"></line>

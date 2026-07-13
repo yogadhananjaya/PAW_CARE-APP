@@ -31,11 +31,11 @@ if (!in_array(date('Y'), $available_years)) {
     rsort($available_years);
 }
 
-// Ambil data adopsi per bulan untuk tahun terpilih yang pernah aktif (Aktif atau Batal)
+// Ambil data adopsi per bulan untuk tahun terpilih yang aktif saja
 $stmt_chart = $pdo->prepare("
     SELECT MONTH(tanggal_adopsi) as bulan_num, COUNT(*) as jumlah 
     FROM transaksi_adopsi 
-    WHERE YEAR(tanggal_adopsi) = ? AND status_kontrak IN ('Aktif', 'Batal')
+    WHERE YEAR(tanggal_adopsi) = ? AND status_kontrak = 'Aktif'
     GROUP BY MONTH(tanggal_adopsi) 
     ORDER BY MONTH(tanggal_adopsi)
 ");

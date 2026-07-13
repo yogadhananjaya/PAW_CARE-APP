@@ -122,10 +122,10 @@ class HewanController {
             $id_jenis = $_POST['id_jenis'];
             $id_ras = $_POST['id_ras'];
             $estimasi_umur = (int)$_POST['estimasi_umur'];
-            $tanggal_intake = $_POST['tanggal_intake'];
-            $sumber_intake = $_POST['sumber_intake'];
-            $nama_donatur = trim($_POST['nama_donatur'] ?? '');
-            $kontak_donatur = trim($_POST['kontak_donatur'] ?? '');
+            $tanggal_intake = $_POST['tanggal_intake'] ?? $hewan['tanggal_intake'];
+            $sumber_intake = $_POST['sumber_intake'] ?? $hewan['sumber_intake'];
+            $nama_donatur = isset($_POST['nama_donatur']) ? trim($_POST['nama_donatur']) : ($hewan['nama_donatur'] ?? '');
+            $kontak_donatur = isset($_POST['kontak_donatur']) ? trim($_POST['kontak_donatur']) : ($hewan['kontak_donatur'] ?? '');
 
             $error_duplikat = null;
             

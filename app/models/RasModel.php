@@ -28,13 +28,13 @@ class RasModel
     {
         $sql = "SELECT COUNT(*) FROM ras WHERE LOWER(nama_ras) = LOWER(?) AND id_jenis = ?";
         $params = [$nama_ras, $id_jenis];
-        if ($exclude_id) {
-            $sql .= " AND id_ras != ?";
+        if ($exclude_id) { // Akan di execute jika bernilai lebih dari 0
+            $sql .= "   AND id_ras != ?";
             $params[] = $exclude_id;
         }
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
-        return $stmt->fetchColumn() > 0;
+        return $stmt->fetchColumn() > 0; // Jika lebih dari 0 brrti ada duplikat dan mengembalikkan nilai true
     }
 
     public function insert($id_jenis, $nama_ras)
@@ -54,7 +54,7 @@ class RasModel
     {
         $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM hewan WHERE id_ras = ?");
         $stmt->execute([$id]);
-        return $stmt->fetchColumn() > 0;
+        return $stmt->fetchColumn() > 0; //lebih dari  0 ->  Mengembalikan true (Artinya: Ras masih dipakai, tidak boleh dihapus).
     }
 
     public function delete($id)
