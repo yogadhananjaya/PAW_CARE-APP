@@ -41,7 +41,7 @@ class HewanModel {
 
     // Simpan hewan baru (kolom sesuai DB baru)
     public function insert($data) {
-        $data['kode_hewan'] = buat_kode_otomatis('hewan', 'kode_hewan', 'HW');
+        $data['kode_hewan'] = buat_kode_otomatis('hewan', 'kode_hewan', 'HWN', 3);
         $data['rekomendasi_adopsi'] = $data['rekomendasi_adopsi'] ?? 0;
         $sql = "INSERT INTO hewan (kode_hewan, id_jenis, id_ras, nama_hewan, jenis_kelamin, estimasi_umur, tanggal_lahir, status_adopsi, rekomendasi_adopsi, sumber_intake, nama_donatur, kontak_donatur, tanggal_intake, keterangan_intake, url_foto_hewan, deskripsi, hobi, funfact) 
                 VALUES (:kode_hewan, :id_jenis, :id_ras, :nama_hewan, :jenis_kelamin, :estimasi_umur, :tanggal_lahir, :status_adopsi, :rekomendasi_adopsi, :sumber_intake, :nama_donatur, :kontak_donatur, :tanggal_intake, :keterangan_intake, :url_foto_hewan, :deskripsi, :hobi, :funfact)";
