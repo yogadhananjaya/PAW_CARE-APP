@@ -35,14 +35,6 @@
                 </select>
             </div>
 
-            <!-- Pengguna (Petugas Pendamping) -->
-            <div class="form-group">
-                <label>Petugas Pendamping <small style="color:#999;">(opsional)</small></label>
-                <select name="id_pengguna" class="form-control">
-                    <option value="">-- Belum Ditugaskan --</option>
-                    <?php foreach($p as $pg): ?><option value="<?= $pg['id_pengguna'] ?>"><?= $pg['nama_pengguna'] ?></option><?php endforeach; ?>
-                </select>
-            </div>
 
             <!-- Metode Kunjungan (Statis ke Shelter) -->
             <input type="hidden" name="metode" value="Kunjungan ke Shelter">

@@ -244,7 +244,6 @@
               <th>Adopter</th>
               <th>Hewan</th>
               <th>Metode</th>
-              <th>Petugas</th>
               <th>Status Akhir</th>
             </tr>
           </thead>
@@ -257,7 +256,6 @@
               <td><strong><?= htmlspecialchars($r['nama_pengadopsi']) ?></strong></td>
               <td><?= htmlspecialchars($r['nama_hewan']) ?></td>
               <td><?= htmlspecialchars($r['metode']) ?></td>
-              <td><?= htmlspecialchars($r['nama_petugas'] ?? '—') ?></td>
               <td>
                 <span class="jk-badge <?= strtolower($r['status_jadwal']) ?>"><?= htmlspecialchars($r['status_jadwal']) ?></span>
               </td>

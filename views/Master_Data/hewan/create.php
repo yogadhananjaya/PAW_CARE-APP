@@ -100,7 +100,7 @@
                 <!-- Tanggal Intake -->
                 <div class="form-group" style="flex:1;">
                     <label>Tanggal Masuk Shelter</label>
-                    <input type="date" name="tanggal_intake" class="form-control" required>
+                    <input type="date" name="tanggal_intake" class="form-control" required max="<?= date('Y-m-d') ?>">
                 </div>
             </div>
 
@@ -119,19 +119,19 @@
             <!-- Deskripsi -->
             <div class="form-group">
                 <label>Deskripsi (Karakter & Kondisi)</label>
-                <textarea name="deskripsi" class="form-control" rows="3" placeholder="Deskripsikan karakter dan kondisi medis hewan..."></textarea>
+                <textarea name="deskripsi" class="form-control" rows="3" placeholder="Deskripsikan karakter dan kondisi medis hewan..." required></textarea>
             </div>
 
             <!-- Hobi -->
             <div class="form-group">
                 <label>Hobi Hewan</label>
-                <input type="text" name="hobi" class="form-control" placeholder="Contoh: Mengejar bola kecil, tidur siang...">
+                <input type="text" name="hobi" class="form-control" placeholder="Contoh: Mengejar bola kecil, tidur siang..." required>
             </div>
 
             <!-- Fun Fact -->
             <div class="form-group">
                 <label>Fun Fact Hewan</label>
-                <input type="text" name="funfact" class="form-control" placeholder="Contoh: Hanya makan jika ditemani, takut dengan suara air...">
+                <input type="text" name="funfact" class="form-control" placeholder="Contoh: Hanya makan jika ditemani, takut dengan suara air..." required> 
             </div>
 
             <button type="submit" class="btn btn-primary" style="margin-top:10px;">Simpan Record</button>
