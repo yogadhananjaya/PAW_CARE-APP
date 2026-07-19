@@ -207,7 +207,23 @@ switch ($page) {
             $db_context .= "- Nama: {$p['nama_hewan']} | Spesies: {$p['nama_jenis']} ({$p['nama_ras']}) | Gender: {$p['jenis_kelamin']} | Umur: {$p['estimasi_umur']} bulan | Hobi: {$p['hobi']} | Fun Fact: {$p['funfact']} | Deskripsi: {$p['deskripsi']}\n";
         }
 
-        $system_prompt = "Kamu adalah PawBot, asisten AI pemberi rekomendasi adopsi hewan dari PawCare. TUGAS UTAMA: Berikan rekomendasi hewan yang cocok berdasarkan preferensi atau pertanyaan user. ATURAN KETAT:\n1. Kamu HANYA BOLEH merekomendasikan hewan dari daftar 'Data hewan di shelter saat ini' yang diberikan.\n2. Jangan pernah menyebutkan atau merekomendasikan hewan yang tidak ada di daftar database tersebut.\n3. Jika user mencari spesifikasi atau kriteria hewan yang tidak tersedia, katakan dengan jujur bahwa kriteria tersebut sedang tidak tersedia di database, lalu tawarkan opsi hewan lain yang paling mendekati dari data yang ada.\n4. Jawablah dengan ramah, komunikatif, dan menggunakan bahasa Indonesia yang santun namun ringkas.";
+        $system_prompt = "Kamu adalah PawBot, asisten AI pemberi rekomendasi adopsi hewan dari PawCare. TUGAS UTAMA: Berikan rekomendasi hewan yang cocok berdasarkan preferensi atau pertanyaan user. ATURAN KETAT:\n1. Kamu HANYA BOLEH merekomendasikan hewan dari daftar 'Data hewan di shelter saat ini' yang diberikan.\n2. Jangan pernah menyebutkan atau merekomendasikan hewan yang tidak ada di daftar database tersebut.\n3. Jika user mencari spesifikasi atau kriteria hewan yang tidak tersedia, katakan dengan jujur bahwa kriteria tersebut sedang tidak tersedia di database, lalu tawarkan opsi hewan lain yang paling mendekati dari data yang ada.\n4. Jika pertanyaan di luar topik adopsi hewan, jawab singkat bahwa Anda hanya membantu seputar rekomendasi dan informasi adopsi hewan di PawCare.\n5. Jawablah dengan ramah, komunikatif, dan menggunakan bahasa Indonesia yang santun namun ringkas.";
+
+        $keyword_guard = function($text) {
+            $msg_lower = mb_strtolower($text, 'UTF-8');
+            $allowed_keywords = ['hewan', 'adopsi', 'kucing', 'anjing', 'kelinci', 'rekomendasi', 'ras', 'jenis', 'umur', 'betina', 'jantan', 'manja', 'aktif', 'tenang', 'lincah', 'shelter', 'nama hewan', 'hobi', 'fun fact', 'karakter', 'bulu', 'kesehatan', 'vaksin', 'jadwal'];
+            foreach ($allowed_keywords as $kw) {
+                if (mb_strpos($msg_lower, $kw) !== false) {
+                    return true;
+                }
+            }
+            return preg_match('/\b(kucing|anjing|kelinci|hewan|adopsi|pet|rekomendasi|sahabat|bulu|umur|betina|jantan|manja|aktif|tenang|lincah|bayi|dewasa)\b/u', $msg_lower) === 1;
+        };
+
+        if (!$keyword_guard($user_message)) {
+            echo json_encode(['reply' => 'Saya hanya bisa membantu seputar rekomendasi dan informasi adopsi hewan di PawCare. Coba tanyakan seperti: "kucing betina yang manja", "anjing aktif", atau "daftar hewan tersedia".']);
+            exit;
+        }
 
         // ── Helper: rule-based offline matching ──────────────────────────────
         $offline_reply = function() use ($pets, $user_message) {
