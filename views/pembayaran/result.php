@@ -85,7 +85,7 @@
             <a href="index.php?page=dashboard_user" class="btn btn-primary">Kembali ke Dashboard</a>
         </div>
 
-        <p style="margin-top:18px; color:#94a3b8;">Ini adalah implementasi simulasi. Untuk integrasi nyata, sambungkan ke penyedia gateway (Midtrans, Xendit, dsb.) menggunakan API key dan webhook.</p>
+        <!-- <p style="margin-top:18px; color:#94a3b8;">Ini adalah implementasi simulasi. Untuk integrasi nyata, sambungkan ke penyedia gateway (Midtrans, Xendit, dsb.) menggunakan API key dan webhook.</p> -->
     </div>
 </div>
 <?php endif; ?>

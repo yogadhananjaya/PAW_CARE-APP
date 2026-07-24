@@ -25,9 +25,9 @@ class PembayaranController {
             $metode = $_GET['metode'];
             
             $id_pengadopsi = null;
-            if (isset($_SESSION['user_id'])) {
-                $stmt_adopter = $GLOBALS['pdo']->prepare("SELECT id_pengadopsi FROM pengadopsi WHERE id_pengguna = ?");
-                $stmt_adopter->execute([$_SESSION['user_id']]);
+            if (isset($_SESSION['username'])) {
+                $stmt_adopter = $GLOBALS['pdo']->prepare("SELECT id_pengadopsi FROM pengadopsi WHERE nama_pengguna = ?");
+                $stmt_adopter->execute([$_SESSION['username']]);
                 $adopter = $stmt_adopter->fetch();
                 if ($adopter) {
                     $id_pengadopsi = $adopter['id_pengadopsi'];

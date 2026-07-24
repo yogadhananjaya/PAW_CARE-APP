@@ -1386,7 +1386,7 @@ if ($adopter && !empty($adopter['nama_lengkap'])) {
                 </script>
 
             <?php elseif ($tab == 'kunjungan'): ?>
-                <h2 class="section-title">Jadwal Kunjungan & Penjemputan</h2>
+                <h2 class="section-title">Jadwal Kunjungan ke Shelter</h2>
                 <p style="color:#64748b; font-size:13px; margin-bottom:20px;">Jadwal kunjungan dibuat saat pengajuan adopsi melalui wizard. Tabel berikut adalah riwayat jadwal Anda.</p>
 
                 <?php if (count($my_visits) > 0): ?>
@@ -1450,7 +1450,7 @@ if ($adopter && !empty($adopter['nama_lengkap'])) {
                     </div>
                     <div class="guide-card">
                         <div class="guide-number">4</div>
-                        <h4 style="margin-bottom:8px;">Penjemputan</h4>
+                        <h4 style="margin-bottom:8px;">Serah Terima</h4>
                         <p style="font-size:13px; color:#7f8c8d;">Datang ke shelter untuk serah terima fisik setelah disetujui admin.</p>
                     </div>
                 </div>

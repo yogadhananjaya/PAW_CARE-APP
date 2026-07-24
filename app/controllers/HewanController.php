@@ -42,10 +42,14 @@ class HewanController {
                     $error_duplikat = "Nama hewan tidak boleh kosong!";
                 } elseif (strlen($nama_hewan) > 100) {
                     $error_duplikat = "Nama hewan tidak boleh lebih dari 100 karakter!";
+                } elseif (!preg_match('/^[A-Za-z\s-]+$/', $nama_hewan)) {
+                    $error_duplikat = "Nama hewan hanya boleh berisi huruf, spasi, dan tanda hubung (-).";
                 } elseif ($estimasi_umur < 0) {
                     $error_duplikat = "Estimasi umur tidak boleh kurang dari 0!";
                 } elseif (empty($tanggal_intake)) {
                     $error_duplikat = "Tanggal masuk shelter wajib diisi!";
+                } elseif ($tanggal_intake > date('Y-m-d')) {
+                    $error_duplikat = "Tanggal masuk shelter tidak boleh melebihi hari ini!";
                 } elseif ($sumber_intake === 'Donasi') {
                     if ($nama_donatur === '') {
                         $error_duplikat = "Nama donatur wajib diisi jika sumber hewan dari donasi!";
@@ -122,10 +126,10 @@ class HewanController {
             $id_jenis = $_POST['id_jenis'];
             $id_ras = $_POST['id_ras'];
             $estimasi_umur = (int)$_POST['estimasi_umur'];
-            $tanggal_intake = $_POST['tanggal_intake'];
-            $sumber_intake = $_POST['sumber_intake'];
-            $nama_donatur = trim($_POST['nama_donatur'] ?? '');
-            $kontak_donatur = trim($_POST['kontak_donatur'] ?? '');
+            $tanggal_intake = $_POST['tanggal_intake'] ?? $hewan['tanggal_intake'];
+            $sumber_intake = $_POST['sumber_intake'] ?? $hewan['sumber_intake'];
+            $nama_donatur = isset($_POST['nama_donatur']) ? trim($_POST['nama_donatur']) : ($hewan['nama_donatur'] ?? '');
+            $kontak_donatur = isset($_POST['kontak_donatur']) ? trim($_POST['kontak_donatur']) : ($hewan['kontak_donatur'] ?? '');
 
             $error_duplikat = null;
             
@@ -149,6 +153,8 @@ class HewanController {
                     $error_duplikat = "Estimasi umur tidak boleh kurang dari 0!";
                 } elseif (empty($tanggal_intake)) {
                     $error_duplikat = "Tanggal masuk shelter wajib diisi!";
+                } elseif ($tanggal_intake > date('Y-m-d')) {
+                    $error_duplikat = "Tanggal masuk shelter tidak boleh melebihi hari ini!";
                 } elseif ($sumber_intake === 'Donasi') {
                     if ($nama_donatur === '') {
                         $error_duplikat = "Nama donatur wajib diisi jika sumber hewan dari donasi!";
@@ -280,6 +286,8 @@ class HewanController {
                     $error_duplikat = "Estimasi umur tidak boleh kurang dari 0!";
                 } elseif (empty($tanggal_intake)) {
                     $error_duplikat = "Tanggal masuk shelter wajib diisi!";
+                } elseif ($tanggal_intake > date('Y-m-d')) {
+                    $error_duplikat = "Tanggal masuk shelter tidak boleh melebihi hari ini!";
                 } elseif ($sumber_intake === 'Donasi') {
                     if ($nama_donatur === '') {
                         $error_duplikat = "Nama donatur wajib diisi jika sumber hewan dari donasi!";

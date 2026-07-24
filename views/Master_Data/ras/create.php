@@ -9,7 +9,7 @@
     <div class="card" style="max-width: 600px;">
         <?php if (!empty($error_duplikat)): ?>
             <div style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-weight:600;font-size:14px;">
-                ⚠️ <?= htmlspecialchars($error_duplikat) ?>
+                ⚠️ <?= htmlspecialchars($error_duplikat) ?> <!-- Memberikan pesan eror tsbt ke dalam kotak secara aman -->
             </div>
         <?php endif; ?>
         <form action="index.php?page=ras_create" method="POST">

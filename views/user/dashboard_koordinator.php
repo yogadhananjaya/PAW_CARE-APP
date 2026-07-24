@@ -139,6 +139,11 @@ if (isset($_SESSION['role'])) {
             <div class="value"><?php echo $count_kandang; ?></div>
         </div>
 
+        <div>
+            <h3>Intake HEWAN</h3>
+            <div class="value"><?php echo $count_kandang; ?></div>
+            
+        </div>
     </div>
 
     <!-- ================================================================= -->
@@ -290,6 +295,8 @@ if (isset($_SESSION['role'])) {
                 🤝 Kelola Adopsi
             </a>
         </div>
+
+
 
     </div>
 

@@ -11,21 +11,18 @@
     <ul class="sidebar-links">
         <li>
             <?php if (($_SESSION['role'] ?? '') === 'SuperAdmin'): ?>
-                <a href="index.php?page=dashboard_superadmin"
-                    class="<?php if (!isset($_GET['page']) || $_GET['page'] == 'dashboard_superadmin')
-                        echo 'active'; ?>">
+                <a href="index.php?page=dashboard_superadmin" class="<?php if (!isset($_GET['page']) || $_GET['page'] == 'dashboard_superadmin')
+                    echo 'active'; ?>">
                     📊 Dashboard
                 </a>
             <?php elseif (($_SESSION['role'] ?? '') === 'Koordinator'): ?>
-                <a href="index.php?page=dashboard_koordinator"
-                    class="<?php if (!isset($_GET['page']) || $_GET['page'] == 'dashboard_koordinator')
-                        echo 'active'; ?>">
+                <a href="index.php?page=dashboard_koordinator" class="<?php if (!isset($_GET['page']) || $_GET['page'] == 'dashboard_koordinator')
+                    echo 'active'; ?>">
                     📊 Dashboard Koordinator
                 </a>
             <?php else: ?>
-                <a href="index.php?page=dashboard_staff"
-                    class="<?php if (!isset($_GET['page']) || $_GET['page'] == 'dashboard_staff')
-                        echo 'active'; ?>">
+                <a href="index.php?page=dashboard_staff" class="<?php if (!isset($_GET['page']) || $_GET['page'] == 'dashboard_staff')
+                    echo 'active'; ?>">
                     📊 Dashboard Perawat
                 </a>
             <?php endif; ?>
@@ -34,75 +31,62 @@
 
     <!-- KATEGORI DATA MASTER (Hanya untuk SuperAdmin) -->
     <?php if (($_SESSION['role'] ?? '') === 'SuperAdmin'): ?>
-    <div class="sidebar-section-title">Data Master</div>
-    <ul class="sidebar-links">
-        <li>
-            <!-- Tombol Dropdown Daftar Hewan -->
-            <div class="dropdown-toggle <?php if (isset($_GET['page']) && in_array($_GET['page'], ['hewan', 'jenis', 'ras']))
-                echo 'active'; ?>"
-                onclick="toggleDropdown()">
-                <span>🐾 Daftar Hewan</span>
-                <span
-                    id="caret-icon"><?php echo (isset($_GET['page']) && in_array($_GET['page'], ['hewan', 'jenis', 'ras'])) ? '▲' : '▼'; ?></span>
-            </div>
-            <ul class="sidebar-dropdown <?php if (isset($_GET['page']) && in_array($_GET['page'], ['hewan', 'jenis', 'ras']))
-                echo 'show'; ?>"
-                id="hewanDropdown">
-                <li><a href="index.php?page=hewan"
-                        class="<?php if (isset($_GET['page']) && $_GET['page'] == 'hewan')
-                            echo 'active'; ?>"><span
-                            class="sub-dot">🐕</span> Hewan</a></li>
-                <li><a href="index.php?page=jenis"
-                        class="<?php if (isset($_GET['page']) && $_GET['page'] == 'jenis')
-                            echo 'active'; ?>"><span
-                            class="sub-dot">📋</span> Jenis Hewan</a></li>
-                <li><a href="index.php?page=ras"
-                        class="<?php if (isset($_GET['page']) && $_GET['page'] == 'ras')
-                            echo 'active'; ?>"><span
-                            class="sub-dot">🏷️</span> Ras</a></li>
-            </ul>
-        </li>
-        <li>
-            <!-- Navigasi ke Data Kandang -->
-            <a href="index.php?page=kandang"
-                class="<?php if (isset($_GET['page']) && $_GET['page'] == 'kandang')
+        <div class="sidebar-section-title">Data Master</div>
+        <ul class="sidebar-links">
+            <li>
+                <!-- Tombol Dropdown Daftar Hewan -->
+                <div class="dropdown-toggle <?php if (isset($_GET['page']) && in_array($_GET['page'], ['hewan', 'jenis', 'ras']))
+                    echo 'active'; ?>" onclick="toggleDropdown()">
+                    <span>🐾 Daftar Hewan</span>
+                    <span
+                        id="caret-icon"><?php echo (isset($_GET['page']) && in_array($_GET['page'], ['hewan', 'jenis', 'ras'])) ? '▲' : '▼'; ?></span>
+                </div>
+                <ul class="sidebar-dropdown <?php if (isset($_GET['page']) && in_array($_GET['page'], ['hewan', 'jenis', 'ras']))
+                    echo 'show'; ?>" id="hewanDropdown">
+                    <li><a href="index.php?page=hewan" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'hewan')
+                        echo 'active'; ?>"><span class="sub-dot">🐕</span> Hewan</a></li>
+                    <li><a href="index.php?page=jenis" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'jenis')
+                        echo 'active'; ?>"><span class="sub-dot">📋</span> Jenis Hewan</a></li>
+                    <li><a href="index.php?page=ras" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'ras')
+                        echo 'active'; ?>"><span class="sub-dot">🏷️</span> Ras</a></li>
+                </ul>
+            </li>
+            <li>
+                <!-- Navigasi ke Data Kandang -->
+                <a href="index.php?page=kandang" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'kandang')
                     echo 'active'; ?>">
-                🏢 Kandang
-            </a>
-        </li>
-        <li>
-            <!-- Navigasi ke Data Vaksin -->
-            <a href="index.php?page=vaksin"
-                class="<?php if (isset($_GET['page']) && $_GET['page'] == 'vaksin')
+                    🏢 Kandang
+                </a>
+            </li>
+            <li>
+                <!-- Navigasi ke Data Vaksin -->
+                <a href="index.php?page=vaksin" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'vaksin')
                     echo 'active'; ?>">
-                💉 Vaksin
-            </a>
-        </li>
-        <li>
-            <!-- Navigasi ke Data Pengadopsi -->
-            <a href="index.php?page=pengadopsi"
-                class="<?php if (isset($_GET['page']) && $_GET['page'] == 'pengadopsi')
+                    💉 Vaksin
+                </a>
+            </li>
+            <li>
+                <!-- Navigasi ke Data Pengadopsi -->
+                <a href="index.php?page=pengadopsi" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'pengadopsi')
                     echo 'active'; ?>">
-                👥 Pengadopsi
-            </a>
-        </li>
-        <li>
-            <!-- Navigasi ke Data Akun Pengguna -->
-            <a href="index.php?page=pengguna"
-                class="<?php if (isset($_GET['page']) && $_GET['page'] == 'pengguna')
+                    👥 Pengadopsi
+                </a>
+            </li>
+            <li>
+                <!-- Navigasi ke Data Akun Pengguna -->
+                <a href="index.php?page=pengguna" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'pengguna')
                     echo 'active'; ?>">
-                🔒 Pengguna
-            </a>
-        </li>
-        <li>
-            <!-- Navigasi ke Data Donasi -->
-            <a href="index.php?page=donasi"
-                class="<?php if (isset($_GET['page']) && $_GET['page'] == 'donasi')
+                    🔒 Pengguna
+                </a>
+            </li>
+            <li>
+                <!-- Navigasi ke Data Donasi -->
+                <a href="index.php?page=donasi" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'donasi')
                     echo 'active'; ?>">
-                💰 Donasi
-            </a>
-        </li>
-    </ul>
+                    💰 Donasi
+                </a>
+            </li>
+        </ul>
     <?php endif; ?>
 
     <!-- KATEGORI DATA TRANSAKSI -->
@@ -111,39 +95,49 @@
         <?php if (($_SESSION['role'] ?? '') === 'Koordinator'): ?>
             <!-- Khusus Koordinator tampil langsung tanpa dropdown -->
             <li>
-                <a href="index.php?page=riwayat_kesehatan" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'riwayat_kesehatan') echo 'active'; ?>">
+                <a href="index.php?page=riwayat_kesehatan" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'riwayat_kesehatan')
+                    echo 'active'; ?>">
                     🩺 Riwayat Kesehatan
                 </a>
             </li>
             <li>
-                <a href="index.php?page=penempatan_kandang_koordinator" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'penempatan_kandang_koordinator') echo 'active'; ?>">
+                <a href="index.php?page=penempatan_kandang_koordinator" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'penempatan_kandang_koordinator')
+                    echo 'active'; ?>">
                     📦 Penempatan Kandang
                 </a>
             </li>
             <li>
-                <a href="index.php?page=jadwal_kunjungan" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'jadwal_kunjungan') echo 'active'; ?>">
+                <a href="index.php?page=jadwal_kunjungan" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'jadwal_kunjungan')
+                    echo 'active'; ?>">
                     📅 Jadwal Kunjungan
                 </a>
             </li>
             <li>
-                <a href="index.php?page=transaksi_adopsi" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'transaksi_adopsi') echo 'active'; ?>">
+                <a href="index.php?page=transaksi_adopsi" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'transaksi_adopsi')
+                    echo 'active'; ?>">
                     🤝 Transaksi Adopsi
                 </a>
+            </li>
+            <li>
+
             </li>
         <?php elseif (in_array($_SESSION['role'] ?? '', ['Perawat', 'Perawat Hewan'])): ?>
             <!-- Khusus Perawat/Staff tampil langsung tanpa dropdown, hanya modul relevan harian -->
             <li>
-                <a href="index.php?page=riwayat_kesehatan" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'riwayat_kesehatan') echo 'active'; ?>">
+                <a href="index.php?page=riwayat_kesehatan" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'riwayat_kesehatan')
+                    echo 'active'; ?>">
                     🩺 Riwayat Kesehatan
                 </a>
             </li>
             <li>
-                <a href="index.php?page=penempatan_kandang_koordinator" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'penempatan_kandang_koordinator') echo 'active'; ?>">
-                    📦 Penempatan Kandang 
+                <a href="index.php?page=penempatan_kandang_koordinator" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'penempatan_kandang_koordinator')
+                    echo 'active'; ?>">
+                    📦 Penempatan Kandang
                 </a>
             </li>
             <li>
-                <a href="index.php?page=hewan" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'hewan') echo 'active'; ?>">
+                <a href="index.php?page=hewan" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'hewan')
+                    echo 'active'; ?>">
                     🐕 Katalog Hewan
                 </a>
             </li>
@@ -151,31 +145,21 @@
             <!-- Tampilan biasa dengan dropdown untuk SuperAdmin -->
             <li>
                 <div class="dropdown-toggle <?php if (isset($_GET['page']) && in_array($_GET['page'], ['riwayat_kesehatan', 'penempatan_kandang_koordinator', 'jadwal_kunjungan', 'transaksi_adopsi']))
-                    echo 'active'; ?>"
-                    onclick="toggleTransaksi()">
+                    echo 'active'; ?>" onclick="toggleTransaksi()">
                     <span>📋 Data Transaksi</span>
                     <span
                         id="trans-icon"><?php echo (isset($_GET['page']) && in_array($_GET['page'], ['riwayat_kesehatan', 'penempatan_kandang_koordinator', 'jadwal_kunjungan', 'transaksi_adopsi'])) ? '▲' : '▼'; ?></span>
                 </div>
                 <ul class="sidebar-dropdown <?php if (isset($_GET['page']) && in_array($_GET['page'], ['riwayat_kesehatan', 'penempatan_kandang_koordinator', 'jadwal_kunjungan', 'transaksi_adopsi']))
-                    echo 'show'; ?>"
-                    id="transDropdown">
-                    <li><a href="index.php?page=riwayat_kesehatan"
-                            class="<?php if (isset($_GET['page']) && $_GET['page'] == 'riwayat_kesehatan')
-                                echo 'active'; ?>"><span
-                                class="sub-dot">🩺</span> Riwayat Kesehatan</a></li>
-                    <li><a href="index.php?page=penempatan_kandang_koordinator"
-                            class="<?php if (isset($_GET['page']) && $_GET['page'] == 'penempatan_kandang_koordinator')
-                                echo 'active'; ?>"><span
-                                class="sub-dot">📦</span> Penempatan Kandang</a></li>
-                    <li><a href="index.php?page=jadwal_kunjungan"
-                            class="<?php if (isset($_GET['page']) && $_GET['page'] == 'jadwal_kunjungan')
-                                echo 'active'; ?>"><span
-                                class="sub-dot">📅</span> Jadwal Kunjungan</a></li>
-                    <li><a href="index.php?page=transaksi_adopsi"
-                            class="<?php if (isset($_GET['page']) && $_GET['page'] == 'transaksi_adopsi')
-                                echo 'active'; ?>"><span
-                                class="sub-dot">🤝</span> Transaksi Adopsi</a></li>
+                    echo 'show'; ?>" id="transDropdown">
+                    <li><a href="index.php?page=riwayat_kesehatan" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'riwayat_kesehatan')
+                        echo 'active'; ?>"><span class="sub-dot">🩺</span> Riwayat Kesehatan</a></li>
+                    <li><a href="index.php?page=penempatan_kandang_koordinator" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'penempatan_kandang_koordinator')
+                        echo 'active'; ?>"><span class="sub-dot">📦</span> Penempatan Kandang</a></li>
+                    <li><a href="index.php?page=jadwal_kunjungan" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'jadwal_kunjungan')
+                        echo 'active'; ?>"><span class="sub-dot">📅</span> Jadwal Kunjungan</a></li>
+                    <li><a href="index.php?page=transaksi_adopsi" class="<?php if (isset($_GET['page']) && $_GET['page'] == 'transaksi_adopsi')
+                        echo 'active'; ?>"><span class="sub-dot">🤝</span> Transaksi Adopsi</a></li>
                 </ul>
             </li>
         <?php endif; ?>
@@ -183,13 +167,15 @@
         <?php if (($_SESSION['role'] ?? '') === 'SuperAdmin'): ?>
             <li>
                 <!-- Link Laporan Donasi Pemasukan PDF -->
-                <a href="index.php?page=report_donasi_pemasukan" target="_blank" style="color: #3498db; display: inline-block; margin-right: 10px;">
+                <a href="index.php?page=report_donasi_pemasukan" target="_blank"
+                    style="color: #3498db; display: inline-block; margin-right: 10px;">
                     📥 Laporan Pemasukan (PDF)
                 </a>
             </li>
             <li>
                 <!-- Link Laporan Donasi Semua PDF -->
-                <a href="index.php?page=report_donasi" target="_blank" style="color: #3498db; display: inline-block; margin-right: 10px;">
+                <a href="index.php?page=report_donasi" target="_blank"
+                    style="color: #3498db; display: inline-block; margin-right: 10px;">
                     📥 Laporan Donasi (PDF)
                 </a>
                 <a href="index.php?page=report_donasi_excel" style="color: #2ecc71; display: inline-block;">

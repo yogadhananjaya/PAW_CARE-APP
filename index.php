@@ -88,8 +88,8 @@ switch ($page) {
             if (isset($_SESSION['pending_adopter_id'])) {
                 $adopter_id = $_SESSION['pending_adopter_id'];
             } else {
-                $stmt_adopter = $pdo->prepare("SELECT id_pengadopsi FROM pengadopsi WHERE id_pengguna = ?");
-                $stmt_adopter->execute([$user_id]);
+                $stmt_adopter = $pdo->prepare("SELECT id_pengadopsi FROM pengadopsi WHERE nama_pengguna = ?");
+                $stmt_adopter->execute([$_SESSION['nama_pengguna']]);
                 $adopter_id = $stmt_adopter->fetchColumn();
             }
             
@@ -484,8 +484,8 @@ switch ($page) {
         // Ambil id_pengadopsi dan validasi cooldown 1 bulan via model helper
         require_once __DIR__ . '/app/models/PengadopsiModel.php';
         $pm = new PengadopsiModel();
-        $stmt_adopter = $pdo->prepare("SELECT id_pengadopsi FROM pengadopsi WHERE id_pengguna = ?");
-        $stmt_adopter->execute([$_SESSION['user_id']]);
+        $stmt_adopter = $pdo->prepare("SELECT id_pengadopsi FROM pengadopsi WHERE nama_pengguna = ?");
+        $stmt_adopter->execute([$_SESSION['username']]);
         $adopter_data = $stmt_adopter->fetch();
 
         if (!$adopter_data) {
